@@ -1,5 +1,14 @@
 """Orders Service - Manages customer orders and coordinates with Payments."""
 
+import os
+import sys
+from pathlib import Path
+
+# Ensure repository root is in sys.path
+_ROOT = Path(__file__).resolve().parents[3]
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
+
 import uuid
 from typing import Dict, Any, List
 import httpx
