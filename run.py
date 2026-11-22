@@ -113,9 +113,12 @@ def cmd_test(args: argparse.Namespace) -> int:
     if lint_res != 0:
         return lint_res
 
-    # Discover and run tests in /tests
+    # Discover and run tests in /tests and /target-app/tests
     loader = unittest.TestLoader()
     suite = loader.discover(start_dir=str(ROOT_DIR / "tests"), pattern="test_*.py")
+    target_app_tests = ROOT_DIR / "target-app" / "tests"
+    if target_app_tests.exists():
+        suite.addTests(loader.discover(start_dir=str(target_app_tests), pattern="test_*.py"))
     runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(suite)
 
@@ -239,6 +242,16 @@ def cmd_check_owners(args: argparse.Namespace) -> int:
         return 1
 
 
+def cmd_traffic(args: argparse.Namespace) -> int:
+    """Run the target app traffic generator."""
+    from target_app.traffic_generator import TrafficGenerator
+    rate = getattr(args, "rate", 10.0) or 10.0
+    duration = getattr(args, "duration", None)
+    target = getattr(args, "target", "http://127.0.0.1:8080/api/orders")
+    gen = TrafficGenerator(target_url=target, rate=rate, duration=duration)
+    return gen.run()
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="NightShift Monorepo Command Dispatcher")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -248,6 +261,11 @@ def main() -> None:
     subparsers.add_parser("lint", help="Run linting checks")
     subparsers.add_parser("reset", help="Reset caches & infra")
     subparsers.add_parser("check-owners", help="Check CODEOWNERS coverage")
+
+    traffic_parser = subparsers.add_parser("traffic", help="Run steady traffic generator")
+    traffic_parser.add_argument("--rate", "-r", type=float, default=10.0, help="Requests per second")
+    traffic_parser.add_argument("--duration", "-d", type=float, default=None, help="Duration in seconds")
+    traffic_parser.add_argument("--target", default="http://127.0.0.1:8080/api/orders", help="Target URL")
 
     demo_parser = subparsers.add_parser("demo", help="Run demo loop")
     demo_parser.add_argument("--fault", type=str, required=True, help="Fault ID to inject")
@@ -261,6 +279,7 @@ def main() -> None:
         "demo": cmd_demo,
         "reset": cmd_reset,
         "check-owners": cmd_check_owners,
+        "traffic": cmd_traffic,
     }
 
     handler = commands.get(args.command)
