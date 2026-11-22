@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  validate-and-test:
+    name: Lint, CODEOWNERS & Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff pytest
+
+      - name: Verify Environment & Make Up
+        run: |
+          make up
+
+      - name: Check CODEOWNERS Policy
+        run: |
+          make check-owners
+
+      - name: Run Linters & Tests
+        run: |
+          make test
+
+  branch-boundary-check:
+    name: Verify Directory Boundary Isolation
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify Branch Ownership Rules
+        run: |
+          python -c "
+          import subprocess, sys
+
+          branch = '${{ github.head_ref }}'
+          print(f'Checking PR branch: {branch}')
+
+          res = subprocess.run(['git', 'diff', '--name-only', 'origin/main...HEAD'], capture_output=True, text=True)
+          changed_files = [f.strip() for f in res.stdout.splitlines() if f.strip()]
+          print('Changed files:', changed_files)
+
+          b_dirs = ('agent/', 'fixer/', 'memory/', 'safety/', 'reporter/', 'dashboard/', 'pitch/', 'orchestrator/', 'tests/agent/', 'tests/fixer/', 'tests/memory/', 'tests/safety/', 'tests/reporter/', 'tests/dashboard/', 'tests/pitch/', 'tests/orchestrator/')
+          a_dirs = ('target-app/', 'infra/', 'faults/', 'detector/', 'platform_api/', 'deployer/', 'verifier/', 'bench/', 'tests/target-app/', 'tests/infra/', 'tests/faults/', 'tests/detector/', 'tests/platform_api/', 'tests/deployer/', 'tests/verifier/', 'tests/bench/')
+
+          if branch.startswith('a/'):
+              violating = [f for f in changed_files if any(f.startswith(b) for b in b_dirs)]
+              if violating:
+                  print(f'ERROR: Branch {branch} owned by Person A cannot modify Person B folders: {violating}', file=sys.stderr)
+                  sys.exit(1)
+          elif branch.startswith('b/'):
+              violating = [f for f in changed_files if any(f.startswith(a) for a in a_dirs)]
+              if violating:
+                  print(f'ERROR: Branch {branch} owned by Person B cannot modify Person A folders: {violating}', file=sys.stderr)
+                  sys.exit(1)
+
+          if any(f.startswith('contracts/') for f in changed_files):
+              print('NOTICE: PR modifies /contracts. Approval required from BOTH @person-a and @person-b.')
+          print('Branch boundary validation succeeded.')
+          "

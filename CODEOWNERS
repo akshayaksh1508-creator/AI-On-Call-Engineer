@@ -1,0 +1,47 @@
+# ==============================================================================
+# CODEOWNERS - NightShift AI On-Call Engineer Monorepo
+# Section 5: Directory ownership (no overlapping edits)
+# ==============================================================================
+
+# Default catch-all
+*                       @person-a @person-b
+
+# Shared Contracts: changed only via PR approved by both (Rule 3)
+/contracts/             @person-a @person-b
+/tests/contracts/       @person-a @person-b
+
+# Person A: Systems and Proof (runs or measures)
+/target-app/            @person-a
+/infra/                 @person-a
+/faults/                @person-a
+/detector/              @person-a
+/platform_api/          @person-a
+/deployer/              @person-a
+/verifier/              @person-a
+/bench/                 @person-a
+/tests/target-app/      @person-a
+/tests/infra/           @person-a
+/tests/faults/          @person-a
+/tests/detector/        @person-a
+/tests/platform_api/    @person-a
+/tests/deployer/        @person-a
+/tests/verifier/        @person-a
+/tests/bench/           @person-a
+
+# Person B: Brain and Trust (reasons or communicates)
+/agent/                 @person-b
+/fixer/                 @person-b
+/memory/                @person-b
+/safety/                @person-b
+/reporter/              @person-b
+/dashboard/             @person-b
+/pitch/                 @person-b
+/orchestrator/          @person-b
+/tests/agent/           @person-b
+/tests/fixer/           @person-b
+/tests/memory/          @person-b
+/tests/safety/          @person-b
+/tests/reporter/        @person-b
+/tests/dashboard/       @person-b
+/tests/pitch/           @person-b
+/tests/orchestrator/    @person-b
