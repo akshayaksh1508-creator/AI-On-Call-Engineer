@@ -115,10 +115,10 @@ def cmd_test(args: argparse.Namespace) -> int:
 
     # Discover and run tests in /tests and /target-app/tests
     loader = unittest.TestLoader()
-    suite = loader.discover(start_dir=str(ROOT_DIR / "tests"), pattern="test_*.py")
+    suite = loader.discover(start_dir=str(ROOT_DIR / "tests"), top_level_dir=str(ROOT_DIR), pattern="test_*.py")
     target_app_tests = ROOT_DIR / "target-app" / "tests"
     if target_app_tests.exists():
-        suite.addTests(loader.discover(start_dir=str(target_app_tests), pattern="test_*.py"))
+        suite.addTests(loader.discover(start_dir=str(target_app_tests), top_level_dir=str(target_app_tests), pattern="test_*.py"))
     runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(suite)
 

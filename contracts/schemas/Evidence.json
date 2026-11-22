@@ -1,0 +1,46 @@
+{
+  "description": "An empirical piece of telemetry, git history, or past incident cited by the agent.",
+  "properties": {
+    "id": {
+      "description": "Evidence reference ID cited by hypotheses, e.g. ev_log_001",
+      "title": "Id",
+      "type": "string"
+    },
+    "type": {
+      "description": "Type of evidence",
+      "enum": [
+        "log",
+        "metric",
+        "commit",
+        "config",
+        "past_incident"
+      ],
+      "title": "Type",
+      "type": "string"
+    },
+    "ref": {
+      "description": "Pointer to source: commit SHA, metric name, log timestamp, file path",
+      "title": "Ref",
+      "type": "string"
+    },
+    "excerpt": {
+      "description": "Relevant text, snippet, or metric data points",
+      "title": "Excerpt",
+      "type": "string"
+    },
+    "ts": {
+      "description": "ISO 8601 timestamp of the observed evidence",
+      "title": "Ts",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "type",
+    "ref",
+    "excerpt",
+    "ts"
+  ],
+  "title": "Evidence",
+  "type": "object"
+}

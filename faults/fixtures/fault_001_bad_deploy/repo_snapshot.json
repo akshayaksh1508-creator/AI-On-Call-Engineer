@@ -1,0 +1,23 @@
+{
+  "commits": [
+    {
+      "commit": "c0ffee14a",
+      "author": "dev-lead@nightshift.local",
+      "date": "2026-11-22 21:38:00 +0000",
+      "message": "feat(orders): add VIP discount code handling\n\nDirectly lookup VIP discount code on incoming order payload."
+    },
+    {
+      "commit": "a1b2c3d4e",
+      "author": "dev-ops@nightshift.local",
+      "date": "2026-11-22 20:00:00 +0000",
+      "message": "chore: v1.0.0 initial microservice release\n\nStable baseline with orders, payments, and gateway services."
+    }
+  ],
+  "diffs": {
+    "c0ffee14a": "diff --git a/target-app/services/orders/main.py b/target-app/services/orders/main.py\nindex 81a4b92..c0ffee1 100644\n--- a/target-app/services/orders/main.py\n+++ b/target-app/services/orders/main.py\n@@ -38,6 +38,11 @@ async def create_order(request: Request):\n     data = await request.json()\n     price = float(data.get(\"price\", 0.0))\n \n+    # VIP discount code feature\n+    discount = data.get(\"discount\")\n+    discount_code = discount[\"code\"]\n+    if discount_code == \"VIP50\":\n+        price = price * 0.50\n \n     order_id = f\"ord_{uuid.uuid4().hex[:8]}\"\n     save_order(order_id, price)",
+    "HEAD~1..HEAD": "diff --git a/target-app/services/orders/main.py b/target-app/services/orders/main.py\nindex 81a4b92..c0ffee1 100644\n--- a/target-app/services/orders/main.py\n+++ b/target-app/services/orders/main.py\n@@ -38,6 +38,11 @@ async def create_order(request: Request):\n     data = await request.json()\n     price = float(data.get(\"price\", 0.0))\n \n+    # VIP discount code feature\n+    discount = data.get(\"discount\")\n+    discount_code = discount[\"code\"]\n+    if discount_code == \"VIP50\":\n+        price = price * 0.50\n \n     order_id = f\"ord_{uuid.uuid4().hex[:8]}\"\n     save_order(order_id, price)"
+  },
+  "files": {
+    "target-app/services/orders/main.py": "# NightShift Orders Service (v1.0.1 with VIP bug)\nimport uuid\nfrom fastapi import FastAPI, Request\nfrom fastapi.responses import JSONResponse\n\napp = FastAPI(title=\"Orders Service\")\n\n@app.get(\"/health\")\ndef health():\n    return {\"status\": \"ok\", \"service\": \"orders\", \"version\": \"v1.0.1\"}\n\n@app.post(\"/orders\")\nasync def create_order(request: Request):\n    data = await request.json()\n    price = float(data.get(\"price\", 0.0))\n\n    # VIP discount code feature (BUGGY: assumes discount is always a dict)\n    discount = data.get(\"discount\")\n    discount_code = discount[\"code\"]\n    if discount_code == \"VIP50\":\n        price = price * 0.50\n\n    order_id = f\"ord_{uuid.uuid4().hex[:8]}\"\n    return {\"status\": \"created\", \"order_id\": order_id, \"price\": price}\n"
+  }
+}

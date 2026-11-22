@@ -1,0 +1,101 @@
+[
+  {
+    "service": "gateway",
+    "trace_id": "trace-baseline-001",
+    "timestamp": "2026-11-22T21:35:10.100Z",
+    "level": "INFO",
+    "message": "POST /api/orders completed with status 200 in 0.0152s",
+    "path": "/api/orders",
+    "method": "POST",
+    "status": 200
+  },
+  {
+    "service": "orders",
+    "trace_id": "trace-baseline-001",
+    "timestamp": "2026-11-22T21:35:10.050Z",
+    "level": "INFO",
+    "message": "Order ord_b001 created successfully. Status: confirmed",
+    "order_id": "ord_b001",
+    "status": 200
+  },
+  {
+    "service": "orders",
+    "trace_id": "deploy-event",
+    "timestamp": "2026-11-22T21:38:15.000Z",
+    "level": "INFO",
+    "message": "Deploying version v1.0.1 (commit c0ffee14a): feat(orders): add VIP discount code handling",
+    "version": "v1.0.1"
+  },
+  {
+    "service": "gateway",
+    "trace_id": "trace-fail-001",
+    "timestamp": "2026-11-22T21:40:02.100Z",
+    "level": "INFO",
+    "message": "Handling POST /api/orders",
+    "path": "/api/orders",
+    "method": "POST"
+  },
+  {
+    "service": "orders",
+    "trace_id": "trace-fail-001",
+    "timestamp": "2026-11-22T21:40:02.120Z",
+    "level": "INFO",
+    "message": "Handling POST /orders",
+    "path": "/orders",
+    "method": "POST"
+  },
+  {
+    "service": "orders",
+    "trace_id": "trace-fail-001",
+    "timestamp": "2026-11-22T21:40:02.145Z",
+    "level": "ERROR",
+    "message": "Unhandled exception in create_order: TypeError: 'NoneType' object is not subscriptable",
+    "error": "TypeError: 'NoneType' object is not subscriptable",
+    "stack_trace": "File \"target-app/services/orders/main.py\", line 42, in create_order\n    discount_code = request.discount['code']\nTypeError: 'NoneType' object is not subscriptable",
+    "status": 500
+  },
+  {
+    "service": "orders",
+    "trace_id": "trace-fail-001",
+    "timestamp": "2026-11-22T21:40:02.148Z",
+    "level": "ERROR",
+    "message": "POST /orders failed with status 500 in 0.0280s",
+    "status": 500
+  },
+  {
+    "service": "gateway",
+    "trace_id": "trace-fail-001",
+    "timestamp": "2026-11-22T21:40:02.155Z",
+    "level": "ERROR",
+    "message": "Downstream orders service failed with status 500",
+    "downstream": "http://127.0.0.1:8081/orders",
+    "status": 500
+  },
+  {
+    "service": "gateway",
+    "trace_id": "trace-fail-002",
+    "timestamp": "2026-11-22T21:40:05.300Z",
+    "level": "INFO",
+    "message": "Handling POST /api/orders",
+    "path": "/api/orders",
+    "method": "POST"
+  },
+  {
+    "service": "orders",
+    "trace_id": "trace-fail-002",
+    "timestamp": "2026-11-22T21:40:05.320Z",
+    "level": "ERROR",
+    "message": "Unhandled exception in create_order: TypeError: 'NoneType' object is not subscriptable",
+    "error": "TypeError: 'NoneType' object is not subscriptable",
+    "stack_trace": "File \"target-app/services/orders/main.py\", line 42, in create_order\n    discount_code = request.discount['code']\nTypeError: 'NoneType' object is not subscriptable",
+    "status": 500
+  },
+  {
+    "service": "gateway",
+    "trace_id": "trace-fail-002",
+    "timestamp": "2026-11-22T21:40:05.335Z",
+    "level": "ERROR",
+    "message": "POST /api/orders failed with status 500 in 0.0350s",
+    "status": 500
+  }
+]

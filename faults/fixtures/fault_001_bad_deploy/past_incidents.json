@@ -1,0 +1,22 @@
+[
+  {
+    "id": "inc_20261015_004",
+    "service": "orders",
+    "title": "Null pointer in orders service discount calculation",
+    "symptoms": ["500 error spike on POST /orders following promo release"],
+    "root_cause": "Optional discount field accessed without null check in request dictionary",
+    "resolution": "Safely dereference discount dictionary using request.get('discount', {}) or check if discount is None before indexing",
+    "culprit_commit": "e8d9f10a",
+    "risk_tier": "T2"
+  },
+  {
+    "id": "inc_20260902_001",
+    "service": "payments",
+    "title": "Payment gateway timeout under connection exhaustion",
+    "symptoms": ["Payments service latency p99 > 5s", "Gateway 504 gateway timeout"],
+    "root_cause": "Connection pool size too small for concurrent requests",
+    "resolution": "Increased HTTP connection pool size from 10 to 100",
+    "culprit_commit": "bb4411aa",
+    "risk_tier": "T1"
+  }
+]

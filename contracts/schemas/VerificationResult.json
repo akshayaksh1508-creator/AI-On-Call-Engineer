@@ -1,0 +1,64 @@
+{
+  "description": "Multi-stage proof demonstrating whether a proposed fix recovered system health.",
+  "properties": {
+    "tests_passed": {
+      "description": "Unit test suite passed in an isolated git worktree",
+      "title": "Tests Passed",
+      "type": "boolean"
+    },
+    "repro_fixed": {
+      "description": "Reproduction script replaying the failing request passed on fix",
+      "title": "Repro Fixed",
+      "type": "boolean"
+    },
+    "canary_healthy": {
+      "description": "Canary deployment showed error rate within baseline + 1%",
+      "title": "Canary Healthy",
+      "type": "boolean"
+    },
+    "metric_before": {
+      "description": "Production error rate or latency before remediation",
+      "title": "Metric Before",
+      "type": "number"
+    },
+    "metric_after": {
+      "description": "Production error rate or latency after remediation",
+      "title": "Metric After",
+      "type": "number"
+    },
+    "recovered_at": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "ISO 8601 timestamp when metrics recovered",
+      "title": "Recovered At"
+    },
+    "verdict": {
+      "description": "Final verification outcome",
+      "enum": [
+        "PASS",
+        "FAIL",
+        "ROLLBACK",
+        "ESCALATE"
+      ],
+      "title": "Verdict",
+      "type": "string"
+    }
+  },
+  "required": [
+    "tests_passed",
+    "repro_fixed",
+    "canary_healthy",
+    "metric_before",
+    "metric_after",
+    "verdict"
+  ],
+  "title": "VerificationResult",
+  "type": "object"
+}
