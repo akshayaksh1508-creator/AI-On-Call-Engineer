@@ -52,9 +52,35 @@ def run_gateway(port: int = settings.GATEWAY_PORT):
     uvicorn.run(app, host="127.0.0.1", port=port, log_level="warning")
 
 
+def free_ports(ports):
+    """Automatically free ports if previously orphaned processes are still holding them."""
+    import subprocess
+    current_pid = os.getpid()
+    for port in ports:
+        try:
+            if sys.platform == "win32":
+                res = subprocess.run(
+                    ["powershell", "-NoProfile", "-Command",
+                     f"Get-NetTCPConnection -LocalPort {port} -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess"],
+                    capture_output=True, text=True, check=False
+                )
+                for line in res.stdout.strip().splitlines():
+                    pid = line.strip()
+                    if pid.isdigit() and int(pid) != current_pid:
+                        subprocess.run(
+                            ["powershell", "-NoProfile", "-Command", f"Stop-Process -Id {pid} -Force -ErrorAction SilentlyContinue"],
+                            capture_output=True, check=False
+                        )
+        except Exception:
+            pass
+
+
 def main():
     # Support Windows multiprocessing spawn freeze
     multiprocessing.freeze_support()
+
+    # Free ports if any lingering processes are listening
+    free_ports([settings.PAYMENTS_PORT, settings.ORDERS_PORT, settings.GATEWAY_PORT])
 
     print("Starting NightShift Target App Services...")
     print(f"  - Payments Service: http://127.0.0.1:{settings.PAYMENTS_PORT}")
