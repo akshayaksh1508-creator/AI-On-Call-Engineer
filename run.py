@@ -150,6 +150,22 @@ def cmd_reset(args: argparse.Namespace) -> int:
         print("Stopping Docker containers...")
         subprocess.run(["docker", "compose", "-f", str(compose_file), "down", "-v", "--remove-orphans"])
 
+    # Free local microservice ports if running natively
+    if sys.platform == "win32":
+        for port in [8080, 8081, 8082, 9090]:
+            try:
+                res = subprocess.run(
+                    ["powershell", "-NoProfile", "-Command",
+                     f"Get-NetTCPConnection -LocalPort {port} -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess"],
+                    capture_output=True, text=True, check=False
+                )
+                for line in res.stdout.strip().splitlines():
+                    pid = line.strip()
+                    if pid.isdigit() and int(pid) != os.getpid():
+                        subprocess.run(["powershell", "-NoProfile", "-Command", f"Stop-Process -Id {pid} -Force -ErrorAction SilentlyContinue"], capture_output=True)
+            except Exception:
+                pass
+
     # Remove temporary caches
     patterns = ["__pycache__", ".pytest_cache", ".ruff_cache", ".mypy_cache"]
     removed_count = 0
