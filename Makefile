@@ -3,7 +3,7 @@
 # Required targets: up, test, demo, reset (plus lint, help)
 # ==============================================================================
 
-.PHONY: help up test demo reset lint check-owners
+.PHONY: help up test demo reset lint check-owners traffic
 
 SHELL := /bin/bash
 PYTHON ?= python
@@ -14,11 +14,16 @@ help:
 	@echo "Available commands:"
 	@echo "  make up          - Start target app, telemetry, and platform API services"
 	@echo "  make test        - Run linters, contract tests, and unit test suite"
+	@echo "  make traffic     - Run steady traffic generator (10 rps)"
 	@echo "  make demo FAULT=<id> - Run end-to-end autonomous incident resolution demo"
 	@echo "  make reset       - Teardown all containers, wipe test state, clean caches"
 	@echo "  make lint        - Run static analysis and linting checks"
 	@echo "  make check-owners- Verify directory ownership against CODEOWNERS"
 	@echo ""
+
+traffic:
+	@echo "==> Running Traffic Generator at 10 rps..."
+	$(PYTHON) run.py traffic --rate 10
 
 up:
 	@echo "==> Starting NightShift Target App & Infrastructure..."

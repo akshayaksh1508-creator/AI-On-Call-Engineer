@@ -28,8 +28,15 @@ class Settings:
         Path(__file__).resolve().parent.parent.parent / "data" / "target_app_orders.db"
     )
 
-    # Service Versions
-    VERSION: str = os.environ.get("APP_VERSION", "1.0.0")
+    # Service Versions (dynamically read from version.txt if available)
+    @property
+    def VERSION(self) -> str:
+        version_file = Path(__file__).resolve().parent.parent / "version.txt"
+        if version_file.exists():
+            v = version_file.read_text(encoding="utf-8").strip()
+            if v:
+                return v
+        return os.environ.get("APP_VERSION", "1.0.0")
 
 
 settings = Settings()

@@ -12,16 +12,29 @@
 
 param(
     [Parameter(Position=0, Mandatory=$false)]
-    [ValidateSet("help", "up", "test", "demo", "reset", "lint", "check-owners")]
+    [ValidateSet("help", "up", "test", "demo", "reset", "lint", "check-owners", "traffic")]
     [string]$Target = "help",
 
     [Parameter(Mandatory=$false)]
-    [string]$Fault = ""
+    [string]$Fault = "",
+
+    [Parameter(Mandatory=$false)]
+    [double]$Rate = 10.0,
+
+    [Parameter(Mandatory=$false)]
+    [double]$Duration = 0.0
 )
 
 $ErrorActionPreference = "Stop"
 
 switch ($Target) {
+    "traffic" {
+        $cmd = "python run.py traffic --rate $Rate"
+        if ($Duration -gt 0) {
+            $cmd += " --duration $Duration"
+        }
+        Invoke-Expression $cmd
+    }
     "up" {
         python run.py up
     }

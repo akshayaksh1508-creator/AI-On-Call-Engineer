@@ -56,6 +56,7 @@ htmlcov/
 *~
 .DS_Store
 Thumbs.db
+target-app/.git/
 
 # Runtime data & temp files
 *.log
