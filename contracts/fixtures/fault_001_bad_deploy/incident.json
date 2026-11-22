@@ -1,0 +1,18 @@
+{
+  "id": "inc_20261122_001",
+  "service": "orders",
+  "started_at": "2026-11-22T21:40:00Z",
+  "symptoms": [
+    "HTTP 500 error rate spiked to 35% on POST /orders",
+    "Gateway returning 502/500 errors for checkout flow",
+    "Customer checkout drop-off detected"
+  ],
+  "alerts": [
+    "OrdersHigh5xxRate",
+    "CheckoutFailureSpike"
+  ],
+  "recent_changes": [
+    "dep_20261122_v1.0.1"
+  ],
+  "status": "open"
+}

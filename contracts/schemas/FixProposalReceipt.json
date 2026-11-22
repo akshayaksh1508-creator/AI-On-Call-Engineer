@@ -1,0 +1,52 @@
+{
+  "description": "Confirmation receipt returned after proposing a fix to the platform.",
+  "properties": {
+    "status": {
+      "default": "accepted",
+      "enum": [
+        "accepted",
+        "rejected",
+        "queued"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "proposal_id": {
+      "title": "Proposal Id",
+      "type": "string"
+    },
+    "risk_tier": {
+      "enum": [
+        "T0",
+        "T1",
+        "T2",
+        "T3"
+      ],
+      "title": "Risk Tier",
+      "type": "string"
+    },
+    "message": {
+      "title": "Message",
+      "type": "string"
+    },
+    "target_service": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Target Service"
+    }
+  },
+  "required": [
+    "proposal_id",
+    "risk_tier",
+    "message"
+  ],
+  "title": "FixProposalReceipt",
+  "type": "object"
+}

@@ -1,0 +1,79 @@
+{
+  "description": "Benchmark evaluation record for an incident run.",
+  "properties": {
+    "incident_id": {
+      "title": "Incident Id",
+      "type": "string"
+    },
+    "fault_id": {
+      "title": "Fault Id",
+      "type": "string"
+    },
+    "t_detect": {
+      "description": "Seconds from fault injection to incident creation",
+      "title": "T Detect",
+      "type": "number"
+    },
+    "t_rca": {
+      "description": "Seconds spent in root cause analysis",
+      "title": "T Rca",
+      "type": "number"
+    },
+    "t_fix": {
+      "description": "Seconds spent generating fix proposal",
+      "title": "T Fix",
+      "type": "number"
+    },
+    "t_verified": {
+      "description": "Seconds spent verifying recovery",
+      "title": "T Verified",
+      "type": "number"
+    },
+    "rca_correct_top1": {
+      "description": "Did top-1 hypothesis match ground truth?",
+      "title": "Rca Correct Top1",
+      "type": "boolean"
+    },
+    "rca_correct_top3": {
+      "description": "Did top-3 hypotheses contain ground truth?",
+      "title": "Rca Correct Top3",
+      "type": "boolean"
+    },
+    "fix_ok": {
+      "description": "Did the fix restore health without human intervention?",
+      "title": "Fix Ok",
+      "type": "boolean"
+    },
+    "unsafe": {
+      "default": false,
+      "description": "Did the action violate safety rules or worsen metrics?",
+      "title": "Unsafe",
+      "type": "boolean"
+    },
+    "tokens": {
+      "default": 0,
+      "description": "Total tokens consumed by LLM calls",
+      "title": "Tokens",
+      "type": "integer"
+    },
+    "cost_usd": {
+      "default": 0.0,
+      "description": "Estimated total API cost in USD",
+      "title": "Cost Usd",
+      "type": "number"
+    }
+  },
+  "required": [
+    "incident_id",
+    "fault_id",
+    "t_detect",
+    "t_rca",
+    "t_fix",
+    "t_verified",
+    "rca_correct_top1",
+    "rca_correct_top3",
+    "fix_ok"
+  ],
+  "title": "RunRecord",
+  "type": "object"
+}

@@ -1,0 +1,33 @@
+{
+  "description": "Git commit information.",
+  "properties": {
+    "commit": {
+      "description": "Commit SHA",
+      "title": "Commit",
+      "type": "string"
+    },
+    "author": {
+      "description": "Commit author",
+      "title": "Author",
+      "type": "string"
+    },
+    "date": {
+      "description": "Commit date",
+      "title": "Date",
+      "type": "string"
+    },
+    "message": {
+      "description": "Commit subject and body",
+      "title": "Message",
+      "type": "string"
+    }
+  },
+  "required": [
+    "commit",
+    "author",
+    "date",
+    "message"
+  ],
+  "title": "CommitRecord",
+  "type": "object"
+}

@@ -1,0 +1,64 @@
+{
+  "description": "Represents an active or recorded system incident detected from telemetry.",
+  "properties": {
+    "id": {
+      "description": "Unique incident identifier, e.g. inc_20261122_001",
+      "title": "Id",
+      "type": "string"
+    },
+    "service": {
+      "description": "Primary service manifesting symptoms, e.g. orders",
+      "title": "Service",
+      "type": "string"
+    },
+    "started_at": {
+      "description": "ISO 8601 timestamp when anomaly was first detected",
+      "title": "Started At",
+      "type": "string"
+    },
+    "symptoms": {
+      "description": "Observed symptoms e.g. 'error rate > 20%'",
+      "items": {
+        "type": "string"
+      },
+      "title": "Symptoms",
+      "type": "array"
+    },
+    "alerts": {
+      "description": "Triggered alert names, e.g. 'Orders5xxSpike'",
+      "items": {
+        "type": "string"
+      },
+      "title": "Alerts",
+      "type": "array"
+    },
+    "recent_changes": {
+      "description": "IDs or summaries of deploys/config changes in the 30 minutes prior to incident start",
+      "items": {
+        "type": "string"
+      },
+      "title": "Recent Changes",
+      "type": "array"
+    },
+    "status": {
+      "default": "open",
+      "enum": [
+        "open",
+        "investigating",
+        "mitigating",
+        "verifying",
+        "resolved",
+        "escalated"
+      ],
+      "title": "Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "service",
+    "started_at"
+  ],
+  "title": "Incident",
+  "type": "object"
+}

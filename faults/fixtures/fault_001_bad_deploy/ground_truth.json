@@ -1,0 +1,13 @@
+{
+  "fault_id": "fault_001_bad_deploy",
+  "category": "code",
+  "difficulty": "easy",
+  "service": "orders",
+  "culprit_change": "dep_20261122_v1.0.1",
+  "culprit_commit": "c0ffee14a",
+  "root_cause": "TypeError: 'NoneType' object is not subscriptable when order payload lacks a discount key in create_order()",
+  "expected_fix_type": "patch",
+  "alternative_fix_type": "rollback",
+  "suggested_patch": "--- a/target-app/services/orders/main.py\n+++ b/target-app/services/orders/main.py\n@@ -40,3 +40,3 @@\n-    discount_code = discount[\"code\"]\n+    discount_code = discount.get(\"code\") if isinstance(discount, dict) else None",
+  "risk_tier": "T2"
+}

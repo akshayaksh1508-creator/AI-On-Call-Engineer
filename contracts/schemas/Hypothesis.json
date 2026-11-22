@@ -1,0 +1,58 @@
+{
+  "description": "A root cause explanation produced by the investigator LLM agent.",
+  "properties": {
+    "cause": {
+      "description": "Detailed explanation of the root cause failure mechanism",
+      "title": "Cause",
+      "type": "string"
+    },
+    "category": {
+      "description": "Failure classification",
+      "enum": [
+        "code",
+        "config",
+        "resource",
+        "cross_service",
+        "dependency",
+        "unknown"
+      ],
+      "title": "Category",
+      "type": "string"
+    },
+    "confidence": {
+      "description": "Confidence score between 0.0 and 1.0 (calibrated against benchmarks)",
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "evidence_ids": {
+      "description": "IDs of Evidence objects supporting this hypothesis. Uncited claims are marked as guesses.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Ids",
+      "type": "array"
+    },
+    "culprit_change": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Specific commit ref, deploy ID, or config revision identified as the culprit change",
+      "title": "Culprit Change"
+    }
+  },
+  "required": [
+    "cause",
+    "category",
+    "confidence"
+  ],
+  "title": "Hypothesis",
+  "type": "object"
+}

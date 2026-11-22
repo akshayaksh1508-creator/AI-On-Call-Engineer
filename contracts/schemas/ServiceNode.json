@@ -1,0 +1,70 @@
+{
+  "description": "Microservice or infrastructure node in the dependency graph.",
+  "properties": {
+    "name": {
+      "description": "Service identifier, e.g. orders",
+      "title": "Name",
+      "type": "string"
+    },
+    "type": {
+      "default": "service",
+      "enum": [
+        "service",
+        "database",
+        "telemetry",
+        "external"
+      ],
+      "title": "Type",
+      "type": "string"
+    },
+    "port": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Port"
+    },
+    "health_endpoint": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Health Endpoint"
+    },
+    "metrics_endpoint": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Metrics Endpoint"
+    },
+    "dependencies": {
+      "description": "Downstream dependency names",
+      "items": {
+        "type": "string"
+      },
+      "title": "Dependencies",
+      "type": "array"
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "title": "ServiceNode",
+  "type": "object"
+}

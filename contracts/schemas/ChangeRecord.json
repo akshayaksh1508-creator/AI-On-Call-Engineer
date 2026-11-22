@@ -1,0 +1,98 @@
+{
+  "description": "Record of a code deployment or configuration change.",
+  "properties": {
+    "id": {
+      "description": "Unique deploy/change ID, e.g. dep_20261122_v1.0.1",
+      "title": "Id",
+      "type": "string"
+    },
+    "service": {
+      "description": "Target service",
+      "title": "Service",
+      "type": "string"
+    },
+    "timestamp": {
+      "description": "ISO 8601 timestamp of change",
+      "title": "Timestamp",
+      "type": "string"
+    },
+    "version": {
+      "description": "Deployed version string",
+      "title": "Version",
+      "type": "string"
+    },
+    "git_commit": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Git commit SHA or short ref",
+      "title": "Git Commit"
+    },
+    "git_branch": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Git branch name",
+      "title": "Git Branch"
+    },
+    "author": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Author or deployer",
+      "title": "Author"
+    },
+    "message": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Commit message or change description",
+      "title": "Message"
+    },
+    "config_diff": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Diff if config change",
+      "title": "Config Diff"
+    }
+  },
+  "required": [
+    "id",
+    "service",
+    "timestamp",
+    "version"
+  ],
+  "title": "ChangeRecord",
+  "type": "object"
+}
