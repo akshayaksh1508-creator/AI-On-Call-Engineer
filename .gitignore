@@ -59,5 +59,7 @@ Thumbs.db
 
 # Runtime data & temp files
 *.log
+logs/
+data/
 scratch/
 tmp/
