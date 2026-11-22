@@ -252,6 +252,48 @@ def cmd_traffic(args: argparse.Namespace) -> int:
     return gen.run()
 
 
+def cmd_inject(args: argparse.Namespace) -> int:
+    """Inject a known fault into the target system."""
+    from faults.injector import injector
+    fault_id = getattr(args, "fault_id", "fault_001_bad_deploy")
+    print(f"==> [FAULT] Injecting fault: {fault_id}...")
+    res = injector.apply(fault_id)
+    print(f"Status: {res['status']}")
+    print(f"Message: {res['message']}")
+    return 0
+
+
+def cmd_revert(args: argparse.Namespace) -> int:
+    """Revert active fault and restore healthy baseline."""
+    from faults.injector import injector
+    fault_id = getattr(args, "fault_id", None)
+    print("==> [FAULT] Reverting fault...")
+    res = injector.revert(fault_id)
+    print(f"Status: {res['status']}")
+    print(f"Message: {res['message']}")
+    return 0
+
+
+def cmd_list_faults(args: argparse.Namespace) -> int:
+    """List all registered faults."""
+    from faults.injector import injector
+    fault_list = injector.list_faults()
+    print(f"==> [FAULT] Registered faults ({len(fault_list)}):")
+    for f in fault_list:
+        print(f"  - {f.get('fault_id')}: {f.get('title')} ({f.get('category')}, service: {f.get('target_service')})")
+    return 0
+
+
+def cmd_fault_status(args: argparse.Namespace) -> int:
+    """Print active fault status."""
+    import json
+    from faults.injector import injector
+    st = injector.status()
+    print("==> [FAULT] Current status:")
+    print(json.dumps(st, indent=2))
+    return 0
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="NightShift Monorepo Command Dispatcher")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -267,6 +309,15 @@ def main() -> None:
     traffic_parser.add_argument("--duration", "-d", type=float, default=None, help="Duration in seconds")
     traffic_parser.add_argument("--target", default="http://127.0.0.1:8080/api/orders", help="Target URL")
 
+    inject_parser = subparsers.add_parser("inject", help="Inject a fault")
+    inject_parser.add_argument("fault_id", nargs="?", default="fault_001_bad_deploy", help="Fault ID to inject")
+
+    revert_parser = subparsers.add_parser("revert", help="Revert active fault")
+    revert_parser.add_argument("fault_id", nargs="?", default=None, help="Fault ID to revert")
+
+    subparsers.add_parser("list-faults", help="List all registered benchmark faults")
+    subparsers.add_parser("fault-status", help="Show current fault injection status")
+
     demo_parser = subparsers.add_parser("demo", help="Run demo loop")
     demo_parser.add_argument("--fault", type=str, required=True, help="Fault ID to inject")
 
@@ -280,6 +331,10 @@ def main() -> None:
         "reset": cmd_reset,
         "check-owners": cmd_check_owners,
         "traffic": cmd_traffic,
+        "inject": cmd_inject,
+        "revert": cmd_revert,
+        "list-faults": cmd_list_faults,
+        "fault-status": cmd_fault_status,
     }
 
     handler = commands.get(args.command)
