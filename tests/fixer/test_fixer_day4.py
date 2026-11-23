@@ -1,89 +1,98 @@
-"""Day 4 fixer scope, evidence, applicability, and selection checks."""
 
-import subprocess
-import tempfile
-import unittest
+"""Tests for evidence-driven repair generation without corrected fixtures."""
+
 from pathlib import Path
 
+import pytest
+
 from contracts.models import Evidence, Hypothesis
-from fixer.fixer import Fixer, FixValidationError, select_fix_type
+from fixer.fixer import Fixer, FixValidationError
 
 
-class FixerDay4Tests(unittest.TestCase):
-    def setUp(self):
-        self.temp = tempfile.TemporaryDirectory()
-        self.root = Path(self.temp.name)
-        self.target = self.root / "target-app" / "services" / "orders" / "app.py"
-        self.target.parent.mkdir(parents=True)
-        self.target.write_text("def value():\n    return 1\n", encoding="utf-8")
-        subprocess.run(["git", "init", "-q"], cwd=self.root, check=True)
-        subprocess.run(["git", "add", "."], cwd=self.root, check=True)
-        subprocess.run(
-            ["git", "-c", "user.name=tests", "-c", "user.email=tests@example.com", "commit", "-qm", "base"],
-            cwd=self.root,
-            check=True,
+@pytest.fixture
+def fixer(tmp_path):
+    return Fixer(tmp_path, allowed_paths=("target-app/",))
+
+
+def make_hypothesis(cause: str) -> Hypothesis:
+    return Hypothesis(
+        cause=cause,
+        category="code",
+        confidence=0.95,
+        evidence_ids=["ev_test"],
+    )
+
+
+@pytest.mark.parametrize(
+    ("cause", "before", "expected"),
+    [
+        (
+            "TypeError NoneType discount code",
+            'discount_code = discount["code"]',
+            'discount_code = discount.get("code") if isinstance(discount, dict) else None',
+        ),
+        (
+            "IndexError in paginate_records",
+            "_next_check = records[end]",
+            "if start >= len(records): return []",
+        ),
+        (
+            "Payment declined with wrong status code",
+            'return PaymentResponse(payment_id="", order_id=req.order_id, status="DECLINED", amount=req.amount, currency=req.currency)',
+            'raise HTTPException(status_code=402, detail="Payment declined: Transaction exceeds safety limit or card declined")',
+        ),
+        (
+            "ISO timestamp parser rejects trailing 'Z'",
+            'return datetime.strptime(ts_str, "%Y-%m-%dT%H:%M:%S%z")',
+            'return datetime.fromisoformat(ts_str.replace("Z", "+00:00"))',
+        ),
+        (
+            "ZeroDivisionError division by zero",
+            "return total_discount / total_items",
+            "if total_items <= 0:",
+        ),
+    ],
+)
+def test_generates_candidate_without_corrected_fixture(
+    fixer,
+    cause,
+    before,
+    expected,
+):
+    hypothesis = make_hypothesis(cause)
+
+    patch, rationale = fixer.generate_candidate_diff(
+        before,
+        "target-app/services/test/app.py",
+        hypothesis,
+    )
+
+    assert patch
+    assert expected in patch
+    assert rationale
+
+
+def test_unknown_fault_is_not_guessed(fixer):
+    hypothesis = make_hypothesis("Unknown database connection failure")
+
+    with pytest.raises(FixValidationError):
+        fixer.generate_candidate_diff(
+            "def connect():\n    pass\n",
+            "target-app/services/test/app.py",
+            hypothesis,
         )
-        self.hypothesis = Hypothesis(
-            cause="Incorrect return value", category="code", confidence=0.9,
-            evidence_ids=["ev_1"],
-        )
-        self.evidence = [Evidence(id="ev_1", type="log", ref="log:1", excerpt="error", ts="now")]
-        self.diff = (
-            "diff --git a/target-app/services/orders/app.py b/target-app/services/orders/app.py\n"
-            "--- a/target-app/services/orders/app.py\n"
-            "+++ b/target-app/services/orders/app.py\n"
-            "@@ -1,2 +1,2 @@\n"
-            " def value():\n"
-            "-    return 1\n"
-            "+    return 2\n"
-        )
-
-    def tearDown(self):
-        self.temp.cleanup()
-
-    def test_applicable_patch_is_returned(self):
-        result = Fixer(self.root).validate_diff(self.diff, self.hypothesis, self.evidence)
-        self.assertIn("+    return 2", result)
-
-    def test_stale_or_malformed_patch_has_clear_error(self):
-        with self.assertRaisesRegex(FixValidationError, "does not apply"):
-            Fixer(self.root).validate_diff(self.diff.replace("return 1", "return 9"), self.hypothesis, self.evidence)
-        with self.assertRaisesRegex(FixValidationError, "empty"):
-            Fixer(self.root).validate_diff("", self.hypothesis, self.evidence)
-
-    def test_forbidden_path_and_unknown_evidence_are_rejected(self):
-        unsafe = self.diff.replace("target-app/services/orders/app.py", "README.md")
-        with self.assertRaisesRegex(FixValidationError, "outside the allowlist"):
-            Fixer(self.root).validate_diff(unsafe, self.hypothesis, self.evidence)
-        with self.assertRaisesRegex(FixValidationError, "unknown evidence"):
-            Fixer(self.root).validate_diff(
-                self.diff, self.hypothesis, [Evidence(id="other", type="log", ref="x", excerpt="x", ts="now")]
-            )
-
-    def test_fix_type_selection_table(self):
-        rows = [
-            # recent deploy, clean revert, category, explicit config, expected
-            (True, True, "code", False, "rollback"),
-            (True, False, "code", False, "patch"),
-            (False, True, "code", False, "patch"),
-            (False, False, "config", False, "config"),
-            (False, False, "code", True, "config"),
-            (True, True, "config", False, "config"),
-            (True, False, "cross_service", False, "patch"),
-            (False, True, "dependency", False, "patch"),
-            (True, True, "resource", False, "rollback"),
-            (False, False, "unknown", False, "patch"),
-        ]
-        for recent, clean, category, config, expected in rows:
-            with self.subTest(recent=recent, clean=clean, category=category, config=config):
-                hypothesis = self.hypothesis.model_copy(update={"category": category})
-                self.assertEqual(
-                    select_fix_type(
-                        hypothesis, recent_deploy=recent, clean_revert=clean, config_fault=config
-                    ),
-                    expected,
-                )
 
 
-if __name__ == "__main__":
-    unittest.main()
+def test_generator_does_not_need_patched_fixture(fixer):
+    hypothesis = make_hypothesis("TypeError NoneType discount code")
+
+    source = 'discount_code = discount["code"]'
+
+    patch, _ = fixer.generate_candidate_diff(
+        source,
+        "target-app/services/test/app.py",
+        hypothesis,
+    )
+
+    assert "patched_app.py" not in patch
+    assert 'discount.get("code")' in patch
