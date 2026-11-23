@@ -1,0 +1,404 @@
+[
+  {
+    "fault_id": "fault_001_bad_deploy",
+    "title": "Bad Deploy: VIP Discount Null Pointer",
+    "category": "code",
+    "target_service": "orders",
+    "difficulty": "easy",
+    "culprit_change": "dep_20261122_v1.0.1",
+    "culprit_commit": "c0ffee14a",
+    "root_cause": "TypeError: 'NoneType' object is not subscriptable when order payload lacks a discount key in create_order()",
+    "visible_symptoms": [
+      "HTTP 500 error rate spiked to 35% on POST /orders",
+      "Gateway returning 500/502 errors on customer checkout flow",
+      "Logs show unhandled TypeError at discount['code']"
+    ],
+    "expected_fix_type": "patch",
+    "risk_tier": "T2"
+  },
+  {
+    "fault_id": "fault_002_off_by_one",
+    "title": "Off-by-One Pagination Index Error",
+    "category": "code",
+    "target_service": "orders",
+    "difficulty": "easy",
+    "culprit_change": "dep_20261123_v1.0.2",
+    "culprit_commit": "a2b4c6e8",
+    "root_cause": "IndexError: list index out of range when fetching final page of order history",
+    "visible_symptoms": [
+      "GET /orders?page=N returns 500 on boundary pages",
+      "Log shows IndexError in paginate_records()"
+    ],
+    "expected_fix_type": "patch",
+    "risk_tier": "T2"
+  },
+  {
+    "fault_id": "fault_003_wrong_status_code",
+    "title": "Wrong Status Code 200 on Decline",
+    "category": "code",
+    "target_service": "payments",
+    "difficulty": "medium",
+    "culprit_change": "dep_20261123_v1.0.3",
+    "culprit_commit": "c3d5e7f9",
+    "root_cause": "Payments service returns 200 with DECLINED body instead of HTTP 402/400",
+    "visible_symptoms": [
+      "Declined payments marked as CONFIRMED by orders service",
+      "Metrics show 0% error rate despite card failures"
+    ],
+    "expected_fix_type": "patch",
+    "risk_tier": "T2"
+  },
+  {
+    "fault_id": "fault_004_bad_parsing",
+    "title": "Strict ISO Parser Rejects Zulu Timestamps",
+    "category": "code",
+    "target_service": "gateway",
+    "difficulty": "easy",
+    "culprit_change": "dep_20261123_v1.0.4",
+    "culprit_commit": "e4f6a8b0",
+    "root_cause": "Rigid strptime format string rejects ISO 8601 timestamps ending in 'Z'",
+    "visible_symptoms": [
+      "Gateway returns 400 on valid client timestamps with trailing 'Z'",
+      "Log shows ValueError: time data does not match format"
+    ],
+    "expected_fix_type": "patch",
+    "risk_tier": "T2"
+  },
+  {
+    "fault_id": "fault_005_unhandled_exception",
+    "title": "ZeroDivisionError in Unit Discount",
+    "category": "code",
+    "target_service": "orders",
+    "difficulty": "easy",
+    "culprit_change": "dep_20261123_v1.0.5",
+    "culprit_commit": "b5c7d9e1",
+    "root_cause": "ZeroDivisionError in calculate_unit_discount when total_items == 0",
+    "visible_symptoms": [
+      "POST /orders fails with 500 for zero quantity promotional items",
+      "Log shows ZeroDivisionError in orders service"
+    ],
+    "expected_fix_type": "patch",
+    "risk_tier": "T2"
+  },
+  {
+    "fault_id": "fault_006_wrong_timeout_value",
+    "title": "Downstream Timeout Set to 5 Milliseconds",
+    "category": "code",
+    "target_service": "orders",
+    "difficulty": "medium",
+    "culprit_change": "dep_20261123_v1.0.6",
+    "culprit_commit": "d6e8f0a2",
+    "root_cause": "Downstream HTTP client timeout configured to 0.005s instead of 5.0s",
+    "visible_symptoms": [
+      "100% of order payment calls time out with httpx.TimeoutException",
+      "Latency drops to 5ms while 503 error rate spikes to 100%"
+    ],
+    "expected_fix_type": "patch",
+    "risk_tier": "T2"
+  },
+  {
+    "fault_id": "fault_007_bad_sql_query",
+    "title": "SQL Typo FORM in Customer Lookup",
+    "category": "code",
+    "target_service": "orders",
+    "difficulty": "easy",
+    "culprit_change": "dep_20261123_v1.0.7",
+    "culprit_commit": "f7a9b1c3",
+    "root_cause": "Syntax error in raw SQL query: SELECT * FORM orders",
+    "visible_symptoms": [
+      "GET /orders fails with HTTP 500",
+      "Postgres log reports syntax error at or near 'FORM'"
+    ],
+    "expected_fix_type": "patch",
+    "risk_tier": "T2"
+  },
+  {
+    "fault_id": "fault_008_broken_serialization",
+    "title": "Broken Decimal JSON Serialization",
+    "category": "code",
+    "target_service": "payments",
+    "difficulty": "easy",
+    "culprit_change": "dep_20261123_v1.0.8",
+    "culprit_commit": "a8b0c2d4",
+    "root_cause": "TypeError: Object of type Decimal is not JSON serializable in audit logger",
+    "visible_symptoms": [
+      "POST /process fails with 500 when logging payment metadata",
+      "Log indicates Decimal serialization error"
+    ],
+    "expected_fix_type": "patch",
+    "risk_tier": "T2"
+  },
+  {
+    "fault_id": "fault_009_wrong_env_var",
+    "title": "Wrong Payments Port in Environment (9999)",
+    "category": "config",
+    "target_service": "orders",
+    "difficulty": "easy",
+    "culprit_change": "cfg_20261123_001",
+    "culprit_commit": null,
+    "root_cause": "PAYMENTS_SERVICE_URL configured with invalid port 9999 instead of 8082",
+    "visible_symptoms": [
+      "Orders cannot reach payments service; ConnectionRefusedError on port 9999",
+      "POST /orders returns 503"
+    ],
+    "expected_fix_type": "config",
+    "risk_tier": "T1"
+  },
+  {
+    "fault_id": "fault_010_expired_token",
+    "title": "Expired Internal Service Auth Token",
+    "category": "config",
+    "target_service": "gateway",
+    "difficulty": "medium",
+    "culprit_change": "cfg_20261123_002",
+    "culprit_commit": null,
+    "root_cause": "Static secret token in Gateway config expired after scheduled secret rotation",
+    "visible_symptoms": [
+      "Gateway receives 401 Unauthorized from Orders service",
+      "Log indicates InvalidToken signature expired"
+    ],
+    "expected_fix_type": "config",
+    "risk_tier": "T1"
+  },
+  {
+    "fault_id": "fault_011_wrong_pool_size",
+    "title": "DB Connection Pool Size Set to 1",
+    "category": "config",
+    "target_service": "orders",
+    "difficulty": "medium",
+    "culprit_change": "cfg_20261123_003",
+    "culprit_commit": null,
+    "root_cause": "DB_POOL_MAX reduced to 1 under concurrent traffic, queuing all requests",
+    "visible_symptoms": [
+      "Orders p99 latency spikes above 15,000ms",
+      "Gateway requests time out with 504 Gateway Timeout"
+    ],
+    "expected_fix_type": "config",
+    "risk_tier": "T1"
+  },
+  {
+    "fault_id": "fault_012_bad_feature_flag",
+    "title": "Unprovisioned Redis Feature Flag Enabled",
+    "category": "config",
+    "target_service": "orders",
+    "difficulty": "medium",
+    "culprit_change": "cfg_20261123_004",
+    "culprit_commit": null,
+    "root_cause": "ENABLE_ASYNC_AUDIT enabled before Redis infrastructure was provisioned",
+    "visible_symptoms": [
+      "Orders service throws redis.exceptions.ConnectionError",
+      "Checkout error rate jumps to 100%"
+    ],
+    "expected_fix_type": "config",
+    "risk_tier": "T1"
+  },
+  {
+    "fault_id": "fault_013_conn_pool_exhaustion",
+    "title": "Connection Slot Leak in Order Lookup",
+    "category": "resource",
+    "target_service": "orders",
+    "difficulty": "medium",
+    "culprit_change": "dep_20261123_v1.0.9",
+    "culprit_commit": "b1c3d5e7",
+    "root_cause": "Database connection acquired without finally: connection.close() in get_order",
+    "visible_symptoms": [
+      "System exhausts Postgres max connections after 30 requests",
+      "Log shows FATAL: remaining connection slots are reserved"
+    ],
+    "expected_fix_type": "patch",
+    "risk_tier": "T2"
+  },
+  {
+    "fault_id": "fault_014_memory_leak",
+    "title": "Unbounded Global List Memory Leak (OOM)",
+    "category": "resource",
+    "target_service": "gateway",
+    "difficulty": "medium",
+    "culprit_change": "dep_20261123_v1.0.10",
+    "culprit_commit": "d3e5f7a9",
+    "root_cause": "Unbounded global in-memory request accumulator list causes OOM container crash",
+    "visible_symptoms": [
+      "Gateway memory grows monotonically until Exit Code 137 (OOM Killer)",
+      "Prometheus resident memory metric climbs steadily"
+    ],
+    "expected_fix_type": "patch",
+    "risk_tier": "T2"
+  },
+  {
+    "fault_id": "fault_015_disk_full",
+    "title": "Disk Volume Full from Verbose Debug Logs",
+    "category": "resource",
+    "target_service": "orders",
+    "difficulty": "hard",
+    "culprit_change": "infra_20261123_001",
+    "culprit_commit": null,
+    "root_cause": "Unrotated DEBUG payload logging exhausts partition disk capacity",
+    "visible_symptoms": [
+      "Orders fails on write operations with OSError: [Errno 28] No space left on device",
+      "Disk utilization metrics reach 100%"
+    ],
+    "expected_fix_type": "config",
+    "risk_tier": "T1"
+  },
+  {
+    "fault_id": "fault_016_slow_query_missing_index",
+    "title": "Missing DB Index on customer_id",
+    "category": "resource",
+    "target_service": "orders",
+    "difficulty": "medium",
+    "culprit_change": "dep_20261123_v1.0.11",
+    "culprit_commit": "f5a7b9c1",
+    "root_cause": "Full sequential table scan across 500k rows due to missing customer_id index",
+    "visible_symptoms": [
+      "Query latency spikes from 8ms to 4,200ms",
+      "Postgres CPU utilization reaches 95%"
+    ],
+    "expected_fix_type": "patch",
+    "risk_tier": "T3"
+  },
+  {
+    "fault_id": "fault_017_symptom_gw_cause_payments",
+    "title": "Gateway 502 Outage Caused by Payments Deploy",
+    "category": "cross_service",
+    "target_service": "payments",
+    "difficulty": "hard",
+    "culprit_change": "dep_20261123_v1.0.12",
+    "culprit_commit": "e6f8a0b2",
+    "root_cause": "Validation failure in Payments deploy rejects orders, cascading 502 to Gateway",
+    "visible_symptoms": [
+      "Gateway alerts on High5xxErrorRate (45% error rate)",
+      "Orders service reports 200 health but fails checkout requests",
+      "Root error trace located exclusively in payments logs"
+    ],
+    "expected_fix_type": "patch",
+    "risk_tier": "T2"
+  },
+  {
+    "fault_id": "fault_018_retry_storm",
+    "title": "Infinite Retry Storm Multiplies Load 12x",
+    "category": "cross_service",
+    "target_service": "gateway",
+    "difficulty": "hard",
+    "culprit_change": "cfg_20261123_005",
+    "culprit_commit": null,
+    "root_cause": "Gateway retry policy set to 10 retries with 0s backoff, causing cascading downstream flood",
+    "visible_symptoms": [
+      "Normal 10 rps ingress traffic creates 120 rps downstream traffic to Orders",
+      "Orders thread pool and CPU fully saturated"
+    ],
+    "expected_fix_type": "config",
+    "risk_tier": "T1"
+  },
+  {
+    "fault_id": "fault_019_upstream_schema_change",
+    "title": "API Field Rename Without Backwards Compatibility",
+    "category": "cross_service",
+    "target_service": "orders",
+    "difficulty": "hard",
+    "culprit_change": "dep_20261123_v1.0.13",
+    "culprit_commit": "a7b9c1d3",
+    "root_cause": "Orders renamed 'total' to 'total_amount_cents' without backwards compatibility",
+    "visible_symptoms": [
+      "Gateway returns 422 or 502 on order creation",
+      "Gateway log indicates KeyError: 'total'"
+    ],
+    "expected_fix_type": "patch",
+    "risk_tier": "T2"
+  },
+  {
+    "fault_id": "fault_020_dependency_timeout_cascade",
+    "title": "External Synchronous Webhook Starvation",
+    "category": "cross_service",
+    "target_service": "payments",
+    "difficulty": "hard",
+    "culprit_change": "dep_20261123_v1.0.14",
+    "culprit_commit": "c9d1e3f5",
+    "root_cause": "Synchronous external webhook call without timeout cap starves worker threads",
+    "visible_symptoms": [
+      "Payments latency reaches 15s, exhausting worker sockets",
+      "Upstream orders and gateway return 504 timeouts"
+    ],
+    "expected_fix_type": "patch",
+    "risk_tier": "T2"
+  },
+  {
+    "fault_id": "fault_021_cloud_postmortem_cloudflare_regex",
+    "title": "Cloudflare 2019 Replay: Regex CPU Backtracking",
+    "category": "stretch",
+    "target_service": "gateway",
+    "difficulty": "hard",
+    "culprit_change": "dep_20261123_v1.0.15",
+    "culprit_commit": "e1f3a5b7",
+    "root_cause": "Catastrophic regex backtracking in user-agent header parser causes 100% CPU lockup",
+    "visible_symptoms": [
+      "Gateway CPU spikes to 100% immediately upon matching specific user-agent",
+      "Requests hang indefinitely and timeout"
+    ],
+    "expected_fix_type": "patch",
+    "risk_tier": "T2"
+  },
+  {
+    "fault_id": "fault_022_cloud_postmortem_aws_dynamo_lease",
+    "title": "AWS DynamoDB Replay: Heartbeat Lease Expiry",
+    "category": "stretch",
+    "target_service": "orders",
+    "difficulty": "hard",
+    "culprit_change": "dep_20261123_v1.0.16",
+    "culprit_commit": "a2c4e6f8",
+    "root_cause": "Background heartbeat renewal thread terminates silently, losing partition lease",
+    "visible_symptoms": [
+      "Orders service intermittently throws StaleLeaseError",
+      "Service flaps between healthy and unhealthy every 60 seconds"
+    ],
+    "expected_fix_type": "patch",
+    "risk_tier": "T2"
+  },
+  {
+    "fault_id": "fault_023_repeated_incident_memory_test",
+    "title": "Repeated Incident Memory Benchmark (v1.0.1)",
+    "category": "stretch",
+    "target_service": "orders",
+    "difficulty": "easy",
+    "culprit_change": "dep_20261123_v1.0.17",
+    "culprit_commit": "b3d5f7a9",
+    "root_cause": "Regression re-introducing fault_001 VIP discount null pointer bug",
+    "visible_symptoms": [
+      "Identical symptoms to fault_001: TypeError at discount['code']",
+      "Memory component must retrieve past fix at rank 1 with 50% MTTR reduction"
+    ],
+    "expected_fix_type": "patch",
+    "risk_tier": "T2"
+  },
+  {
+    "fault_id": "fault_024_circuit_breaker_half_open_flap",
+    "title": "Circuit Breaker Rapid Oscillation Flapping",
+    "category": "stretch",
+    "target_service": "gateway",
+    "difficulty": "hard",
+    "culprit_change": "cfg_20261123_006",
+    "culprit_commit": null,
+    "root_cause": "Failure threshold equal to 1 causes transient probes to endlessly re-trip breaker",
+    "visible_symptoms": [
+      "Error rate oscillates rapidly between 0% and 50%",
+      "Gateway logs rapid state flapping: CLOSED -> OPEN -> HALF_OPEN -> OPEN"
+    ],
+    "expected_fix_type": "config",
+    "risk_tier": "T1"
+  },
+  {
+    "fault_id": "fault_025_poison_pill_payload",
+    "title": "Poison Pill Unicode Zero-Width Byte Crash",
+    "category": "stretch",
+    "target_service": "orders",
+    "difficulty": "hard",
+    "culprit_change": "dep_20261123_v1.0.18",
+    "culprit_commit": "c4e6a8b0",
+    "root_cause": "Unsanitized zero-width non-breaking space characters trigger DB driver encoding crash",
+    "visible_symptoms": [
+      "Only specific order item names crash; healthcheck remains 200",
+      "Postgres driver logs InvalidByteSequence error"
+    ],
+    "expected_fix_type": "patch",
+    "risk_tier": "T2"
+  }
+]
