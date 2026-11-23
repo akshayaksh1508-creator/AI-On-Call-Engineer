@@ -149,9 +149,10 @@ class LLMClient:
         est_input_tokens = max(len(prompt.split()) * 2, 50)
         est_cost = calculate_cost(active_model, est_input_tokens, max_tokens)
 
+        cap_fmt = f"${self.spend_cap:.2f}" if self.spend_cap >= 0.01 else f"${self.spend_cap:.4f}"
         if (self.cumulative_cost_usd + est_cost) > (self.spend_cap + 0.001):
             raise SpendCapExceededError(
-                f"Spend cap of ${self.spend_cap:.2f} would be exceeded! "
+                f"Spend cap of {cap_fmt} would be exceeded! "
                 f"Current spend: ${self.cumulative_cost_usd:.4f}, estimated call cost: ${est_cost:.4f}."
             )
 
