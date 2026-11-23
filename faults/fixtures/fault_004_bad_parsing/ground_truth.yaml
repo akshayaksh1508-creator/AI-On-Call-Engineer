@@ -1,0 +1,16 @@
+id: fault_004_bad_parsing
+category: code
+difficulty: easy
+service: gateway
+culprit_change: dep_20261123_v1.0.4
+culprit_commit: e4f6a8b0
+root_cause: "Rigid strptime format string rejects ISO 8601 timestamps ending in 'Z' with ValueError"
+expected_fix_type: patch
+alternative_fix_type: rollback
+risk_tier: T2
+suggested_patch: |
+  --- a/target-app/services/gateway/app.py
+  +++ b/target-app/services/gateway/app.py
+  @@ -36,2 +36,2 @@
+  -    return datetime.strptime(ts_str, "%Y-%m-%dT%H:%M:%S%z")
+  +    return datetime.fromisoformat(ts_str.replace("Z", "+00:00"))

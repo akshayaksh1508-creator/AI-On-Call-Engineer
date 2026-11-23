@@ -1,0 +1,16 @@
+id: fault_002_off_by_one
+category: code
+difficulty: easy
+service: orders
+culprit_change: dep_20261123_v1.0.2
+culprit_commit: a2b4c6e8
+root_cause: "IndexError: list index out of range in paginate_records() when fetching order history boundary elements"
+expected_fix_type: patch
+alternative_fix_type: rollback
+risk_tier: T2
+suggested_patch: |
+  --- a/target-app/services/orders/app.py
+  +++ b/target-app/services/orders/app.py
+  @@ -155,2 +155,2 @@
+  -        _next_check = records[end]
+  +        if start >= len(records): return []

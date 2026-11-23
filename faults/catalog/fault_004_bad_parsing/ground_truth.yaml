@@ -1,0 +1,32 @@
+id: fault_004_bad_parsing
+fault_id: fault_004_bad_parsing
+title: "Strict ISO datetime parser crashes on trailing 'Z' timestamps"
+category: code
+difficulty: easy
+target_service: gateway
+target_file: target-app/services/gateway/app.py
+culprit_change: dep_20261123_v1.0.4
+culprit_commit: e4f6a8b0
+root_cause: "Rigid strptime format string rejects ISO 8601 timestamps ending in 'Z' with ValueError"
+visible_symptom: "Gateway returns HTTP 500 with ValueError on valid client timestamps with trailing 'Z'"
+visible_symptoms:
+  - "Gateway returns HTTP 500 on valid client timestamps with trailing 'Z'"
+  - "Gateway log shows ValueError: time data does not match format"
+expected_fix: "Use datetime.fromisoformat(ts.replace('Z', '+00:00')) for robust ISO 8601 parsing"
+expected_fix_type: patch
+alternative_fix_type: rollback
+risk_tier: T2
+rollback_version: v1.0.0
+faulty_version: v1.0.4
+diff: |
+  --- a/target-app/services/gateway/app.py
+  +++ b/target-app/services/gateway/app.py
+  @@ -36,2 +36,2 @@
+  -    return datetime.strptime(ts_str, "%Y-%m-%dT%H:%M:%S%z")
+  +    return datetime.fromisoformat(ts_str.replace("Z", "+00:00"))
+suggested_patch: |
+  --- a/target-app/services/gateway/app.py
+  +++ b/target-app/services/gateway/app.py
+  @@ -36,2 +36,2 @@
+  -    return datetime.strptime(ts_str, "%Y-%m-%dT%H:%M:%S%z")
+  +    return datetime.fromisoformat(ts_str.replace("Z", "+00:00"))

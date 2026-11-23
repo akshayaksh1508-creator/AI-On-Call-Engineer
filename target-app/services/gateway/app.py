@@ -1,15 +1,16 @@
-"""API Gateway Service - Front door routing requests to downstream microservices."""
+"""API Gateway Service - Clean baseline with tolerant timestamp parsing."""
 
 import os
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
+from typing import Dict, Any, List, Optional
 
 # Ensure repository root is in sys.path
 _ROOT = Path(__file__).resolve().parents[3]
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
-from typing import Dict, Any, List
 import httpx
 from fastapi import FastAPI, HTTPException, Request, Response
 from pydantic import BaseModel, Field
@@ -38,6 +39,13 @@ class GatewayOrderRequest(BaseModel):
     price: float = Field(..., gt=0)
 
 
+def parse_request_timestamp(ts_str: Optional[str]) -> datetime:
+    """Parses optional request timestamp safely handling Zulu timestamps."""
+    if not ts_str:
+        return datetime.now(timezone.utc)
+    return datetime.fromisoformat(ts_str.replace("Z", "+00:00"))
+
+
 @app.get("/health")
 def health() -> Dict[str, Any]:
     """Gateway health check (Section 14: curl /health returns 200)."""
@@ -62,6 +70,10 @@ async def create_order_endpoint(order_req: GatewayOrderRequest, request: Request
         f"Gateway received order request for customer {order_req.customer_id}",
         extra={"trace_id": trace_id, "extra_fields": {"item": order_req.item, "quantity": order_req.quantity}},
     )
+
+    # Validate client request timestamp
+    client_ts = request.headers.get("X-Request-Timestamp")
+    parse_request_timestamp(client_ts)
 
     downstream_url = f"{settings.ORDERS_SERVICE_URL}/orders"
     headers = {"X-Trace-ID": trace_id}

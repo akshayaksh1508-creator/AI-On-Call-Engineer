@@ -1,4 +1,4 @@
-"""Payments Service - Handles payment authorization and capture."""
+"""Payments Service - Clean baseline with proper HTTP 402/400 errors on decline."""
 
 import os
 import sys
@@ -80,6 +80,14 @@ def process_payment(req: PaymentRequest, request: Request) -> PaymentResponse:
             extra={"trace_id": trace_id, "extra_fields": {"order_id": req.order_id}},
         )
         raise HTTPException(status_code=400, detail="Transaction amount exceeds safety limit")
+
+    # Card decline condition
+    if req.currency == "DECLINE":
+        logger.error(
+            f"Payment declined for order {req.order_id}: card declined",
+            extra={"trace_id": trace_id, "extra_fields": {"order_id": req.order_id}},
+        )
+        raise HTTPException(status_code=402, detail="Payment declined: Card issuer rejected charge")
 
     payment_id = f"pay_{uuid.uuid4().hex[:12]}"
     record = {

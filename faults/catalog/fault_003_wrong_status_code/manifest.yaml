@@ -1,0 +1,25 @@
+fault_id: fault_003_wrong_status_code
+title: "Payments service returns HTTP 200 with error body instead of HTTP 400/402"
+category: code
+difficulty: medium
+target_service: payments
+target_file: target-app/services/payments/app.py
+culprit_change: dep_20261123_v1.0.3
+culprit_commit: c3d5e7f9
+root_cause: "Payments service returns HTTP 200 with DECLINED status payload instead of HTTP 402/400 status code on declined payments"
+visible_symptoms:
+  - "Orders service falsely marks failed transactions as CONFIRMED"
+  - "Financial reconciliation mismatch between Gateway and Payments ledger"
+  - "Prometheus shows 0% payment errors despite failing credit card charges"
+expected_fix: "Return HTTP 402 status code and error schema when payment is declined instead of returning HTTP 200"
+expected_fix_type: patch
+alternative_fix_type: rollback
+risk_tier: T2
+rollback_version: v1.0.0
+faulty_version: v1.0.3
+suggested_patch: |
+  --- a/target-app/services/payments/app.py
+  +++ b/target-app/services/payments/app.py
+  @@ -80,5 +80,2 @@
+  -        return PaymentResponse(payment_id="", order_id=req.order_id, status="DECLINED", amount=req.amount, currency=req.currency)
+  +        raise HTTPException(status_code=402, detail="Payment declined: Transaction exceeds safety limit or card declined")

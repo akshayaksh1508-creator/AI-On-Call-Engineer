@@ -1,0 +1,18 @@
+id: fault_005_unhandled_exception
+category: code
+difficulty: easy
+service: orders
+culprit_change: dep_20261123_v1.0.5
+culprit_commit: b5c7d9e1
+root_cause: "ZeroDivisionError in calculate_unit_discount when promo_items or total_items is zero"
+expected_fix_type: patch
+alternative_fix_type: rollback
+risk_tier: T2
+suggested_patch: |
+  --- a/target-app/services/orders/app.py
+  +++ b/target-app/services/orders/app.py
+  @@ -75,2 +75,4 @@
+  -    return total_discount / total_items
+  +    if total_items <= 0:
+  +        return 0.0
+  +    return round(total_discount / total_items, 2)
