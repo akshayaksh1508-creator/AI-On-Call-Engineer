@@ -122,39 +122,9 @@ def build_investigation_user_prompt(
 
 def extract_json_from_llm_text(text: str) -> Dict[str, Any]:
     """Robustly extract and parse a JSON dictionary from LLM response text."""
-    text = text.strip()
-    
-    # 1. Try direct JSON parse
-    try:
-        data = json.loads(text)
-        if isinstance(data, dict):
-            return data
-    except Exception:
-        pass
-
-    # 2. Try fenced markdown code block ```json ... ```
-    json_block_match = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, re.DOTALL)
-    if json_block_match:
-        try:
-            data = json.loads(json_block_match.group(1))
-            if isinstance(data, dict):
-                return data
-        except Exception:
-            pass
-
-    # 3. Find outermost matching curly braces
-    first_brace = text.find("{")
-    last_brace = text.rfind("}")
-    if first_brace != -1 and last_brace != -1 and last_brace > first_brace:
-        candidate = text[first_brace : last_brace + 1]
-        try:
-            data = json.loads(candidate)
-            if isinstance(data, dict):
-                return data
-        except Exception:
-            pass
-
-    raise ValueError(f"Could not extract valid JSON object from LLM response:\n{text[:300]}...")
+    from agent.structured_output import extract_and_parse_json
+    data, _ = extract_and_parse_json(text)
+    return data
 
 
 def parse_agent_response(
@@ -171,40 +141,14 @@ def parse_agent_response(
         - All cited evidence IDs are present in the evidence list
         - Any hypothesis lacking evidence is marked in uncited_claims as a guess
     """
-    raw_data = extract_json_from_llm_text(response_text)
+    from agent.structured_output import parse_structured_diagnosis, extract_and_parse_json
 
-    # Parse Evidence items
-    raw_evidence = raw_data.get("evidence", [])
-    evidence_list: List[Evidence] = []
-    known_evidence_ids = set()
+    raw_dict, _ = extract_and_parse_json(response_text)
+    diagnosis, _ = parse_structured_diagnosis(response_text)
 
-    for item in raw_evidence:
-        ev = Evidence.model_validate(item)
-        evidence_list.append(ev)
-        known_evidence_ids.add(ev.id)
-
-    # Parse Hypotheses
-    raw_hypotheses = raw_data.get("hypotheses", [])
-    hypotheses: List[Hypothesis] = []
-    uncited_claims: List[str] = list(raw_data.get("uncited_claims", []))
-
-    for item in raw_hypotheses:
-        hyp = Hypothesis.model_validate(item)
-        hypotheses.append(hyp)
-
-        # Check evidence citations
-        if not hyp.evidence_ids:
-            uncited_claims.append(
-                f"[GUESS] Hypothesis '{hyp.cause[:80]}' has no cited evidence IDs."
-            )
-        else:
-            for eid in hyp.evidence_ids:
-                if eid not in known_evidence_ids:
-                    uncited_claims.append(
-                        f"[UNREFERENCED] Hypothesis cites unknown evidence ID '{eid}'."
-                    )
-
-    # Sort hypotheses by confidence descending
-    hypotheses.sort(key=lambda h: h.confidence, reverse=True)
-
-    return hypotheses, evidence_list, uncited_claims, raw_data
+    return (
+        diagnosis.hypotheses,
+        diagnosis.evidence,
+        diagnosis.uncited_claims,
+        raw_dict,
+    )
