@@ -123,6 +123,8 @@ class LLMClient:
         # Session tracking
         self.cumulative_cost_usd: float = 0.0
         self.call_history: List[LLMResponse] = []
+        self.mock_queue: List[LLMResponse] = []
+        self.mock_handler: Optional[Any] = None
 
         # Initialize Anthropic client if live mode
         self._anthropic_client = None
@@ -136,7 +138,8 @@ class LLMClient:
 
     def call(
         self,
-        prompt: str,
+        prompt: Optional[str] = None,
+        messages: Optional[List[Dict[str, Any]]] = None,
         system: Optional[str] = None,
         tools: Optional[List[Dict[str, Any]]] = None,
         max_tokens: int = 1024,
@@ -146,9 +149,19 @@ class LLMClient:
         """Executes a chat completion call with spend cap check and token accounting."""
         active_model = model or self.default_model
 
+        # Determine prompt text for token estimation
+        if messages:
+            full_messages = messages
+            prompt_text = " ".join(
+                str(m.get("content", "")) for m in messages
+            )
+        else:
+            prompt_text = prompt or ""
+            full_messages = [{"role": "user", "content": prompt_text}]
+
         # 1. Pre-call Spend Cap Guardrail Check
         # Estimate worst-case cost based on prompt length and max_tokens
-        est_input_tokens = max(len(prompt.split()) * 2, 50)
+        est_input_tokens = max(len(prompt_text.split()) * 2, 50)
         est_cost = calculate_cost(active_model, est_input_tokens, max_tokens)
 
         cap_fmt = f"${self.spend_cap:.2f}" if self.spend_cap >= 0.01 else f"${self.spend_cap:.4f}"
@@ -163,7 +176,8 @@ class LLMClient:
         # 2. Execution: Mock vs Live
         if self.mock or not self._anthropic_client:
             response = self._mock_call(
-                prompt=prompt,
+                prompt=prompt_text,
+                messages=full_messages,
                 system=system,
                 tools=tools,
                 max_tokens=max_tokens,
@@ -172,7 +186,8 @@ class LLMClient:
             )
         else:
             response = self._live_call(
-                prompt=prompt,
+                prompt=prompt_text,
+                messages=full_messages,
                 system=system,
                 tools=tools,
                 max_tokens=max_tokens,
@@ -194,13 +209,31 @@ class LLMClient:
     def _mock_call(
         self,
         prompt: str,
-        system: Optional[str],
-        tools: Optional[List[Dict[str, Any]]],
-        max_tokens: int,
-        model: str,
-        start_time: float,
+        messages: Optional[List[Dict[str, Any]]] = None,
+        system: Optional[str] = None,
+        tools: Optional[List[Dict[str, Any]]] = None,
+        max_tokens: int = 1024,
+        model: str = DEFAULT_MODEL,
+        start_time: float = 0.0,
     ) -> LLMResponse:
         """Simulates an Anthropic API call with realistic token usage and latency."""
+        if self.mock_handler:
+            return self.mock_handler(
+                prompt=prompt,
+                messages=messages,
+                system=system,
+                tools=tools,
+                max_tokens=max_tokens,
+                model=model,
+                start_time=start_time,
+            )
+
+        if self.mock_queue:
+            resp = self.mock_queue.pop(0)
+            latency = round(time.perf_counter() - start_time, 4)
+            resp.latency_seconds = latency
+            return resp
+
         time.sleep(0.02)  # Tiny simulated latency
         latency = round(time.perf_counter() - start_time, 4)
 
@@ -286,6 +319,7 @@ class LLMClient:
     def _live_call(
         self,
         prompt: str,
+        messages: Optional[List[Dict[str, Any]]],
         system: Optional[str],
         tools: Optional[List[Dict[str, Any]]],
         max_tokens: int,
@@ -297,7 +331,7 @@ class LLMClient:
         kwargs: Dict[str, Any] = {
             "model": model,
             "max_tokens": max_tokens,
-            "messages": [{"role": "user", "content": prompt}],
+            "messages": messages if messages else [{"role": "user", "content": prompt}],
             "extra_body": {"temperature": temperature},
         }
         if system:
