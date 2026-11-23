@@ -1,0 +1,99 @@
+{
+  "day": 4,
+  "generated_at": "2026-11-23T17:50:09.060144+00:00",
+  "verification_mode": "isolated git worktree, host unit tests",
+  "live_docker_available": false,
+  "pr_mode": "mock; no GitHub sandbox credentials configured",
+  "faults_attempted": 5,
+  "sandbox_passed": 5,
+  "fix_rate": 1.0,
+  "exit_gate_required": 3,
+  "exit_gate_passed": true,
+  "fault_results": [
+    {
+      "fault_id": "fault_001_bad_deploy",
+      "service": "orders",
+      "patch_generated": true,
+      "reproduction_failed_before_patch": true,
+      "tests_passed": true,
+      "reproduction_passed_after_patch": true,
+      "sandbox_passed": true,
+      "error": null,
+      "unit_test_summary": "==== test session starts =============================\nplatform win32 -- Python 3.15.0, pytest-9.2.0, pluggy-1.7.0\nrootdir: C:\\Users\\ASUS\\Documents\\Codex\\2026-11-23\\https-github-com-akshayaksh1508-creator-ai\\work\\.nightshift-sandboxes\\2e30fd3edbf3e136-vihldyjm\nconfigfile: pyproject.toml\nplugins: anyio-4.16.0, cov-7.1.0\ncollected 1 item\n\ntests\\verifier\\test_reproductions.py .                                   [100%]\n\n============================== 1 passed in 1.86s ==============================\n",
+      "reproduction_output_on_failure": "",
+      "mock_pr": {
+        "number": 101,
+        "url": "https://github.com/sandbox/day4-fixes/pull/101"
+      },
+      "mock_pr_content_complete": true
+    },
+    {
+      "fault_id": "fault_002_off_by_one",
+      "service": "orders",
+      "patch_generated": true,
+      "reproduction_failed_before_patch": true,
+      "tests_passed": true,
+      "reproduction_passed_after_patch": true,
+      "sandbox_passed": true,
+      "error": null,
+      "unit_test_summary": "==== test session starts =============================\nplatform win32 -- Python 3.15.0, pytest-9.2.0, pluggy-1.7.0\nrootdir: C:\\Users\\ASUS\\Documents\\Codex\\2026-11-23\\https-github-com-akshayaksh1508-creator-ai\\work\\.nightshift-sandboxes\\c437dac941a71fb1-k6u_qruj\nconfigfile: pyproject.toml\nplugins: anyio-4.16.0, cov-7.1.0\ncollected 1 item\n\ntests\\verifier\\test_reproductions.py .                                   [100%]\n\n============================== 1 passed in 1.81s ==============================\n",
+      "reproduction_output_on_failure": "",
+      "mock_pr": {
+        "number": 102,
+        "url": "https://github.com/sandbox/day4-fixes/pull/102"
+      },
+      "mock_pr_content_complete": true
+    },
+    {
+      "fault_id": "fault_003_wrong_status_code",
+      "service": "payments",
+      "patch_generated": true,
+      "reproduction_failed_before_patch": true,
+      "tests_passed": true,
+      "reproduction_passed_after_patch": true,
+      "sandbox_passed": true,
+      "error": null,
+      "unit_test_summary": "==== test session starts =============================\nplatform win32 -- Python 3.15.0, pytest-9.2.0, pluggy-1.7.0\nrootdir: C:\\Users\\ASUS\\Documents\\Codex\\2026-11-23\\https-github-com-akshayaksh1508-creator-ai\\work\\.nightshift-sandboxes\\b38c34a086821188-tvn2zb15\nconfigfile: pyproject.toml\nplugins: anyio-4.16.0, cov-7.1.0\ncollected 1 item\n\ntests\\verifier\\test_reproductions.py .                                   [100%]\n\n============================== 1 passed in 1.50s ==============================\n",
+      "reproduction_output_on_failure": "",
+      "mock_pr": {
+        "number": 103,
+        "url": "https://github.com/sandbox/day4-fixes/pull/103"
+      },
+      "mock_pr_content_complete": true
+    },
+    {
+      "fault_id": "fault_004_bad_parsing",
+      "service": "gateway",
+      "patch_generated": true,
+      "reproduction_failed_before_patch": true,
+      "tests_passed": true,
+      "reproduction_passed_after_patch": true,
+      "sandbox_passed": true,
+      "error": null,
+      "unit_test_summary": "==== test session starts =============================\nplatform win32 -- Python 3.15.0, pytest-9.2.0, pluggy-1.7.0\nrootdir: C:\\Users\\ASUS\\Documents\\Codex\\2026-11-23\\https-github-com-akshayaksh1508-creator-ai\\work\\.nightshift-sandboxes\\621367702ad8aa5a-x7a8370g\nconfigfile: pyproject.toml\nplugins: anyio-4.16.0, cov-7.1.0\ncollected 1 item\n\ntests\\verifier\\test_reproductions.py .                                   [100%]\n\n============================== 1 passed in 1.73s ==============================\n",
+      "reproduction_output_on_failure": "",
+      "mock_pr": {
+        "number": 104,
+        "url": "https://github.com/sandbox/day4-fixes/pull/104"
+      },
+      "mock_pr_content_complete": true
+    },
+    {
+      "fault_id": "fault_005_unhandled_exception",
+      "service": "orders",
+      "patch_generated": true,
+      "reproduction_failed_before_patch": true,
+      "tests_passed": true,
+      "reproduction_passed_after_patch": true,
+      "sandbox_passed": true,
+      "error": null,
+      "unit_test_summary": "==== test session starts =============================\nplatform win32 -- Python 3.15.0, pytest-9.2.0, pluggy-1.7.0\nrootdir: C:\\Users\\ASUS\\Documents\\Codex\\2026-11-23\\https-github-com-akshayaksh1508-creator-ai\\work\\.nightshift-sandboxes\\70cd243ea384ac0b-ayiun40y\nconfigfile: pyproject.toml\nplugins: anyio-4.16.0, cov-7.1.0\ncollected 1 item\n\ntests\\verifier\\test_reproductions.py .                                   [100%]\n\n============================== 1 passed in 1.92s ==============================\n",
+      "reproduction_output_on_failure": "",
+      "mock_pr": {
+        "number": 105,
+        "url": "https://github.com/sandbox/day4-fixes/pull/105"
+      },
+      "mock_pr_content_complete": true
+    }
+  ]
+}

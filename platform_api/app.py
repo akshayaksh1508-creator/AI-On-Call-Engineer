@@ -16,6 +16,7 @@ from contracts.models import FixProposal, FixProposalReceipt
 from platform_api.client import PlatformClient
 from platform_api.fixture_client import FixtureClient
 from platform_api.real_client import RealPlatformClient
+from verifier.sandbox import SandboxVerifier
 
 
 class LogQueryRequest(BaseModel):
@@ -44,6 +45,7 @@ def create_platform_api_app(
     mode: str = "real",
     fixture_bundle: str = "fault_001_bad_deploy",
     repo_root: Optional[Path] = None,
+    sandbox_use_container: bool = True,
 ) -> FastAPI:
     """Factory creating the FastAPI Platform API app."""
     app = FastAPI(
@@ -57,9 +59,59 @@ def create_platform_api_app(
     else:
         client = FixtureClient(fixture_bundle=fixture_bundle)
 
+    repository_root = Path(repo_root or Path(__file__).resolve().parent.parent).resolve()
+    sandbox_verifier = SandboxVerifier(repository_root, use_container=sandbox_use_container)
+
     @app.get("/health")
     def health():
         return {"status": "ok", "app": "nightshift-platform-api", "mode": mode}
+
+    class SandboxVerifyRequest(BaseModel):
+        incident_id: str = Field(..., min_length=1, max_length=128)
+        fault_id: str = Field(..., pattern=r"^fault_00[1-5]_[a-z0-9_]+$")
+        patch: str
+
+    @app.post("/verify/sandbox")
+    def verify_sandbox(req: SandboxVerifyRequest):
+        """Apply a candidate patch in a disposable worktree and replay its fault."""
+        fixture_dir = repository_root / "faults" / "catalog" / req.fault_id
+        manifest_path = fixture_dir / "manifest.yaml"
+        if not manifest_path.is_file():
+            raise HTTPException(status_code=404, detail="Unknown Day 4 code fault")
+        # The five checked-in code fixtures target one service file each.
+        service_by_fault = {
+            "fault_001_bad_deploy": "orders",
+            "fault_002_off_by_one": "orders",
+            "fault_003_wrong_status_code": "payments",
+            "fault_004_bad_parsing": "gateway",
+            "fault_005_unhandled_exception": "orders",
+        }
+        service = service_by_fault.get(req.fault_id)
+        if service is None:
+            raise HTTPException(status_code=404, detail="Fault is not in the Day 4 code set")
+        target_file = f"target-app/services/{service}/app.py"
+        reproduction_command = [
+            "python", "tests/verifier/reproduce.py", req.fault_id,
+        ]
+        test_command = [
+            "python", "-m", "pytest", "-q",
+            "tests/verifier/test_reproductions.py::TestDay4Reproductions::test_"
+            + req.fault_id,
+        ]
+        result = sandbox_verifier.verify(
+            req.incident_id,
+            req.patch,
+            target_file=target_file,
+            faulty_file=f"faults/catalog/{req.fault_id}/buggy_app.py",
+            reproduction_command=reproduction_command,
+        )
+        return {
+            **result.verification.model_dump(),
+            "accepted": result.accepted,
+            "error": result.error,
+            "unit_test_output": result.unit_test_output,
+            "reproduction_output": result.reproduction_output,
+        }
 
     # Tool 1: Query Logs (supports both GET and POST)
     @app.get("/logs/query")

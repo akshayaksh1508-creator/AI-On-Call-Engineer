@@ -10,6 +10,7 @@ from datetime import datetime, timezone
 import json
 import logging
 import os
+import urllib.parse
 from typing import Any, Dict, List, Optional
 import urllib.error
 import urllib.request
@@ -93,6 +94,24 @@ class GitHubPRClient:
             logger.info("Opened new mock PR #%d (%s -> %s)", pr_number, head_branch, base_branch)
             return pr_data
 
+        # GitHub rejects duplicate open PRs for the same head/base. Look one up
+        # first so a retry updates the existing remediation request.
+        owner = self.repo.split("/", 1)[0]
+        query = urllib.parse.urlencode(
+            {"state": "open", "head": f"{owner}:{head_branch}", "base": base_branch}
+        )
+        matches = self._http_request(
+            url=f"https://api.github.com/repos/{self.repo}/pulls?{query}", method="GET"
+        )
+        if matches:
+            existing = matches[0]
+            number = existing["number"]
+            return self._http_request(
+                url=f"https://api.github.com/repos/{self.repo}/pulls/{number}",
+                method="PATCH",
+                payload={"title": title, "body": body, "base": base_branch, "draft": draft},
+            )
+
         # Live GitHub REST API v3
         url = f"https://api.github.com/repos/{self.repo}/pulls"
         payload = {
@@ -103,6 +122,20 @@ class GitHubPRClient:
             "draft": draft,
         }
         return self._http_request(url=url, method="POST", payload=payload)
+
+    def create_remediation_pr(
+        self,
+        incident: Incident,
+        hypothesis: Hypothesis,
+        proposal: FixProposal,
+        head_branch: str,
+        verification: Optional[VerificationResult] = None,
+        base_branch: str = "main",
+    ) -> Dict[str, Any]:
+        """Open or update an idempotent PR containing the complete remediation record."""
+        title = f"fix({incident.service}): remediate {incident.id}"
+        body = format_remediation_pr_body(incident, hypothesis, proposal, verification)
+        return self.create_or_update_pr(title, body, head_branch, base_branch)
 
     def close_pr(self, pr_number: int) -> Dict[str, Any]:
         """Close an open remediation PR without merging."""
@@ -226,7 +259,9 @@ def format_remediation_pr_body(
     else:
         body += """
 ### 4. Verification Status
-- :hourglass_flowing_sand: _Awaiting automated worktree testing and canary verification._
+- **Sandbox unit tests:** Not run
+- **Failing request reproduction:** Not run
+- **Result:** Awaiting automated worktree and canary verification
 """
 
     body += "\n---\n*Authored autonomously by NightShift AI On-Call Engineer.*"
