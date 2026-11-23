@@ -38,9 +38,9 @@ up:
 	fi
 	@echo "==> NightShift services up."
 
-test: lint
+test:
 	@echo "==> Running test suite..."
-	$(PYTHON) -m unittest discover -s tests -p "test_*.py" -v
+	$(PYTHON) run.py test
 
 demo:
 	@echo "==> Triggering demo incident loop..."

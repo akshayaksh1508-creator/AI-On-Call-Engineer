@@ -16,7 +16,7 @@ import os
 from pathlib import Path
 import threading
 import time
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, Tuple
 import urllib.error
 import urllib.request
 
