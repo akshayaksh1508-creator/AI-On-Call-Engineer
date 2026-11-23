@@ -73,16 +73,8 @@ def process_payment(req: PaymentRequest, request: Request) -> PaymentResponse:
         extra={"trace_id": trace_id, "extra_fields": {"order_id": req.order_id, "amount": req.amount}},
     )
 
-    # Fraud safety check preserves 400 status
-    if req.amount > 50000.0:
-        logger.error(
-            f"Payment rejected: amount {req.amount} exceeds fraud limit",
-            extra={"trace_id": trace_id, "extra_fields": {"order_id": req.order_id}},
-        )
-        raise HTTPException(status_code=400, detail="Transaction amount exceeds safety limit")
-
-    # BUG (dep_20261123_v1.0.3 / c3d5e7f9): returns HTTP 200 with DECLINED body instead of HTTP 402
-    if req.currency == "DECLINE":
+    # BUG (dep_20261123_v1.0.3 / c3d5e7f9): returns HTTP 200 with DECLINED body instead of HTTP 400/402
+    if req.amount > 50000.0 or req.currency == "DECLINE":
         logger.warning(
             f"Payment declined for order {req.order_id}, returning HTTP 200 with DECLINED payload",
             extra={"trace_id": trace_id, "extra_fields": {"order_id": req.order_id}},
