@@ -59,6 +59,11 @@ from agent.structured_output import (
     normalize_category,
     normalize_evidence_type,
 )
+from agent.run_logger import (
+    RunLogger,
+    PartialRunRecord,
+    load_run_records,
+)
 
 __all__ = [
     "LLMClient",
@@ -106,4 +111,7 @@ __all__ = [
     "normalize_confidence",
     "normalize_category",
     "normalize_evidence_type",
+    "RunLogger",
+    "PartialRunRecord",
+    "load_run_records",
 ]

@@ -19,13 +19,14 @@ import uuid
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from contracts.models import Evidence, Hypothesis, Incident
+from contracts.models import Evidence, Hypothesis, Incident, RunRecord
 from agent.llm_client import LLMClient, LLMResponse, calculate_cost
 from agent.prompts import (
     SYSTEM_PROMPT_V0,
     build_investigation_user_prompt,
     parse_agent_response,
 )
+from agent.run_logger import RunLogger, PartialRunRecord
 from agent.tools import (
     DEFAULT_MAX_TOOL_TOKENS,
     PLATFORM_TOOL_DEFINITIONS,
@@ -60,6 +61,8 @@ class InvestigationResult(BaseModel):
     wall_time_seconds: float = Field(default=0.0, description="Total wall-clock duration in seconds")
     raw_output: str = Field(default="")
     repaired_json: bool = Field(default=False, description="Whether JSON repair was triggered")
+    run_record: Optional[RunRecord] = Field(default=None, description="Benchmark-compatible contracts.models.RunRecord")
+    partial_run_record: Optional[PartialRunRecord] = Field(default=None, description="Detailed RCA telemetry record")
 
 
 class InvestigationLoop:
@@ -75,6 +78,8 @@ class InvestigationLoop:
         system_prompt: str = SYSTEM_PROMPT_V0,
         max_tool_tokens: int = DEFAULT_MAX_TOOL_TOKENS,
         tool_executor: Optional[ToolExecutor] = None,
+        run_logger: Optional[RunLogger] = None,
+        log_runs: bool = True,
     ):
         self.llm_client = llm_client
         self.platform_client = platform_client
@@ -83,6 +88,8 @@ class InvestigationLoop:
         self.max_retries = max_retries
         self.system_prompt = system_prompt
         self.max_tool_tokens = max_tool_tokens
+        self.run_logger = run_logger
+        self.log_runs = log_runs
         self.tool_executor = tool_executor or ToolExecutor(
             platform_client=self.platform_client,
             max_tokens=self.max_tool_tokens,
@@ -155,6 +162,13 @@ class InvestigationLoop:
             {"role": "user", "content": user_prompt}
         ]
 
+        # Initialize run telemetry logger
+        logger_instance = self.run_logger or RunLogger(
+            incident_id=inc_obj.id,
+            auto_write=self.log_runs,
+        )
+        logger_instance.start(incident_id=inc_obj.id)
+
         step = 0
         total_tokens = 0
         total_cost = 0.0
@@ -169,6 +183,7 @@ class InvestigationLoop:
             llm_resp = self._call_llm_with_retry(messages=messages, tools=tools)
             total_tokens += llm_resp.total_tokens
             total_cost += llm_resp.cost_usd
+            logger_instance.record_llm_call(llm_resp, step=step)
 
             # 2. Check for tool calls
             if llm_resp.tool_calls:
@@ -200,9 +215,19 @@ class InvestigationLoop:
                     t_args = tc.get("input", {})
                     t_id = tc.get("id", f"toolu_{uuid.uuid4().hex[:8]}")
 
+                    t0 = time.perf_counter()
                     tool_output = self._execute_tool_safely(t_name, t_args)
+                    t_dur = time.perf_counter() - t0
 
                     is_err = is_tool_error(tool_output)
+                    logger_instance.record_tool_call(
+                        tool_name=t_name,
+                        arguments=t_args,
+                        output_length=len(tool_output),
+                        duration_seconds=t_dur,
+                        is_error=is_err,
+                        step=step,
+                    )
                     tool_call_history.append({
                         "step": step,
                         "tool": t_name,
@@ -237,6 +262,9 @@ class InvestigationLoop:
                 hypotheses, evidence_list, uncited_claims, raw_dict = parse_agent_response(raw_text)
                 wall_time = round(time.perf_counter() - start_time, 4)
 
+                partial_rec = logger_instance.finish(status="completed", repaired_json=repaired_json)
+                contract_rec = partial_rec.to_contract_run_record()
+
                 return InvestigationResult(
                     incident_id=inc_obj.id,
                     service=inc_obj.service,
@@ -255,6 +283,8 @@ class InvestigationLoop:
                     wall_time_seconds=wall_time,
                     raw_output=raw_text,
                     repaired_json=repaired_json,
+                    run_record=contract_rec,
+                    partial_run_record=partial_rec,
                 )
 
             except Exception as parse_err:
@@ -277,6 +307,9 @@ class InvestigationLoop:
                     # Repair attempt also failed: escalate safely without looping infinitely
                     logger.error("JSON repair retry failed. Escalating incident %s.", inc_obj.id)
                     wall_time = round(time.perf_counter() - start_time, 4)
+                    partial_rec = logger_instance.finish(status="escalated", repaired_json=repaired_json)
+                    contract_rec = partial_rec.to_contract_run_record()
+
                     return InvestigationResult(
                         incident_id=inc_obj.id,
                         service=inc_obj.service,
@@ -295,11 +328,16 @@ class InvestigationLoop:
                         wall_time_seconds=wall_time,
                         raw_output=raw_text,
                         repaired_json=repaired_json,
+                        run_record=contract_rec,
+                        partial_run_record=partial_rec,
                     )
 
         # Loop completed because step >= step_budget
         wall_time = round(time.perf_counter() - start_time, 4)
         logger.warning("Investigation terminated: step budget (%d) exhausted for %s", self.step_budget, inc_obj.id)
+        partial_rec = logger_instance.finish(status="budget_exhausted", repaired_json=repaired_json)
+        contract_rec = partial_rec.to_contract_run_record()
+
         return InvestigationResult(
             incident_id=inc_obj.id,
             service=inc_obj.service,
@@ -318,6 +356,8 @@ class InvestigationLoop:
             wall_time_seconds=wall_time,
             raw_output="",
             repaired_json=repaired_json,
+            run_record=contract_rec,
+            partial_run_record=partial_rec,
         )
 
 
