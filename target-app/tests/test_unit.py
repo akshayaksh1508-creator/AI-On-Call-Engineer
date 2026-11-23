@@ -93,9 +93,10 @@ class TestTargetAppUnit(unittest.TestCase):
 
     # Test 6: Payments Retrieval by ID and 404 on Missing
     def test_06_payments_lookup(self):
-        # Insert known payment
+        # Insert known payment directly into active payments database
         pay_id = f"pay_unit_{uuid.uuid4().hex[:6]}"
-        payments_db[pay_id] = {
+        import target_app.services.payments.app as current_pay_app
+        current_pay_app.payments_db[pay_id] = {
             "payment_id": pay_id,
             "order_id": "ord_unit_lookup",
             "status": "APPROVED",
