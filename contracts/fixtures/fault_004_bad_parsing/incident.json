@@ -1,0 +1,17 @@
+{
+  "id": "inc_20261123_004",
+  "service": "gateway",
+  "started_at": "2026-11-23T05:40:47Z",
+  "symptoms": [
+    "Gateway returns HTTP 500 on valid client timestamps with trailing 'Z'",
+    "Gateway log shows ValueError: time data does not match format"
+  ],
+  "alerts": [
+    "Gateway5xxSpike",
+    "TimestampParsingFailure"
+  ],
+  "recent_changes": [
+    "dep_20261123_v1.0.4"
+  ],
+  "status": "open"
+}

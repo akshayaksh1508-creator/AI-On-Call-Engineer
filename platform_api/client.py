@@ -21,8 +21,9 @@ class PlatformClient(ABC):
         level: Optional[str] = None,
         trace_id: Optional[str] = None,
         limit: int = 100,
+        text: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
-        """Tool 1: Query structured logs by service, time range, log level, or trace ID."""
+        """Tool 1: Query structured logs by service, time range, log level, trace ID, or text substring."""
         pass
 
     @abstractmethod

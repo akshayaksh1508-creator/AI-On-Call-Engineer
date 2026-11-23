@@ -1,13 +1,29 @@
 id: fault_002_off_by_one
+fault_id: fault_002_off_by_one
+title: "Off-by-one index error in orders history pagination"
 category: code
 difficulty: easy
-service: orders
+target_service: orders
+target_file: target-app/services/orders/app.py
 culprit_change: dep_20261123_v1.0.2
 culprit_commit: a2b4c6e8
 root_cause: "IndexError: list index out of range in paginate_records() when fetching order history boundary elements"
+visible_symptom: "GET /orders returns HTTP 500 on boundary pages with IndexError in paginate_records()"
+visible_symptoms:
+  - "GET /orders returns HTTP 500 on boundary pages"
+  - "Orders log shows IndexError: list index out of range in paginate_records()"
+expected_fix: "Replace direct boundary index access with safe len() bounds check in paginate_records()"
 expected_fix_type: patch
 alternative_fix_type: rollback
 risk_tier: T2
+rollback_version: v1.0.0
+faulty_version: v1.0.2
+diff: |
+  --- a/target-app/services/orders/app.py
+  +++ b/target-app/services/orders/app.py
+  @@ -155,2 +155,2 @@
+  -        _next_check = records[end]
+  +        if start >= len(records): return []
 suggested_patch: |
   --- a/target-app/services/orders/app.py
   +++ b/target-app/services/orders/app.py

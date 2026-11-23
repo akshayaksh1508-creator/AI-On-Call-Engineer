@@ -1,16 +1,33 @@
+id: fault_001_bad_deploy
 fault_id: fault_001_bad_deploy
+title: "Bad deployment: Unhandled null pointer in orders checkout"
 category: code
 difficulty: easy
-service: orders
+target_service: orders
+target_file: target-app/services/orders/app.py
 culprit_change: dep_20261122_v1.0.1
 culprit_commit: c0ffee14a
 root_cause: "TypeError: 'NoneType' object is not subscriptable when order payload lacks a discount key in create_order()"
+visible_symptom: "HTTP 500 error rate spiked to 35% on POST /orders due to unhandled NoneType discount"
+visible_symptoms:
+  - "HTTP 500 error rate spiked to 35% on POST /orders"
+  - "Gateway returning 500/502 errors on customer checkout flow"
+  - "Logs show unhandled TypeError at discount['code']"
+expected_fix: "Add defensive null check for optional discount payload before accessing ['code']"
 expected_fix_type: patch
 alternative_fix_type: rollback
 risk_tier: T2
+rollback_version: v1.0.0
+faulty_version: v1.0.1
+diff: |
+  --- a/target-app/services/orders/app.py
+  +++ b/target-app/services/orders/app.py
+  @@ -82,2 +82,2 @@
+  -    discount_code = discount["code"]
+  +    discount_code = discount.get("code") if isinstance(discount, dict) else None
 suggested_patch: |
-  --- a/target-app/services/orders/main.py
-  +++ b/target-app/services/orders/main.py
-  @@ -40,3 +40,3 @@
+  --- a/target-app/services/orders/app.py
+  +++ b/target-app/services/orders/app.py
+  @@ -82,2 +82,2 @@
   -    discount_code = discount["code"]
   +    discount_code = discount.get("code") if isinstance(discount, dict) else None

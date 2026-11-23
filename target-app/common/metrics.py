@@ -112,7 +112,7 @@ def add_telemetry_middleware(app: FastAPI, service_name: str, logger) -> None:
             ).observe(duration)
 
             logger.exception(
-                f"Unhandled error in {method} {endpoint}: {exc}",
+                f"Unhandled error in {method} {endpoint}: {type(exc).__name__}: {exc}",
                 extra={"trace_id": trace_id},
             )
             raise exc

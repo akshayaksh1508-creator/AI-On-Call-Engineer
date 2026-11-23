@@ -1,0 +1,214 @@
+[
+  {
+    "service": "orders",
+    "trace_id": "e9afb646-1705-4ce9-8366-11ff7c709fce",
+    "timestamp": "2026-11-23T05:44:38.265448+00:00",
+    "level": "INFO",
+    "message": "Handling POST /orders",
+    "path": "/orders",
+    "method": "POST"
+  },
+  {
+    "service": "orders",
+    "trace_id": "e9afb646-1705-4ce9-8366-11ff7c709fce",
+    "timestamp": "2026-11-23T05:44:38.266891+00:00",
+    "level": "INFO",
+    "message": "Creating order ord_5a87958d5a73 for customer c_init (total: $5.0)",
+    "order_id": "ord_5a87958d5a73",
+    "total": 5.0
+  },
+  {
+    "service": "orders",
+    "trace_id": "e9afb646-1705-4ce9-8366-11ff7c709fce",
+    "timestamp": "2026-11-23T05:44:38.272967+00:00",
+    "level": "INFO",
+    "message": "Forwarding payment request for order ord_5a87958d5a73 to payments service at http://127.0.0.1:8082/process",
+    "target": "payments"
+  },
+  {
+    "service": "orders",
+    "trace_id": "e9afb646-1705-4ce9-8366-11ff7c709fce",
+    "timestamp": "2026-11-23T05:44:40.362652+00:00",
+    "level": "ERROR",
+    "message": "Failed to reach payments service for order ord_5a87958d5a73: All connection attempts failed"
+  },
+  {
+    "service": "orders",
+    "trace_id": "e9afb646-1705-4ce9-8366-11ff7c709fce",
+    "timestamp": "2026-11-23T05:44:40.363178+00:00",
+    "level": "ERROR",
+    "message": "POST /orders failed with status 503 in 2.0976s",
+    "status": 503
+  },
+  {
+    "service": "orders",
+    "trace_id": "18c6d835-de5f-42d2-b7f5-320c9f1ad1fb",
+    "timestamp": "2026-11-23T05:44:40.371920+00:00",
+    "level": "INFO",
+    "message": "Handling POST /orders",
+    "path": "/orders",
+    "method": "POST"
+  },
+  {
+    "service": "orders",
+    "trace_id": "18c6d835-de5f-42d2-b7f5-320c9f1ad1fb",
+    "timestamp": "2026-11-23T05:44:40.372919+00:00",
+    "level": "INFO",
+    "message": "Creating order ord_3c526f7b5fef for customer c_0 (total: $100.0)",
+    "order_id": "ord_3c526f7b5fef",
+    "total": 100.0
+  },
+  {
+    "service": "orders",
+    "trace_id": "18c6d835-de5f-42d2-b7f5-320c9f1ad1fb",
+    "timestamp": "2026-11-23T05:44:40.381381+00:00",
+    "level": "INFO",
+    "message": "Forwarding payment request for order ord_3c526f7b5fef to payments service at http://127.0.0.1:8082/process",
+    "target": "payments"
+  },
+  {
+    "service": "orders",
+    "trace_id": "18c6d835-de5f-42d2-b7f5-320c9f1ad1fb",
+    "timestamp": "2026-11-23T05:44:42.448474+00:00",
+    "level": "ERROR",
+    "message": "Failed to reach payments service for order ord_3c526f7b5fef: All connection attempts failed"
+  },
+  {
+    "service": "orders",
+    "trace_id": "18c6d835-de5f-42d2-b7f5-320c9f1ad1fb",
+    "timestamp": "2026-11-23T05:44:42.448825+00:00",
+    "level": "ERROR",
+    "message": "POST /orders failed with status 503 in 2.0769s",
+    "status": 503
+  },
+  {
+    "service": "orders",
+    "trace_id": "38f7be9b-9372-4577-bf98-b8c92f94ba78",
+    "timestamp": "2026-11-23T05:44:42.456161+00:00",
+    "level": "INFO",
+    "message": "Handling POST /orders",
+    "path": "/orders",
+    "method": "POST"
+  },
+  {
+    "service": "orders",
+    "trace_id": "38f7be9b-9372-4577-bf98-b8c92f94ba78",
+    "timestamp": "2026-11-23T05:44:42.456909+00:00",
+    "level": "INFO",
+    "message": "Creating order ord_5001e578743c for customer c_1 (total: $100.0)",
+    "order_id": "ord_5001e578743c",
+    "total": 100.0
+  },
+  {
+    "service": "orders",
+    "trace_id": "38f7be9b-9372-4577-bf98-b8c92f94ba78",
+    "timestamp": "2026-11-23T05:44:42.462706+00:00",
+    "level": "INFO",
+    "message": "Forwarding payment request for order ord_5001e578743c to payments service at http://127.0.0.1:8082/process",
+    "target": "payments"
+  },
+  {
+    "service": "orders",
+    "trace_id": "38f7be9b-9372-4577-bf98-b8c92f94ba78",
+    "timestamp": "2026-11-23T05:44:44.502304+00:00",
+    "level": "ERROR",
+    "message": "Failed to reach payments service for order ord_5001e578743c: All connection attempts failed"
+  },
+  {
+    "service": "orders",
+    "trace_id": "38f7be9b-9372-4577-bf98-b8c92f94ba78",
+    "timestamp": "2026-11-23T05:44:44.502769+00:00",
+    "level": "ERROR",
+    "message": "POST /orders failed with status 503 in 2.0466s",
+    "status": 503
+  },
+  {
+    "service": "orders",
+    "trace_id": "8eed33e7-8c2a-4d08-82ba-d830ab3e28c9",
+    "timestamp": "2026-11-23T05:44:44.510466+00:00",
+    "level": "INFO",
+    "message": "Handling POST /orders",
+    "path": "/orders",
+    "method": "POST"
+  },
+  {
+    "service": "orders",
+    "trace_id": "8eed33e7-8c2a-4d08-82ba-d830ab3e28c9",
+    "timestamp": "2026-11-23T05:44:44.511414+00:00",
+    "level": "INFO",
+    "message": "Creating order ord_0a9c0ec9ea29 for customer c_2 (total: $100.0)",
+    "order_id": "ord_0a9c0ec9ea29",
+    "total": 100.0
+  },
+  {
+    "service": "orders",
+    "trace_id": "8eed33e7-8c2a-4d08-82ba-d830ab3e28c9",
+    "timestamp": "2026-11-23T05:44:44.516997+00:00",
+    "level": "INFO",
+    "message": "Forwarding payment request for order ord_0a9c0ec9ea29 to payments service at http://127.0.0.1:8082/process",
+    "target": "payments"
+  },
+  {
+    "service": "orders",
+    "trace_id": "8eed33e7-8c2a-4d08-82ba-d830ab3e28c9",
+    "timestamp": "2026-11-23T05:44:46.565558+00:00",
+    "level": "ERROR",
+    "message": "Failed to reach payments service for order ord_0a9c0ec9ea29: All connection attempts failed"
+  },
+  {
+    "service": "orders",
+    "trace_id": "8eed33e7-8c2a-4d08-82ba-d830ab3e28c9",
+    "timestamp": "2026-11-23T05:44:46.565916+00:00",
+    "level": "ERROR",
+    "message": "POST /orders failed with status 503 in 2.0554s",
+    "status": 503
+  },
+  {
+    "service": "orders",
+    "trace_id": "20e5bb4d-acf9-400b-bf2a-a06c401ef430",
+    "timestamp": "2026-11-23T05:44:46.573442+00:00",
+    "level": "INFO",
+    "message": "Handling GET /orders",
+    "path": "/orders",
+    "method": "GET"
+  },
+  {
+    "service": "orders",
+    "trace_id": "none",
+    "timestamp": "2026-11-23T05:44:46.578196+00:00",
+    "level": "ERROR",
+    "message": "Evaluating pagination boundary element at index 50 for 50 records"
+  },
+  {
+    "service": "orders",
+    "trace_id": "20e5bb4d-acf9-400b-bf2a-a06c401ef430",
+    "timestamp": "2026-11-23T05:44:46.578763+00:00",
+    "level": "ERROR",
+    "message": "Unhandled error in GET /orders: list index out of range",
+    "exception": "Traceback (most recent call last):\n  File \"D:\\Akshay\\Documents\\AI On-Call Engineer\\target-app\\common\\metrics.py\", line 72, in telemetry_middleware\n    response: Response = await call_next(request)\n                         ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\middleware\\base.py\", line 179, in call_next\n    raise app_exc from app_exc.__cause__ or app_exc.__context__\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\middleware\\base.py\", line 149, in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\middleware\\exceptions.py\", line 63, in __call__\n    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\middleware\\asyncexitstack.py\", line 18, in __call__\n    await self.app(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\routing.py\", line 683, in __call__\n    await self.middleware_stack(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 2929, in app\n    await route.handle(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 1375, in handle\n    await super().handle(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\routing.py\", line 289, in handle\n    await self.app(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 175, in app\n    await wrap_app_handling_exceptions(app, request)(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 161, in app\n    response = await f(request)\n               ^^^^^^^^^^^^^^^^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 762, in app\n    raw_response = await run_endpoint_function(\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<3 lines>...\n    )\n    ^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 383, in run_endpoint_function\n    return await run_in_threadpool(\n           ^^^^^^^^^^^^^^^^^^^^^^^^\n        _run_sync_endpoint, function=dependant.call, arguments=values\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\concurrency.py\", line 34, in run_in_threadpool\n    return await anyio.to_thread.run_sync(func)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\anyio\\to_thread.py\", line 65, in run_sync\n    return await get_async_backend().run_sync_in_worker_thread(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        func, args, abandon_on_cancel=abandon_on_cancel, limiter=limiter\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\anyio\\_backends\\_asyncio.py\", line 2779, in run_sync_in_worker_thread\n    return await future\n           ^^^^^^^^^^^^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\anyio\\_backends\\_asyncio.py\", line 1124, in run\n    result = context.run(func, *args)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\telemetry\\_api.py\", line 244, in _run_sync_endpoint\n    return function(**arguments)\n  File \"D:\\Akshay\\Documents\\AI On-Call Engineer\\target-app\\services\\orders\\app.py\", line 166, in list_orders\n    paginated = paginate_records(orders, page=page, limit=limit)\n  File \"D:\\Akshay\\Documents\\AI On-Call Engineer\\target-app\\services\\orders\\app.py\", line 79, in paginate_records\n    _boundary_elem = records[len(records)]  # Raises IndexError: list index out of range!\n                     ~~~~~~~^^^^^^^^^^^^^^\nIndexError: list index out of range\n"
+  },
+  {
+    "service": "orders",
+    "trace_id": "ba22ad9b-ebc6-4300-aaff-46a54309b1a2",
+    "timestamp": "2026-11-23T05:44:46.590390+00:00",
+    "level": "INFO",
+    "message": "Handling GET /orders",
+    "path": "/orders",
+    "method": "GET"
+  },
+  {
+    "service": "orders",
+    "trace_id": "none",
+    "timestamp": "2026-11-23T05:44:46.595301+00:00",
+    "level": "ERROR",
+    "message": "Evaluating pagination boundary element at index 50 for 50 records"
+  },
+  {
+    "service": "orders",
+    "trace_id": "ba22ad9b-ebc6-4300-aaff-46a54309b1a2",
+    "timestamp": "2026-11-23T05:44:46.595758+00:00",
+    "level": "ERROR",
+    "message": "Unhandled error in GET /orders: list index out of range",
+    "exception": "Traceback (most recent call last):\n  File \"D:\\Akshay\\Documents\\AI On-Call Engineer\\target-app\\common\\metrics.py\", line 72, in telemetry_middleware\n    response: Response = await call_next(request)\n                         ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\middleware\\base.py\", line 179, in call_next\n    raise app_exc from app_exc.__cause__ or app_exc.__context__\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\middleware\\base.py\", line 149, in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\middleware\\exceptions.py\", line 63, in __call__\n    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\middleware\\asyncexitstack.py\", line 18, in __call__\n    await self.app(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\routing.py\", line 683, in __call__\n    await self.middleware_stack(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 2929, in app\n    await route.handle(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 1375, in handle\n    await super().handle(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\routing.py\", line 289, in handle\n    await self.app(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 175, in app\n    await wrap_app_handling_exceptions(app, request)(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 161, in app\n    response = await f(request)\n               ^^^^^^^^^^^^^^^^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 762, in app\n    raw_response = await run_endpoint_function(\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<3 lines>...\n    )\n    ^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 383, in run_endpoint_function\n    return await run_in_threadpool(\n           ^^^^^^^^^^^^^^^^^^^^^^^^\n        _run_sync_endpoint, function=dependant.call, arguments=values\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\concurrency.py\", line 34, in run_in_threadpool\n    return await anyio.to_thread.run_sync(func)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\anyio\\to_thread.py\", line 65, in run_sync\n    return await get_async_backend().run_sync_in_worker_thread(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        func, args, abandon_on_cancel=abandon_on_cancel, limiter=limiter\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\anyio\\_backends\\_asyncio.py\", line 2779, in run_sync_in_worker_thread\n    return await future\n           ^^^^^^^^^^^^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\anyio\\_backends\\_asyncio.py\", line 1124, in run\n    result = context.run(func, *args)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\telemetry\\_api.py\", line 244, in _run_sync_endpoint\n    return function(**arguments)\n  File \"D:\\Akshay\\Documents\\AI On-Call Engineer\\target-app\\services\\orders\\app.py\", line 166, in list_orders\n    paginated = paginate_records(orders, page=page, limit=limit)\n  File \"D:\\Akshay\\Documents\\AI On-Call Engineer\\target-app\\services\\orders\\app.py\", line 79, in paginate_records\n    _boundary_elem = records[len(records)]  # Raises IndexError: list index out of range!\n                     ~~~~~~~^^^^^^^^^^^^^^\nIndexError: list index out of range\n"
+  }
+]

@@ -1,0 +1,17 @@
+[
+  {
+    "service": "payments",
+    "trace_id": "trace_7a22e7799d6e",
+    "timestamp": "2026-11-23T05:44:46Z",
+    "level": "INFO",
+    "message": "Service payments handling incoming requests"
+  },
+  {
+    "service": "payments",
+    "trace_id": "trace_919781741a66",
+    "timestamp": "2026-11-23T05:44:46Z",
+    "level": "ERROR",
+    "message": "Unhandled error: Payments service returns HTTP 200 with DECLINED status payload instead of HTTP 402/400 status code on declined payments",
+    "exception": "Traceback (most recent call last):\n  File 'target-app/services/payments/app.py', line 85\n    Payments service returns HTTP 200 with DECLINED status payload instead of HTTP 402/400 status code on declined payments"
+  }
+]

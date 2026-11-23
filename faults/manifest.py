@@ -61,6 +61,10 @@ class FaultManifest(BaseModel):
             # Support service alias for target_service
             if "target_service" not in values and "service" in values:
                 values["target_service"] = values["service"]
+            # Default target_file if missing
+            if "target_file" not in values or not values.get("target_file"):
+                svc = values.get("target_service", values.get("service", "orders"))
+                values["target_file"] = f"target-app/services/{svc}/app.py"
             # Support visible_symptom <-> visible_symptoms
             if "visible_symptoms" not in values and "visible_symptom" in values:
                 values["visible_symptoms"] = [values["visible_symptom"]]
@@ -75,3 +79,11 @@ class FaultManifest(BaseModel):
             if "title" not in values:
                 values["title"] = values.get("root_cause", values.get("fault_id", "Injected Fault"))
         return values
+
+    @property
+    def id(self) -> str:
+        return self.fault_id
+
+    @property
+    def service(self) -> str:
+        return self.target_service

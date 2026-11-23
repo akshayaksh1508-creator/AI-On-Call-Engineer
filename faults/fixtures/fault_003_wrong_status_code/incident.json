@@ -1,0 +1,18 @@
+{
+  "id": "inc_20261123_003",
+  "service": "payments",
+  "started_at": "2026-11-23T05:40:46Z",
+  "symptoms": [
+    "Orders service falsely marks failed transactions as CONFIRMED",
+    "Financial reconciliation mismatch between Gateway and Payments ledger",
+    "Prometheus shows 0% payment errors despite failing credit card charges"
+  ],
+  "alerts": [
+    "PaymentsStatusDiscrepancy",
+    "PaymentReconciliationMismatch"
+  ],
+  "recent_changes": [
+    "dep_20261123_v1.0.3"
+  ],
+  "status": "open"
+}

@@ -3,6 +3,7 @@ title: "Bad deployment: Unhandled null pointer in orders checkout"
 category: code
 difficulty: easy
 target_service: orders
+target_file: target-app/services/orders/app.py
 culprit_change: dep_20261122_v1.0.1
 culprit_commit: c0ffee14a
 root_cause: "TypeError: 'NoneType' object is not subscriptable when order payload lacks a discount key in create_order()"

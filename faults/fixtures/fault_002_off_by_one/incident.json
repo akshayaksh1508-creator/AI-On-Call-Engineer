@@ -1,0 +1,16 @@
+{
+  "id": "inc_20261123_002",
+  "service": "orders",
+  "started_at": "2026-11-23T05:40:38Z",
+  "symptoms": [
+    "GET /orders returns HTTP 500 on boundary pages",
+    "Orders log shows IndexError: list index out of range in paginate_records()"
+  ],
+  "alerts": [
+    "OrdersHigh5xxRate"
+  ],
+  "recent_changes": [
+    "dep_20261123_v1.0.2"
+  ],
+  "status": "open"
+}

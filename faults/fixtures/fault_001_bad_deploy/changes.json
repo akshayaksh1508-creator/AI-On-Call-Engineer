@@ -2,12 +2,12 @@
   {
     "id": "dep_20261122_v1.0.1",
     "service": "orders",
-    "timestamp": "2026-11-22T21:38:15Z",
+    "timestamp": "2026-11-23T05:40:56Z",
     "version": "v1.0.1",
     "git_commit": "c0ffee14a",
     "git_branch": "main",
     "author": "dev-lead@nightshift.local",
-    "message": "feat(orders): add VIP discount code handling",
+    "message": "Bad deployment: Unhandled null pointer in orders checkout",
     "config_diff": null
   },
   {

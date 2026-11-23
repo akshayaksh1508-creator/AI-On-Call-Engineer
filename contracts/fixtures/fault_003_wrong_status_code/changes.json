@@ -1,0 +1,24 @@
+[
+  {
+    "id": "dep_20261123_v1.0.3",
+    "service": "payments",
+    "timestamp": "2026-11-23T05:39:46Z",
+    "version": "v1.0.3",
+    "git_commit": "c3d5e7f9",
+    "git_branch": "main",
+    "author": "dev-lead@nightshift.local",
+    "message": "Payments service returns HTTP 200 with error body instead of HTTP 400/402",
+    "config_diff": null
+  },
+  {
+    "id": "dep_20261122_v1.0.0",
+    "service": "payments",
+    "timestamp": "2026-11-22T20:00:00Z",
+    "version": "v1.0.0",
+    "git_commit": "a1b2c3d4e",
+    "git_branch": "main",
+    "author": "dev-ops@nightshift.local",
+    "message": "chore: initial release v1.0.0 baseline",
+    "config_diff": null
+  }
+]

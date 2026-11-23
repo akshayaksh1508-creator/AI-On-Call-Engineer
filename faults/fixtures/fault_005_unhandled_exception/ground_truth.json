@@ -1,0 +1,26 @@
+{
+  "id": "fault_005_unhandled_exception",
+  "fault_id": "fault_005_unhandled_exception",
+  "title": "Uncaught ZeroDivisionError in bulk order discount calculator",
+  "category": "code",
+  "difficulty": "easy",
+  "target_service": "orders",
+  "service": "orders",
+  "target_file": "target-app/services/orders/app.py",
+  "culprit_change": "dep_20261123_v1.0.5",
+  "culprit_commit": "b5c7d9e1",
+  "root_cause": "ZeroDivisionError in calculate_unit_discount when promo_items or total_items is zero",
+  "visible_symptom": "POST /orders fails with HTTP 500 on promotional discount calculation",
+  "visible_symptoms": [
+    "POST /orders fails with HTTP 500 on promotional discount calculation",
+    "Orders log records ZeroDivisionError: division by zero in calculate_unit_discount()"
+  ],
+  "expected_fix": null,
+  "expected_fix_type": "patch",
+  "alternative_fix_type": "rollback",
+  "risk_tier": "T2",
+  "rollback_version": "v1.0.0",
+  "faulty_version": "v1.0.5",
+  "diff": "--- a/target-app/services/orders/app.py\n+++ b/target-app/services/orders/app.py\n@@ -75,2 +75,4 @@\n-    return total_discount / total_items\n+    if total_items <= 0:\n+        return 0.0\n+    return round(total_discount / total_items, 2)",
+  "suggested_patch": "--- a/target-app/services/orders/app.py\n+++ b/target-app/services/orders/app.py\n@@ -75,2 +75,4 @@\n-    return total_discount / total_items\n+    if total_items <= 0:\n+        return 0.0\n+    return round(total_discount / total_items, 2)"
+}
