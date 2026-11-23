@@ -27,8 +27,11 @@ from agent.prompts import (
     parse_agent_response,
 )
 from agent.tools import (
+    DEFAULT_MAX_TOOL_TOKENS,
     PLATFORM_TOOL_DEFINITIONS,
+    ToolExecutor,
     get_agent_tools,
+    is_tool_error,
     validate_tool_call,
 )
 from platform_api.client import PlatformClient
@@ -70,6 +73,8 @@ class InvestigationLoop:
         call_timeout: float = 30.0,
         max_retries: int = 2,
         system_prompt: str = SYSTEM_PROMPT_V0,
+        max_tool_tokens: int = DEFAULT_MAX_TOOL_TOKENS,
+        tool_executor: Optional[ToolExecutor] = None,
     ):
         self.llm_client = llm_client
         self.platform_client = platform_client
@@ -77,6 +82,11 @@ class InvestigationLoop:
         self.call_timeout = call_timeout
         self.max_retries = max_retries
         self.system_prompt = system_prompt
+        self.max_tool_tokens = max_tool_tokens
+        self.tool_executor = tool_executor or ToolExecutor(
+            platform_client=self.platform_client,
+            max_tokens=self.max_tool_tokens,
+        )
 
     def _call_llm_with_retry(
         self,
@@ -116,31 +126,12 @@ class InvestigationLoop:
         tool_name: str,
         arguments: Dict[str, Any],
     ) -> str:
-        """Executes a single tool call on the PlatformClient with error interception.
+        """Executes a single tool call via ToolExecutor with validation, error isolation, and token limits.
         
         Rule: Tool errors are caught, formatted as structured messages, and returned
         to the LLM so it can adjust its reasoning without crashing the loop.
         """
-        # 1. Schema validation check
-        is_valid, validation_err = validate_tool_call(tool_name, arguments)
-        if not is_valid:
-            logger.warning("Tool validation failed for '%s': %s", tool_name, validation_err)
-            return f"Error: Tool validation failed for '{tool_name}': {validation_err}"
-
-        # 2. Execution check
-        method = getattr(self.platform_client, tool_name, None)
-        if not method or not callable(method):
-            logger.warning("Unknown tool '%s' requested", tool_name)
-            return f"Error: Platform client has no tool named '{tool_name}'"
-
-        try:
-            result = method(**arguments)
-            if isinstance(result, str):
-                return result
-            return json.dumps(result, indent=2)
-        except Exception as exc:
-            logger.exception("Tool '%s' raised an unexpected error: %s", tool_name, exc)
-            return f"Error: Tool '{tool_name}' failed with {type(exc).__name__}: {str(exc)}"
+        return self.tool_executor.execute(tool_name, arguments)
 
     def run(
         self,
@@ -211,7 +202,7 @@ class InvestigationLoop:
 
                     tool_output = self._execute_tool_safely(t_name, t_args)
 
-                    is_err = "Error:" in tool_output
+                    is_err = is_tool_error(tool_output)
                     tool_call_history.append({
                         "step": step,
                         "tool": t_name,
