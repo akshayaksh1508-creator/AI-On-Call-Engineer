@@ -55,6 +55,7 @@ class LLMResponse(BaseModel):
     latency_seconds: float = Field(..., description="Wall time elapsed for the call in seconds")
     stop_reason: Optional[str] = "end_turn"
     call_id: str = Field(default_factory=lambda: f"call_{uuid.uuid4().hex[:8]}")
+    tool_calls: List[Dict[str, Any]] = Field(default_factory=list, description="Parsed tool-use calls if any")
 
 
 def calculate_cost(model: str, input_tokens: int, output_tokens: int) -> float:
@@ -137,6 +138,7 @@ class LLMClient:
         self,
         prompt: str,
         system: Optional[str] = None,
+        tools: Optional[List[Dict[str, Any]]] = None,
         max_tokens: int = 1024,
         temperature: float = 0.0,
         model: Optional[str] = None,
@@ -163,6 +165,7 @@ class LLMClient:
             response = self._mock_call(
                 prompt=prompt,
                 system=system,
+                tools=tools,
                 max_tokens=max_tokens,
                 model=active_model,
                 start_time=start_time,
@@ -171,6 +174,7 @@ class LLMClient:
             response = self._live_call(
                 prompt=prompt,
                 system=system,
+                tools=tools,
                 max_tokens=max_tokens,
                 temperature=temperature,
                 model=active_model,
@@ -191,6 +195,7 @@ class LLMClient:
         self,
         prompt: str,
         system: Optional[str],
+        tools: Optional[List[Dict[str, Any]]],
         max_tokens: int,
         model: str,
         start_time: float,
@@ -204,7 +209,54 @@ class LLMClient:
         input_tokens = max(len(prompt_text.split()) + 10, 20)
 
         # Realistic on-call assistant response simulation
-        if "null pointer" in prompt.lower() or "orders" in prompt.lower():
+        if (
+            "hypotheses" in prompt.lower()
+            or "investigate" in prompt.lower()
+            or (system and "ranked top-3" in system.lower())
+        ):
+            mock_data = {
+                "investigation_summary": (
+                    "Investigated recent deploy v1.0.1 and correlated with crash logs. "
+                    "Orders service is throwing TypeError in create_order() due to an unhandled null discount code dictionary."
+                ),
+                "evidence": [
+                    {
+                        "id": "ev_log_001",
+                        "type": "log",
+                        "ref": "target-app/services/orders/main.py:42",
+                        "excerpt": "TypeError: 'NoneType' object is not subscriptable",
+                        "ts": "2026-11-22T21:40:02.145Z",
+                    },
+                    {
+                        "id": "ev_change_001",
+                        "type": "config",
+                        "ref": "dep_20261122_v1.0.1",
+                        "excerpt": "Deploying version v1.0.1 (commit c0ffee14a): feat(orders): add VIP discount code handling",
+                        "ts": "2026-11-22T21:38:15.000Z",
+                    },
+                ],
+                "hypotheses": [
+                    {
+                        "cause": "Deployment v1.0.1 introduced unhandled NoneType subscripting when requests lack a discount object [ev_log_001] [ev_change_001].",
+                        "category": "code",
+                        "confidence": 0.94,
+                        "evidence_ids": ["ev_log_001", "ev_change_001"],
+                        "culprit_change": "dep_20261122_v1.0.1",
+                    },
+                    {
+                        "cause": "Gateway timeout or bad proxy forwarding headers causing malformed JSON payload structure.",
+                        "category": "cross_service",
+                        "confidence": 0.05,
+                        "evidence_ids": [],
+                        "culprit_change": None,
+                    },
+                ],
+                "uncited_claims": [],
+                "recommended_action": "propose_fix",
+                "escalation_reason": None,
+            }
+            mock_content = json.dumps(mock_data, indent=2)
+        elif "null pointer" in prompt.lower() or "orders" in prompt.lower():
             mock_content = (
                 "Root cause hypothesis: The orders service failed due to an unhandled null pointer "
                 "in create_order() when dereferencing the optional discount code key without a null check. "
@@ -235,6 +287,7 @@ class LLMClient:
         self,
         prompt: str,
         system: Optional[str],
+        tools: Optional[List[Dict[str, Any]]],
         max_tokens: int,
         temperature: float,
         model: str,
@@ -249,15 +302,24 @@ class LLMClient:
         }
         if system:
             kwargs["system"] = system
+        if tools:
+            kwargs["tools"] = tools
 
         try:
             api_resp = self._anthropic_client.messages.create(**kwargs)
             latency = round(time.perf_counter() - start_time, 4)
 
             content_text = ""
+            tool_calls: List[Dict[str, Any]] = []
             for block in api_resp.content:
                 if getattr(block, "type", "") == "text":
                     content_text += block.text
+                elif getattr(block, "type", "") == "tool_use":
+                    tool_calls.append({
+                        "id": getattr(block, "id", ""),
+                        "name": getattr(block, "name", ""),
+                        "input": getattr(block, "input", {}),
+                    })
 
             input_tokens = api_resp.usage.input_tokens
             output_tokens = api_resp.usage.output_tokens
@@ -273,6 +335,7 @@ class LLMClient:
                 cumulative_cost_usd=round(self.cumulative_cost_usd + cost, 6),
                 latency_seconds=latency,
                 stop_reason=getattr(api_resp, "stop_reason", "end_turn"),
+                tool_calls=tool_calls,
             )
         except Exception as exc:
             # Re-raise with detailed context
