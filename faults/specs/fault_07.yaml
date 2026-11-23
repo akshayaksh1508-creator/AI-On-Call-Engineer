@@ -1,0 +1,26 @@
+id: fault_07
+mechanism: env_flag
+name: payments_schema_change_breaks_orders
+category: cross_service
+difficulty: hard
+culprit_service: payments
+symptom_service: orders
+cross_service: true
+root_cause: payments switched its response schema to v2 (amount renamed to amount_cents);
+  orders fails parsing the response.
+change_description: Enable payments response schema v2
+env:
+  payments:
+    PAYMENTS_RESPONSE_SCHEMA: v2
+expected_fix:
+  type: config_revert
+  detail: Revert PAYMENTS_RESPONSE_SCHEMA to v1 on payments
+keywords:
+- payments
+- schema
+- amount
+- keyerror
+- v2
+symptoms:
+- orders 500 errors
+- KeyError amount in orders logs

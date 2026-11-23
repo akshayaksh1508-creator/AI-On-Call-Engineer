@@ -1,0 +1,25 @@
+id: fault_10
+mechanism: env_flag
+name: orders_db_pool_exhaustion
+category: resource
+difficulty: medium
+culprit_service: orders
+symptom_service: orders
+root_cause: orders DB connection pool size was reduced to 1; concurrent requests wait
+  and time out (pool exhaustion).
+change_description: Resize orders database pool
+env:
+  orders:
+    ORDERS_DB_POOL_SIZE: 1
+expected_fix:
+  type: config_revert
+  detail: Revert ORDERS_DB_POOL_SIZE on orders
+keywords:
+- pool
+- connection
+- exhaust
+- queuepool
+- size
+symptoms:
+- orders slow then 500
+- pool limit reached in logs

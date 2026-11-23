@@ -1,0 +1,25 @@
+id: fault_08
+mechanism: env_flag
+name: orders_null_discount_bug
+category: code_bug
+difficulty: medium
+culprit_service: orders
+symptom_service: orders
+root_cause: New discount engine flag enables a code path that dereferences a missing
+  discount (None) in orders.
+change_description: Enable new discount engine
+env:
+  orders:
+    ORDERS_DISCOUNT_ENGINE: v2
+expected_fix:
+  type: config_revert
+  detail: Revert ORDERS_DISCOUNT_ENGINE to v1 or patch None check
+keywords:
+- discount
+- none
+- nonetype
+- attributeerror
+- 'null'
+symptoms:
+- orders 500 on checkout
+- AttributeError NoneType in apply_discount

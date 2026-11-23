@@ -1,0 +1,126 @@
+{
+  "n": 5,
+  "top1": 5,
+  "top3": 5,
+  "top1_rate": 1.0,
+  "top3_rate": 1.0,
+  "by_category": {
+    "cross_service": {
+      "n": 2,
+      "top1": 2,
+      "top3": 2
+    },
+    "code_bug": {
+      "n": 1,
+      "top1": 1,
+      "top3": 1
+    },
+    "config": {
+      "n": 1,
+      "top1": 1,
+      "top3": 1
+    },
+    "resource": {
+      "n": 1,
+      "top1": 1,
+      "top3": 1
+    }
+  },
+  "per_fault": {
+    "fault_06": {
+      "category": "cross_service",
+      "top1": true,
+      "top3": true,
+      "predicted": [
+        [
+          "payments",
+          "cross_service",
+          0.4
+        ],
+        [
+          "orders",
+          "cross_service",
+          0.2
+        ],
+        [
+          "gateway",
+          "code_bug",
+          0.2
+        ]
+      ]
+    },
+    "fault_07": {
+      "category": "cross_service",
+      "top1": true,
+      "top3": true,
+      "predicted": [
+        [
+          "payments",
+          "cross_service",
+          0.4
+        ],
+        [
+          "orders",
+          "code_bug",
+          0.2
+        ]
+      ]
+    },
+    "fault_08": {
+      "category": "code_bug",
+      "top1": true,
+      "top3": true,
+      "predicted": [
+        [
+          "orders",
+          "config",
+          0.4
+        ],
+        [
+          "payments",
+          "cross_service",
+          0.2
+        ]
+      ]
+    },
+    "fault_09": {
+      "category": "config",
+      "top1": true,
+      "top3": true,
+      "predicted": [
+        [
+          "gateway",
+          "config",
+          0.4
+        ],
+        [
+          "payments",
+          "cross_service",
+          0.2
+        ],
+        [
+          "orders",
+          "cross_service",
+          0.2
+        ]
+      ]
+    },
+    "fault_10": {
+      "category": "resource",
+      "top1": true,
+      "top3": true,
+      "predicted": [
+        [
+          "orders",
+          "config",
+          0.4
+        ],
+        [
+          "payments",
+          "cross_service",
+          0.2
+        ]
+      ]
+    }
+  }
+}
