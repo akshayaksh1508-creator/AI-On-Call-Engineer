@@ -47,6 +47,18 @@ from agent.loop import (
     AgentLoop,
     InvestigationResult,
 )
+from agent.structured_output import (
+    EvidenceIdGenerator,
+    StructuredDiagnosis,
+    extract_and_parse_json,
+    repair_json_string,
+    validate_and_build_diagnosis,
+    build_repair_prompt,
+    parse_structured_diagnosis,
+    normalize_confidence,
+    normalize_category,
+    normalize_evidence_type,
+)
 
 __all__ = [
     "LLMClient",
@@ -84,4 +96,14 @@ __all__ = [
     "InvestigationLoop",
     "AgentLoop",
     "InvestigationResult",
+    "EvidenceIdGenerator",
+    "StructuredDiagnosis",
+    "extract_and_parse_json",
+    "repair_json_string",
+    "validate_and_build_diagnosis",
+    "build_repair_prompt",
+    "parse_structured_diagnosis",
+    "normalize_confidence",
+    "normalize_category",
+    "normalize_evidence_type",
 ]
