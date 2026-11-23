@@ -1,0 +1,24 @@
+[
+  {
+    "id": "dep_20261123_v1.0.5",
+    "service": "orders",
+    "timestamp": "2026-11-23T05:39:47Z",
+    "version": "v1.0.5",
+    "git_commit": "b5c7d9e1",
+    "git_branch": "main",
+    "author": "dev-lead@nightshift.local",
+    "message": "Uncaught ZeroDivisionError in bulk order discount calculator",
+    "config_diff": null
+  },
+  {
+    "id": "dep_20261122_v1.0.0",
+    "service": "orders",
+    "timestamp": "2026-11-22T20:00:00Z",
+    "version": "v1.0.0",
+    "git_commit": "a1b2c3d4e",
+    "git_branch": "main",
+    "author": "dev-ops@nightshift.local",
+    "message": "chore: initial release v1.0.0 baseline",
+    "config_diff": null
+  }
+]

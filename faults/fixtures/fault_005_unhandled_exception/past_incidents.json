@@ -1,0 +1,14 @@
+[
+  {
+    "id": "inc_20260605_001",
+    "service": "orders",
+    "title": "ZeroDivisionError in cart promotional discount calculation",
+    "symptoms": [
+      "POST /orders throws 500 on orders with 0 promotional items"
+    ],
+    "root_cause": "Missing guard for total_items <= 0 in unit discount calculation",
+    "resolution": "Return 0.0 when total_items <= 0 before dividing total_discount by total_items",
+    "culprit_commit": "ee55aa00",
+    "risk_tier": "T2"
+  }
+]

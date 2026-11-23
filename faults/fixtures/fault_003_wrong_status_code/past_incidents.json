@@ -1,0 +1,26 @@
+[
+  {
+    "id": "inc_20260918_003",
+    "service": "payments",
+    "title": "HTTP 200 returned on gateway payment rejection",
+    "symptoms": [
+      "Downstream caller treats HTTP 200 payload with status DECLINED as payment success"
+    ],
+    "root_cause": "FastAPI handler returned 200 with error body instead of raising HTTPException 400 or 402",
+    "resolution": "Raise HTTPException with 402 status code on declined payments",
+    "culprit_commit": "cc882211",
+    "risk_tier": "T2"
+  },
+  {
+    "id": "inc_20260710_001",
+    "service": "orders",
+    "title": "False order confirmation caused by 200 OK error payloads",
+    "symptoms": [
+      "Orders marked CONFIRMED without ledger record in payments database"
+    ],
+    "root_cause": "Orders service checked resp.status_code == 200 without validating payment.status == 'APPROVED'",
+    "resolution": "Enforce HTTP 402 on payments rejection and validate status field on caller",
+    "culprit_commit": "d9911ee2",
+    "risk_tier": "T2"
+  }
+]

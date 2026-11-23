@@ -1,44 +1,8 @@
 [
   {
-    "service": "gateway",
-    "trace_id": "trace-baseline-001",
-    "timestamp": "2026-11-22T21:35:10.100Z",
-    "level": "INFO",
-    "message": "POST /api/orders completed with status 200 in 0.0152s",
-    "path": "/api/orders",
-    "method": "POST",
-    "status": 200
-  },
-  {
     "service": "orders",
-    "trace_id": "trace-baseline-001",
-    "timestamp": "2026-11-22T21:35:10.050Z",
-    "level": "INFO",
-    "message": "Order ord_b001 created successfully. Status: confirmed",
-    "order_id": "ord_b001",
-    "status": 200
-  },
-  {
-    "service": "orders",
-    "trace_id": "deploy-event",
-    "timestamp": "2026-11-22T21:38:15.000Z",
-    "level": "INFO",
-    "message": "Deploying version v1.0.1 (commit c0ffee14a): feat(orders): add VIP discount code handling",
-    "version": "v1.0.1"
-  },
-  {
-    "service": "gateway",
-    "trace_id": "trace-fail-001",
-    "timestamp": "2026-11-22T21:40:02.100Z",
-    "level": "INFO",
-    "message": "Handling POST /api/orders",
-    "path": "/api/orders",
-    "method": "POST"
-  },
-  {
-    "service": "orders",
-    "trace_id": "trace-fail-001",
-    "timestamp": "2026-11-22T21:40:02.120Z",
+    "trace_id": "838f95a4-e026-49bd-a9ed-b9b6791ea4a5",
+    "timestamp": "2026-11-23T05:45:56.391701+00:00",
     "level": "INFO",
     "message": "Handling POST /orders",
     "path": "/orders",
@@ -46,56 +10,71 @@
   },
   {
     "service": "orders",
-    "trace_id": "trace-fail-001",
-    "timestamp": "2026-11-22T21:40:02.145Z",
-    "level": "ERROR",
-    "message": "Unhandled exception in create_order: TypeError: 'NoneType' object is not subscriptable",
-    "error": "TypeError: 'NoneType' object is not subscriptable",
-    "stack_trace": "File \"target-app/services/orders/main.py\", line 42, in create_order\n    discount_code = request.discount['code']\nTypeError: 'NoneType' object is not subscriptable",
-    "status": 500
+    "trace_id": "838f95a4-e026-49bd-a9ed-b9b6791ea4a5",
+    "timestamp": "2026-11-23T05:45:56.393460+00:00",
+    "level": "INFO",
+    "message": "Creating order ord_96b9d9d6b895 for customer c_init (total: $5.0)",
+    "order_id": "ord_96b9d9d6b895",
+    "total": 5.0
   },
   {
     "service": "orders",
-    "trace_id": "trace-fail-001",
-    "timestamp": "2026-11-22T21:40:02.148Z",
+    "trace_id": "838f95a4-e026-49bd-a9ed-b9b6791ea4a5",
+    "timestamp": "2026-11-23T05:45:56.393674+00:00",
     "level": "ERROR",
-    "message": "POST /orders failed with status 500 in 0.0280s",
-    "status": 500
+    "message": "Unhandled error in POST /orders: TypeError: 'NoneType' object is not subscriptable",
+    "exception": "Traceback (most recent call last):\n  File \"D:\\Akshay\\Documents\\AI On-Call Engineer\\target-app\\common\\metrics.py\", line 72, in telemetry_middleware\n    response: Response = await call_next(request)\n                         ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\middleware\\base.py\", line 179, in call_next\n    raise app_exc from app_exc.__cause__ or app_exc.__context__\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\middleware\\base.py\", line 149, in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\middleware\\exceptions.py\", line 63, in __call__\n    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\middleware\\asyncexitstack.py\", line 18, in __call__\n    await self.app(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\routing.py\", line 683, in __call__\n    await self.middleware_stack(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 2929, in app\n    await route.handle(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 1375, in handle\n    await super().handle(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\routing.py\", line 289, in handle\n    await self.app(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 175, in app\n    await wrap_app_handling_exceptions(app, request)(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 161, in app\n    response = await f(request)\n               ^^^^^^^^^^^^^^^^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 762, in app\n    raw_response = await run_endpoint_function(\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<3 lines>...\n    )\n    ^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 381, in run_endpoint_function\n    return await dependant.call(**values)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\Akshay\\Documents\\AI On-Call Engineer\\target-app\\services\\orders\\app.py\", line 90, in create_order\n    discount_code = discount[\"code\"]  # Raises TypeError: 'NoneType' object is not subscriptable!\n                    ~~~~~~~~^^^^^^^^\nTypeError: 'NoneType' object is not subscriptable\n"
   },
   {
-    "service": "gateway",
-    "trace_id": "trace-fail-001",
-    "timestamp": "2026-11-22T21:40:02.155Z",
-    "level": "ERROR",
-    "message": "Downstream orders service failed with status 500",
-    "downstream": "http://127.0.0.1:8081/orders",
-    "status": 500
-  },
-  {
-    "service": "gateway",
-    "trace_id": "trace-fail-002",
-    "timestamp": "2026-11-22T21:40:05.300Z",
+    "service": "orders",
+    "trace_id": "49f18631-8708-4b4c-9272-b11d9fea86bc",
+    "timestamp": "2026-11-23T05:45:56.418454+00:00",
     "level": "INFO",
-    "message": "Handling POST /api/orders",
-    "path": "/api/orders",
+    "message": "Handling POST /orders",
+    "path": "/orders",
     "method": "POST"
   },
   {
     "service": "orders",
-    "trace_id": "trace-fail-002",
-    "timestamp": "2026-11-22T21:40:05.320Z",
-    "level": "ERROR",
-    "message": "Unhandled exception in create_order: TypeError: 'NoneType' object is not subscriptable",
-    "error": "TypeError: 'NoneType' object is not subscriptable",
-    "stack_trace": "File \"target-app/services/orders/main.py\", line 42, in create_order\n    discount_code = request.discount['code']\nTypeError: 'NoneType' object is not subscriptable",
-    "status": 500
+    "trace_id": "49f18631-8708-4b4c-9272-b11d9fea86bc",
+    "timestamp": "2026-11-23T05:45:56.419194+00:00",
+    "level": "INFO",
+    "message": "Creating order ord_c1b1a4d5ee0a for customer c1 (total: $25.0)",
+    "order_id": "ord_c1b1a4d5ee0a",
+    "total": 25.0
   },
   {
-    "service": "gateway",
-    "trace_id": "trace-fail-002",
-    "timestamp": "2026-11-22T21:40:05.335Z",
+    "service": "orders",
+    "trace_id": "49f18631-8708-4b4c-9272-b11d9fea86bc",
+    "timestamp": "2026-11-23T05:45:56.419443+00:00",
     "level": "ERROR",
-    "message": "POST /api/orders failed with status 500 in 0.0350s",
-    "status": 500
+    "message": "Unhandled error in POST /orders: TypeError: 'NoneType' object is not subscriptable",
+    "exception": "Traceback (most recent call last):\n  File \"D:\\Akshay\\Documents\\AI On-Call Engineer\\target-app\\common\\metrics.py\", line 72, in telemetry_middleware\n    response: Response = await call_next(request)\n                         ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\middleware\\base.py\", line 179, in call_next\n    raise app_exc from app_exc.__cause__ or app_exc.__context__\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\middleware\\base.py\", line 149, in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\middleware\\exceptions.py\", line 63, in __call__\n    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\middleware\\asyncexitstack.py\", line 18, in __call__\n    await self.app(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\routing.py\", line 683, in __call__\n    await self.middleware_stack(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 2929, in app\n    await route.handle(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 1375, in handle\n    await super().handle(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\routing.py\", line 289, in handle\n    await self.app(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 175, in app\n    await wrap_app_handling_exceptions(app, request)(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 161, in app\n    response = await f(request)\n               ^^^^^^^^^^^^^^^^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 762, in app\n    raw_response = await run_endpoint_function(\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<3 lines>...\n    )\n    ^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 381, in run_endpoint_function\n    return await dependant.call(**values)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\Akshay\\Documents\\AI On-Call Engineer\\target-app\\services\\orders\\app.py\", line 90, in create_order\n    discount_code = discount[\"code\"]  # Raises TypeError: 'NoneType' object is not subscriptable!\n                    ~~~~~~~~^^^^^^^^\nTypeError: 'NoneType' object is not subscriptable\n"
+  },
+  {
+    "service": "orders",
+    "trace_id": "345c3619-44d4-4f79-8711-5b874ded9891",
+    "timestamp": "2026-11-23T05:45:56.425669+00:00",
+    "level": "INFO",
+    "message": "Handling POST /orders",
+    "path": "/orders",
+    "method": "POST"
+  },
+  {
+    "service": "orders",
+    "trace_id": "345c3619-44d4-4f79-8711-5b874ded9891",
+    "timestamp": "2026-11-23T05:45:56.426242+00:00",
+    "level": "INFO",
+    "message": "Creating order ord_81462a4e5d61 for customer c2 (total: $90.0)",
+    "order_id": "ord_81462a4e5d61",
+    "total": 90.0
+  },
+  {
+    "service": "orders",
+    "trace_id": "345c3619-44d4-4f79-8711-5b874ded9891",
+    "timestamp": "2026-11-23T05:45:56.426340+00:00",
+    "level": "ERROR",
+    "message": "Unhandled error in POST /orders: TypeError: 'NoneType' object is not subscriptable",
+    "exception": "Traceback (most recent call last):\n  File \"D:\\Akshay\\Documents\\AI On-Call Engineer\\target-app\\common\\metrics.py\", line 72, in telemetry_middleware\n    response: Response = await call_next(request)\n                         ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\middleware\\base.py\", line 179, in call_next\n    raise app_exc from app_exc.__cause__ or app_exc.__context__\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\middleware\\base.py\", line 149, in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\middleware\\exceptions.py\", line 63, in __call__\n    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\middleware\\asyncexitstack.py\", line 18, in __call__\n    await self.app(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\routing.py\", line 683, in __call__\n    await self.middleware_stack(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 2929, in app\n    await route.handle(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 1375, in handle\n    await super().handle(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\routing.py\", line 289, in handle\n    await self.app(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 175, in app\n    await wrap_app_handling_exceptions(app, request)(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 161, in app\n    response = await f(request)\n               ^^^^^^^^^^^^^^^^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 762, in app\n    raw_response = await run_endpoint_function(\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<3 lines>...\n    )\n    ^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 381, in run_endpoint_function\n    return await dependant.call(**values)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\Akshay\\Documents\\AI On-Call Engineer\\target-app\\services\\orders\\app.py\", line 90, in create_order\n    discount_code = discount[\"code\"]  # Raises TypeError: 'NoneType' object is not subscriptable!\n                    ~~~~~~~~^^^^^^^^\nTypeError: 'NoneType' object is not subscriptable\n"
   }
 ]

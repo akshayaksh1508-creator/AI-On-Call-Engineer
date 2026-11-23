@@ -1,0 +1,16 @@
+{
+  "id": "inc_20261123_005",
+  "service": "orders",
+  "started_at": "2026-11-23T05:40:47Z",
+  "symptoms": [
+    "POST /orders fails with HTTP 500 on promotional discount calculation",
+    "Orders log records ZeroDivisionError: division by zero in calculate_unit_discount()"
+  ],
+  "alerts": [
+    "OrdersHigh5xxRate"
+  ],
+  "recent_changes": [
+    "dep_20261123_v1.0.5"
+  ],
+  "status": "open"
+}

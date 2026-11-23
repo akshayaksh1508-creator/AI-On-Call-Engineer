@@ -1,0 +1,14 @@
+[
+  {
+    "id": "inc_20260822_005",
+    "service": "gateway",
+    "title": "ValueError on ISO timestamp header parsing in API Gateway",
+    "symptoms": [
+      "HTTP 500 when mobile client sends ISO 8601 timestamp with trailing Z"
+    ],
+    "root_cause": "Rigid strptime format %Y-%m-%dT%H:%M:%S fails when client supplies Zulu timezone suffix",
+    "resolution": "Normalize 'Z' to '+00:00' and use datetime.fromisoformat() for standard ISO parsing",
+    "culprit_commit": "ab112233",
+    "risk_tier": "T2"
+  }
+]

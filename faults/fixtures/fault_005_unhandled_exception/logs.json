@@ -1,0 +1,101 @@
+[
+  {
+    "service": "orders",
+    "trace_id": "bfb8456a-d291-4768-90cf-644d622bc83b",
+    "timestamp": "2026-11-23T05:44:47.826669+00:00",
+    "level": "INFO",
+    "message": "Handling POST /orders",
+    "path": "/orders",
+    "method": "POST"
+  },
+  {
+    "service": "orders",
+    "trace_id": "bfb8456a-d291-4768-90cf-644d622bc83b",
+    "timestamp": "2026-11-23T05:44:47.830284+00:00",
+    "level": "INFO",
+    "message": "Creating order ord_de34b309a12e for customer c_init (total: $5.0)",
+    "order_id": "ord_de34b309a12e",
+    "total": 5.0
+  },
+  {
+    "service": "orders",
+    "trace_id": "none",
+    "timestamp": "2026-11-23T05:44:47.830343+00:00",
+    "level": "INFO",
+    "message": "Computing promotional discount for order ord_de34b309a12e: items=0"
+  },
+  {
+    "service": "orders",
+    "trace_id": "bfb8456a-d291-4768-90cf-644d622bc83b",
+    "timestamp": "2026-11-23T05:44:47.830544+00:00",
+    "level": "ERROR",
+    "message": "Unhandled error in POST /orders: division by zero",
+    "exception": "Traceback (most recent call last):\n  File \"D:\\Akshay\\Documents\\AI On-Call Engineer\\target-app\\common\\metrics.py\", line 72, in telemetry_middleware\n    response: Response = await call_next(request)\n                         ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\middleware\\base.py\", line 179, in call_next\n    raise app_exc from app_exc.__cause__ or app_exc.__context__\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\middleware\\base.py\", line 149, in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\middleware\\exceptions.py\", line 63, in __call__\n    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\middleware\\asyncexitstack.py\", line 18, in __call__\n    await self.app(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\routing.py\", line 683, in __call__\n    await self.middleware_stack(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 2929, in app\n    await route.handle(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 1375, in handle\n    await super().handle(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\routing.py\", line 289, in handle\n    await self.app(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 175, in app\n    await wrap_app_handling_exceptions(app, request)(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 161, in app\n    response = await f(request)\n               ^^^^^^^^^^^^^^^^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 762, in app\n    raw_response = await run_endpoint_function(\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<3 lines>...\n    )\n    ^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 381, in run_endpoint_function\n    return await dependant.call(**values)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\Akshay\\Documents\\AI On-Call Engineer\\target-app\\services\\orders\\app.py\", line 97, in create_order\n    unit_discount = calculate_unit_discount(promo_discount, promo_items)\n  File \"D:\\Akshay\\Documents\\AI On-Call Engineer\\target-app\\services\\orders\\app.py\", line 74, in calculate_unit_discount\n    return total_discount / total_items\n           ~~~~~~~~~~~~~~~^~~~~~~~~~~~~\nZeroDivisionError: division by zero\n"
+  },
+  {
+    "service": "orders",
+    "trace_id": "455a8e56-6675-4935-b05e-1ad3ef173476",
+    "timestamp": "2026-11-23T05:44:47.843568+00:00",
+    "level": "INFO",
+    "message": "Handling POST /orders",
+    "path": "/orders",
+    "method": "POST"
+  },
+  {
+    "service": "orders",
+    "trace_id": "455a8e56-6675-4935-b05e-1ad3ef173476",
+    "timestamp": "2026-11-23T05:44:47.844371+00:00",
+    "level": "INFO",
+    "message": "Creating order ord_7554d28e543b for customer c_promo (total: $500.0)",
+    "order_id": "ord_7554d28e543b",
+    "total": 500.0
+  },
+  {
+    "service": "orders",
+    "trace_id": "none",
+    "timestamp": "2026-11-23T05:44:47.844466+00:00",
+    "level": "INFO",
+    "message": "Computing promotional discount for order ord_7554d28e543b: items=0"
+  },
+  {
+    "service": "orders",
+    "trace_id": "455a8e56-6675-4935-b05e-1ad3ef173476",
+    "timestamp": "2026-11-23T05:44:47.844611+00:00",
+    "level": "ERROR",
+    "message": "Unhandled error in POST /orders: division by zero",
+    "exception": "Traceback (most recent call last):\n  File \"D:\\Akshay\\Documents\\AI On-Call Engineer\\target-app\\common\\metrics.py\", line 72, in telemetry_middleware\n    response: Response = await call_next(request)\n                         ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\middleware\\base.py\", line 179, in call_next\n    raise app_exc from app_exc.__cause__ or app_exc.__context__\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\middleware\\base.py\", line 149, in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\middleware\\exceptions.py\", line 63, in __call__\n    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\middleware\\asyncexitstack.py\", line 18, in __call__\n    await self.app(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\routing.py\", line 683, in __call__\n    await self.middleware_stack(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 2929, in app\n    await route.handle(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 1375, in handle\n    await super().handle(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\routing.py\", line 289, in handle\n    await self.app(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 175, in app\n    await wrap_app_handling_exceptions(app, request)(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 161, in app\n    response = await f(request)\n               ^^^^^^^^^^^^^^^^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 762, in app\n    raw_response = await run_endpoint_function(\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<3 lines>...\n    )\n    ^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 381, in run_endpoint_function\n    return await dependant.call(**values)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\Akshay\\Documents\\AI On-Call Engineer\\target-app\\services\\orders\\app.py\", line 97, in create_order\n    unit_discount = calculate_unit_discount(promo_discount, promo_items)\n  File \"D:\\Akshay\\Documents\\AI On-Call Engineer\\target-app\\services\\orders\\app.py\", line 74, in calculate_unit_discount\n    return total_discount / total_items\n           ~~~~~~~~~~~~~~~^~~~~~~~~~~~~\nZeroDivisionError: division by zero\n"
+  },
+  {
+    "service": "orders",
+    "trace_id": "b8a2c4e5-23a6-410c-b17f-f1f3bdc6ef0e",
+    "timestamp": "2026-11-23T05:44:47.854494+00:00",
+    "level": "INFO",
+    "message": "Handling POST /orders",
+    "path": "/orders",
+    "method": "POST"
+  },
+  {
+    "service": "orders",
+    "trace_id": "b8a2c4e5-23a6-410c-b17f-f1f3bdc6ef0e",
+    "timestamp": "2026-11-23T05:44:47.855296+00:00",
+    "level": "INFO",
+    "message": "Creating order ord_05caa8de192d for customer c_promo2 (total: $30.0)",
+    "order_id": "ord_05caa8de192d",
+    "total": 30.0
+  },
+  {
+    "service": "orders",
+    "trace_id": "none",
+    "timestamp": "2026-11-23T05:44:47.855333+00:00",
+    "level": "INFO",
+    "message": "Computing promotional discount for order ord_05caa8de192d: items=0"
+  },
+  {
+    "service": "orders",
+    "trace_id": "b8a2c4e5-23a6-410c-b17f-f1f3bdc6ef0e",
+    "timestamp": "2026-11-23T05:44:47.855500+00:00",
+    "level": "ERROR",
+    "message": "Unhandled error in POST /orders: division by zero",
+    "exception": "Traceback (most recent call last):\n  File \"D:\\Akshay\\Documents\\AI On-Call Engineer\\target-app\\common\\metrics.py\", line 72, in telemetry_middleware\n    response: Response = await call_next(request)\n                         ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\middleware\\base.py\", line 179, in call_next\n    raise app_exc from app_exc.__cause__ or app_exc.__context__\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\middleware\\base.py\", line 149, in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\middleware\\exceptions.py\", line 63, in __call__\n    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\middleware\\asyncexitstack.py\", line 18, in __call__\n    await self.app(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\routing.py\", line 683, in __call__\n    await self.middleware_stack(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 2929, in app\n    await route.handle(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 1375, in handle\n    await super().handle(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\routing.py\", line 289, in handle\n    await self.app(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 175, in app\n    await wrap_app_handling_exceptions(app, request)(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 161, in app\n    response = await f(request)\n               ^^^^^^^^^^^^^^^^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 762, in app\n    raw_response = await run_endpoint_function(\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<3 lines>...\n    )\n    ^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 381, in run_endpoint_function\n    return await dependant.call(**values)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\Akshay\\Documents\\AI On-Call Engineer\\target-app\\services\\orders\\app.py\", line 97, in create_order\n    unit_discount = calculate_unit_discount(promo_discount, promo_items)\n  File \"D:\\Akshay\\Documents\\AI On-Call Engineer\\target-app\\services\\orders\\app.py\", line 74, in calculate_unit_discount\n    return total_discount / total_items\n           ~~~~~~~~~~~~~~~^~~~~~~~~~~~~\nZeroDivisionError: division by zero\n"
+  }
+]

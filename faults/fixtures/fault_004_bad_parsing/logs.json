@@ -1,0 +1,35 @@
+[
+  {
+    "service": "gateway",
+    "trace_id": "c4bf9765-acab-4c6b-8cf0-cb606cbe5b7f",
+    "timestamp": "2026-11-23T05:44:47.441305+00:00",
+    "level": "INFO",
+    "message": "Handling POST /api/orders",
+    "path": "/api/orders",
+    "method": "POST"
+  },
+  {
+    "service": "gateway",
+    "trace_id": "c4bf9765-acab-4c6b-8cf0-cb606cbe5b7f",
+    "timestamp": "2026-11-23T05:44:47.442697+00:00",
+    "level": "INFO",
+    "message": "Gateway received order request for customer c_gw",
+    "item": "tablet",
+    "quantity": 1
+  },
+  {
+    "service": "gateway",
+    "trace_id": "none",
+    "timestamp": "2026-11-23T05:44:47.442754+00:00",
+    "level": "INFO",
+    "message": "Parsing incoming request timestamp: 2026-11-23T10:00:00Z"
+  },
+  {
+    "service": "gateway",
+    "trace_id": "c4bf9765-acab-4c6b-8cf0-cb606cbe5b7f",
+    "timestamp": "2026-11-23T05:44:47.445156+00:00",
+    "level": "ERROR",
+    "message": "Unhandled error in POST /api/orders: unconverted data remains: Z",
+    "exception": "Traceback (most recent call last):\n  File \"D:\\Akshay\\Documents\\AI On-Call Engineer\\target-app\\common\\metrics.py\", line 72, in telemetry_middleware\n    response: Response = await call_next(request)\n                         ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\middleware\\base.py\", line 179, in call_next\n    raise app_exc from app_exc.__cause__ or app_exc.__context__\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\middleware\\base.py\", line 149, in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\middleware\\exceptions.py\", line 63, in __call__\n    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\middleware\\asyncexitstack.py\", line 18, in __call__\n    await self.app(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\routing.py\", line 683, in __call__\n    await self.middleware_stack(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 2929, in app\n    await route.handle(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 1375, in handle\n    await super().handle(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\routing.py\", line 289, in handle\n    await self.app(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 175, in app\n    await wrap_app_handling_exceptions(app, request)(scope, receive, send)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 161, in app\n    response = await f(request)\n               ^^^^^^^^^^^^^^^^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 762, in app\n    raw_response = await run_endpoint_function(\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<3 lines>...\n    )\n    ^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\site-packages\\fastapi\\routing.py\", line 381, in run_endpoint_function\n    return await dependant.call(**values)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\Akshay\\Documents\\AI On-Call Engineer\\target-app\\services\\gateway\\app.py\", line 80, in create_order_endpoint\n    parse_request_timestamp(client_ts)\n    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^\n  File \"D:\\Akshay\\Documents\\AI On-Call Engineer\\target-app\\services\\gateway\\app.py\", line 50, in parse_request_timestamp\n    return datetime.strptime(ts_str, \"%Y-%m-%dT%H:%M:%S\")\n           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\_strptime.py\", line 844, in _strptime_datetime_datetime\n    tt, fraction, gmtoff_fraction = _strptime(data_string, format)\n                                    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\DevTools\\Python\\Runtimes\\pythoncore-3.15-64\\Lib\\_strptime.py\", line 587, in _strptime\n    raise ValueError(\"unconverted data remains: %s\" % rest)\nValueError: unconverted data remains: Z\n"
+  }
+]

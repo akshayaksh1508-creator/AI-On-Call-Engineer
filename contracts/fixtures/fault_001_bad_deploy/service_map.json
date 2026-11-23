@@ -6,7 +6,9 @@
       "port": 8080,
       "health_endpoint": "http://127.0.0.1:8080/health",
       "metrics_endpoint": "http://127.0.0.1:8080/metrics",
-      "dependencies": ["orders"]
+      "dependencies": [
+        "orders"
+      ]
     },
     "orders": {
       "name": "orders",
@@ -14,7 +16,10 @@
       "port": 8081,
       "health_endpoint": "http://127.0.0.1:8081/health",
       "metrics_endpoint": "http://127.0.0.1:8081/metrics",
-      "dependencies": ["payments", "postgres"]
+      "dependencies": [
+        "payments",
+        "postgres"
+      ]
     },
     "payments": {
       "name": "payments",
@@ -34,15 +39,37 @@
       "name": "prometheus",
       "type": "telemetry",
       "port": 9090,
-      "dependencies": ["gateway", "orders", "payments"]
+      "dependencies": [
+        "gateway",
+        "orders",
+        "payments"
+      ]
     }
   },
   "edges": [
-    {"source": "gateway", "target": "orders"},
-    {"source": "orders", "target": "payments"},
-    {"source": "orders", "target": "postgres"},
-    {"source": "prometheus", "target": "gateway"},
-    {"source": "prometheus", "target": "orders"},
-    {"source": "prometheus", "target": "payments"}
+    {
+      "source": "gateway",
+      "target": "orders"
+    },
+    {
+      "source": "orders",
+      "target": "payments"
+    },
+    {
+      "source": "orders",
+      "target": "postgres"
+    },
+    {
+      "source": "prometheus",
+      "target": "gateway"
+    },
+    {
+      "source": "prometheus",
+      "target": "orders"
+    },
+    {
+      "source": "prometheus",
+      "target": "payments"
+    }
   ]
 }

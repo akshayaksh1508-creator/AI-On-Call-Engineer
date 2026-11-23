@@ -48,6 +48,7 @@ class FixtureClient(PlatformClient):
         level: Optional[str] = None,
         trace_id: Optional[str] = None,
         limit: int = 100,
+        text: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
         logs = self.bundle.get("logs", [])
         filtered = []
@@ -59,6 +60,11 @@ class FixtureClient(PlatformClient):
                 continue
             if trace_id and log.get("trace_id") != trace_id:
                 continue
+            if text:
+                msg = log.get("message", "")
+                exc = log.get("exception", "")
+                if text.lower() not in f"{msg} {exc}".lower():
+                    continue
             filtered.append(log)
 
         return filtered[:limit]
@@ -143,6 +149,8 @@ class FixtureClient(PlatformClient):
         start_line: Optional[int] = None,
         end_line: Optional[int] = None,
     ) -> str:
+        if not path:
+            return ""
         repo = self.bundle.get("repo_snapshot", {})
         files = repo.get("files", {})
 

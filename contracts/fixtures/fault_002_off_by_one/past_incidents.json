@@ -1,0 +1,26 @@
+[
+  {
+    "id": "inc_20261001_002",
+    "service": "orders",
+    "title": "IndexError in order batch processor pagination boundary",
+    "symptoms": [
+      "GET /orders returns 500 error on page end"
+    ],
+    "root_cause": "Off-by-one indexing error accessing records[len(records)] at list boundary",
+    "resolution": "Guard index check with index < len(records) or use safe slice records[:limit]",
+    "culprit_commit": "fa3b21c4",
+    "risk_tier": "T2"
+  },
+  {
+    "id": "inc_20260814_003",
+    "service": "orders",
+    "title": "Boundary slice crash in customer order listing",
+    "symptoms": [
+      "Admin order dashboard fails to load with 500 error"
+    ],
+    "root_cause": "Pagination offset reached array size and evaluated item past valid index",
+    "resolution": "Ensure pagination window clamp max(0, min(offset, len(records) - 1))",
+    "culprit_commit": "ca881100",
+    "risk_tier": "T2"
+  }
+]
