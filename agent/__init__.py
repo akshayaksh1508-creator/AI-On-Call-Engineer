@@ -23,6 +23,11 @@ from agent.tools import (
     get_tool_names,
     validate_tool_call,
 )
+from agent.loop import (
+    InvestigationLoop,
+    AgentLoop,
+    InvestigationResult,
+)
 
 __all__ = [
     "LLMClient",
@@ -38,4 +43,7 @@ __all__ = [
     "get_agent_tools",
     "get_tool_names",
     "validate_tool_call",
+    "InvestigationLoop",
+    "AgentLoop",
+    "InvestigationResult",
 ]
