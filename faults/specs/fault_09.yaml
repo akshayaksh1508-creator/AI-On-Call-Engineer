@@ -1,0 +1,24 @@
+id: fault_09
+mechanism: env_flag
+name: gateway_upstream_timeout_too_low
+category: config
+difficulty: easy
+culprit_service: gateway
+symptom_service: gateway
+root_cause: gateway upstream timeout was set to 50 ms, far below normal upstream latency;
+  requests fail with timeouts.
+change_description: Adjust gateway upstream timeout
+env:
+  gateway:
+    GATEWAY_UPSTREAM_TIMEOUT_MS: 50
+expected_fix:
+  type: config_revert
+  detail: Revert GATEWAY_UPSTREAM_TIMEOUT_MS on gateway
+keywords:
+- timeout
+- upstream
+- gateway
+- '50'
+symptoms:
+- gateway 504 errors
+- no errors in downstream services

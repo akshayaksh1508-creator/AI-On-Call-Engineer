@@ -1,0 +1,26 @@
+id: fault_06
+mechanism: env_flag
+name: payments_slow_db_query
+category: cross_service
+difficulty: hard
+culprit_service: payments
+symptom_service: gateway
+cross_service: true
+root_cause: A config change added a long DB query delay in payments; gateway requests
+  time out waiting for payments.
+change_description: Tune payments DB query settings
+env:
+  payments:
+    PAYMENTS_DB_QUERY_DELAY_MS: 3000
+expected_fix:
+  type: config_revert
+  detail: Revert PAYMENTS_DB_QUERY_DELAY_MS on payments
+keywords:
+- payments
+- slow
+- query
+- delay
+- latency
+symptoms:
+- gateway 504 timeouts
+- gateway p95 latency spike
