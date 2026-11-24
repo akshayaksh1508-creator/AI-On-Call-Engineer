@@ -1,0 +1,19 @@
+{
+  "fault_id": "fault_001_bad_deploy",
+  "incident_id": "inc_20261124_001",
+  "components_verified": [
+    "1. Fault (injection, metric spike 0.2% -> 22%, alerts)",
+    "2. Agent trace (investigator loop, evidence citations ev_log_001, ev_commit_001)",
+    "3. PR (Pull Request #42 with unified diff)",
+    "4. Canary (15% traffic split, healthy verdict)",
+    "5. Recovery graph (before 22% -> after 0.1%, sustained recovery)"
+  ],
+  "metric_before": 0.22,
+  "metric_after": 0.001,
+  "recovered_at": "2026-11-24T12:14:48Z",
+  "verdict": "PASS",
+  "video_gif": "D:\\Akshay\\Documents\\AI On-Call Engineer\\results\\demo_backup_video.gif",
+  "video_webp": "D:\\Akshay\\Documents\\AI On-Call Engineer\\results\\demo_backup_video.webp",
+  "video_html": "D:\\Akshay\\Documents\\AI On-Call Engineer\\results\\demo_backup_video.html",
+  "created_at": 1795522490.1489537
+}

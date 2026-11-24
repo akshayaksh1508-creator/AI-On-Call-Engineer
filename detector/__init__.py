@@ -12,6 +12,7 @@ from detector.evaluator import (
     parse_prometheus_text,
 )
 from detector.detector import IncidentDetector
+from detector.trigger import DetectorTrigger, TriggerRun
 
 __all__ = [
     "IncidentDetector",
@@ -19,4 +20,6 @@ __all__ = [
     "MetricObservation",
     "EvaluationResult",
     "parse_prometheus_text",
+    "DetectorTrigger",
+    "TriggerRun",
 ]

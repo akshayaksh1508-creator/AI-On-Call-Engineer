@@ -2,11 +2,15 @@
 
 Owner: Shared (Person A & Person B)
 Provides immutable contract models and schema loaders.
+Version: 1.0.0 (Frozen on Day 6 per Section 4 & Day 6 Task B3)
 """
 
 import json
 from pathlib import Path
 from typing import Any, Dict
+
+CONTRACTS_VERSION: str = "1.0.0"
+CONTRACTS_FROZEN: bool = True
 
 from contracts.models import (
     Incident,
@@ -23,6 +27,8 @@ from contracts.models import (
 )
 
 __all__ = [
+    "CONTRACTS_VERSION",
+    "CONTRACTS_FROZEN",
     "Incident",
     "Evidence",
     "Hypothesis",
