@@ -17,7 +17,12 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
-from PIL import Image
+try:
+    from PIL import Image
+    HAS_PIL = True
+except ImportError:
+    Image = None
+    HAS_PIL = False
 
 # Ensure repo root is on path
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -31,6 +36,8 @@ class TestBackupVideoRecorder(unittest.TestCase):
     """Test suite for Day 6 Task A4 Backup Video Recording."""
 
     def setUp(self):
+        if not HAS_PIL:
+            self.skipTest("Pillow (PIL) is not installed in the current environment")
         self.tmp = tempfile.TemporaryDirectory()
         self.out_dir = Path(self.tmp.name)
         self.recorder = BackupVideoRecorder(out_dir=self.out_dir)

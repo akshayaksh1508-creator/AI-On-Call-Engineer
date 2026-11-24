@@ -27,7 +27,14 @@ from pathlib import Path
 import time
 from typing import Any, Dict, List, Optional, Tuple
 
-from PIL import Image, ImageDraw, ImageFont
+try:
+    from PIL import Image, ImageDraw, ImageFont
+    HAS_PIL = True
+except ImportError:
+    Image = None
+    ImageDraw = None
+    ImageFont = None
+    HAS_PIL = False
 
 from bench.stage_timer import StageTimer
 from contracts.models import FixProposal, Incident, RunRecord, VerificationResult
