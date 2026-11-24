@@ -16,6 +16,7 @@ from contracts.models import FixProposal, FixProposalReceipt
 from platform_api.client import PlatformClient
 from platform_api.fixture_client import FixtureClient
 from platform_api.real_client import RealPlatformClient
+from verifier.engine import FullVerifier
 from verifier.sandbox import SandboxVerifier
 
 
@@ -61,6 +62,35 @@ def create_platform_api_app(
 
     repository_root = Path(repo_root or Path(__file__).resolve().parent.parent).resolve()
     sandbox_verifier = SandboxVerifier(repository_root, use_container=sandbox_use_container)
+
+    def _query_prom_rate(service_or_metric: str) -> float:
+        try:
+            res = client.query_metrics(metric_name="http_requests_total")
+            if isinstance(res, dict) and "data" in res:
+                data = res.get("data", {})
+                results = data.get("result", [])
+                total = 0.0
+                errors = 0.0
+                for r in results:
+                    metric = r.get("metric", {})
+                    status = str(metric.get("status", "200"))
+                    values = r.get("values", []) or [r.get("value", [0, 0])]
+                    if values:
+                        val = float(values[-1][1]) if len(values[-1]) > 1 else 0.0
+                        total += val
+                        if status.startswith("5"):
+                            errors += val
+                if total > 0:
+                    return round(errors / total, 4)
+        except Exception:
+            pass
+        return 0.15
+
+    full_verifier = FullVerifier(
+        repository_root,
+        use_container=sandbox_use_container,
+        metrics_query_fn=_query_prom_rate,
+    )
 
     @app.get("/health")
     def health():
@@ -112,6 +142,30 @@ def create_platform_api_app(
             "unit_test_output": result.unit_test_output,
             "reproduction_output": result.reproduction_output,
         }
+
+    class VerifyRequest(BaseModel):
+        incident_id: str = Field(..., min_length=1, max_length=128)
+        fault_id: str = Field(..., pattern=r"^fault_00[1-5]_[a-z0-9_]+$")
+        patch: str
+        simulated_canary_healthy: Optional[bool] = None
+        post_promotion_error_rate: Optional[float] = None
+
+    @app.post("/verify")
+    def verify_fix(req: VerifyRequest):
+        """Single unified verification endpoint (Sandbox, Canary, Recovery) returning full VerificationResult."""
+        fixture_dir = repository_root / "faults" / "catalog" / req.fault_id
+        manifest_path = fixture_dir / "manifest.yaml"
+        if not manifest_path.is_file():
+            raise HTTPException(status_code=404, detail="Unknown Day 4/5 code fault")
+
+        res = full_verifier.verify(
+            incident_id=req.incident_id,
+            fault_id=req.fault_id,
+            patch=req.patch,
+            simulated_canary_healthy=req.simulated_canary_healthy,
+            post_promotion_error_rate=req.post_promotion_error_rate,
+        )
+        return res.model_dump()
 
     # Tool 1: Query Logs (supports both GET and POST)
     @app.get("/logs/query")

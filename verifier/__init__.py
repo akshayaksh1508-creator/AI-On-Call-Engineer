@@ -8,6 +8,7 @@ from verifier.canary import (
     CanaryVerifier,
     PASS_RULE,
 )
+from verifier.engine import FullVerifier
 from verifier.recovery import (
     ProductionRecoveryChecker,
     RecoveryResult,
@@ -21,6 +22,7 @@ __all__ = [
     "CanaryMetrics",
     "CanaryResult",
     "CanaryVerifier",
+    "FullVerifier",
     "PASS_RULE",
     "ProductionRecoveryChecker",
     "RecoveryResult",
