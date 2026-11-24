@@ -195,8 +195,10 @@ class SlackReporter:
         self,
         incident_id: str,
         proposal: FixProposal,
+        request_id: Optional[str] = None,
     ) -> Dict[str, Any]:
-        """Send interactive remediation sign-off request for high-risk (T2/T3) fixes."""
+        """Send interactive remediation sign-off request with Approve and Reject buttons."""
+        req_id = request_id or f"req_{incident_id}"
         text = f":hand: *[APPROVAL REQUIRED]* Fix proposal for `{incident_id}` ({proposal.risk_tier})"
         blocks = [
             {
@@ -223,4 +225,55 @@ class SlackReporter:
                 "type": "section",
                 "text": {"type": "mrkdwn", "text": f"*Proposed Diff:*\n```\n{diff_preview}\n```"},
             })
+
+        # Add interactive Approve and Reject buttons
+        blocks.append({
+            "type": "actions",
+            "block_id": f"approval_actions_{req_id}",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "Approve Fix"},
+                    "style": "primary",
+                    "action_id": "approve_fix",
+                    "value": req_id,
+                },
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "Reject Fix"},
+                    "style": "danger",
+                    "action_id": "reject_fix",
+                    "value": req_id,
+                },
+            ],
+        })
         return self.send_message(text=text, blocks=blocks)
+
+    def send_escalation_alert(
+        self,
+        incident_id: str,
+        reason: str,
+        proposal: Optional[FixProposal] = None,
+    ) -> Dict[str, Any]:
+        """Send notification when an approval times out or incident escalates."""
+        text = f":rotating_light: *[ESCALATED]* Incident `{incident_id}`: {reason}"
+        blocks = [
+            {
+                "type": "header",
+                "text": {"type": "plain_text", "text": f"Escalation Alert: {incident_id}"},
+            },
+            {
+                "type": "section",
+                "text": {"type": "mrkdwn", "text": f"*Reason:*\n{reason}"},
+            },
+        ]
+        if proposal:
+            blocks.append({
+                "type": "section",
+                "fields": [
+                    {"type": "mrkdwn", "text": f"*Risk Tier:*\n`{proposal.risk_tier}`"},
+                    {"type": "mrkdwn", "text": f"*Target Service:*\n`{proposal.target_service}`"},
+                ],
+            })
+        return self.send_message(text=text, blocks=blocks)
+
