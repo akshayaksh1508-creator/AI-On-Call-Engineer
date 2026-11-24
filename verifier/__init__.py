@@ -13,9 +13,11 @@ from verifier.recovery import (
     RecoveryResult,
     RecoveryState,
 )
+from verifier.rollback import AutoRollbackGuard, RollbackDecision
 from verifier.sandbox import SandboxRun, SandboxVerifier
 
 __all__ = [
+    "AutoRollbackGuard",
     "CanaryMetrics",
     "CanaryResult",
     "CanaryVerifier",
@@ -23,6 +25,7 @@ __all__ = [
     "ProductionRecoveryChecker",
     "RecoveryResult",
     "RecoveryState",
+    "RollbackDecision",
     "SandboxRun",
     "SandboxVerifier",
 ]
