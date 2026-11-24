@@ -8,6 +8,11 @@ from verifier.canary import (
     CanaryVerifier,
     PASS_RULE,
 )
+from verifier.recovery import (
+    ProductionRecoveryChecker,
+    RecoveryResult,
+    RecoveryState,
+)
 from verifier.sandbox import SandboxRun, SandboxVerifier
 
 __all__ = [
@@ -15,6 +20,9 @@ __all__ = [
     "CanaryResult",
     "CanaryVerifier",
     "PASS_RULE",
+    "ProductionRecoveryChecker",
+    "RecoveryResult",
+    "RecoveryState",
     "SandboxRun",
     "SandboxVerifier",
 ]
