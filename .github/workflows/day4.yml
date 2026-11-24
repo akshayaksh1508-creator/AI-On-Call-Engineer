@@ -1,0 +1,56 @@
+
+name: Day 4 Fixer and Sandbox Verifier
+
+on:
+  push:
+    paths:
+      - "day4/**"
+      - "examples/target_app/**"
+      - "verifier/**"
+      - "scripts/run_day4.*"
+      - "tests/test_day4.py"
+      - ".github/workflows/day4.yml"
+      - "requirements.txt"
+      - "requirements-dev.txt"
+      - "pyproject.toml"
+
+  pull_request:
+    paths:
+      - "day4/**"
+      - "examples/target_app/**"
+      - "verifier/**"
+      - "scripts/run_day4.*"
+      - "tests/test_day4.py"
+      - ".github/workflows/day4.yml"
+      - "requirements.txt"
+      - "requirements-dev.txt"
+      - "pyproject.toml"
+
+jobs:
+  day4:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: requirements-dev.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-dev.txt
+
+      - name: Initialize sample application
+        run: python -m day4.cli init
+
+      - name: Run unit tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Run five-fault benchmark
+        run: python -m day4.cli benchmark
