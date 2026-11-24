@@ -21,6 +21,7 @@ from typing import Any, Callable, Dict, List, Optional, Union
 
 from contracts.models import FixProposal
 from reporter.slack import SlackReporter
+from safety.audit import AuditLogger
 
 logger = logging.getLogger("safety.approval")
 
@@ -75,10 +76,12 @@ class HumanApprovalManager:
         slack_reporter: Optional[SlackReporter] = None,
         default_timeout_seconds: float = 300.0,
         escalation_callback: Optional[Callable[[ApprovalSession], Any]] = None,
+        audit_logger: Optional[AuditLogger] = None,
     ) -> None:
         self.slack_reporter = slack_reporter or SlackReporter(mock=True)
         self.default_timeout_seconds = float(default_timeout_seconds)
         self.escalation_callback = escalation_callback
+        self.audit_logger = audit_logger
         self._sessions: Dict[str, ApprovalSession] = {}
 
     def get_session(self, request_id: str) -> Optional[ApprovalSession]:
@@ -184,6 +187,20 @@ class HumanApprovalManager:
                 session.execution_count += 1
                 session.log_event("APPROVED_NO_CALLBACK", "Approved without execute callback")
 
+            # Record in append-only audit log
+            if self.audit_logger:
+                self.audit_logger.log_decision(
+                    who=f"operator:{user}",
+                    what=f"execute_{session.proposal.type}",
+                    why=session.proposal.rationale,
+                    evidence_ids=[],
+                    incident_id=session.incident_id,
+                    target_service=session.proposal.target_service or "orders",
+                    risk_tier=session.proposal.risk_tier,
+                    status="EXECUTED",
+                    metadata={"request_id": request_id, "execution_count": session.execution_count},
+                )
+
             return session
 
         elif decision_str == ApprovalDecision.REJECT.value:
@@ -192,6 +209,18 @@ class HumanApprovalManager:
             session.resolved_by = user
             session.log_event("REJECTED", f"Rejected by {user}; no remediation executed", actor=user)
             # Guarantee: Reject does nothing, execution_count remains 0
+            if self.audit_logger:
+                self.audit_logger.log_decision(
+                    who=f"operator:{user}",
+                    what=f"reject_{session.proposal.type}",
+                    why=f"Operator {user} rejected remediation proposal",
+                    evidence_ids=[],
+                    incident_id=session.incident_id,
+                    target_service=session.proposal.target_service or "orders",
+                    risk_tier=session.proposal.risk_tier,
+                    status="REJECTED",
+                    metadata={"request_id": request_id},
+                )
             return session
 
         else:
@@ -238,6 +267,20 @@ class HumanApprovalManager:
                         self.escalation_callback(session)
                     except Exception as exc:
                         logger.error("Escalation callback raised error: %s", exc)
+
+                # Record escalation in append-only audit log
+                if self.audit_logger:
+                    self.audit_logger.log_decision(
+                        who="system:timeout_daemon",
+                        what="escalate_approval_timeout",
+                        why=f"Approval request timed out after {elapsed:.1f}s",
+                        evidence_ids=[],
+                        incident_id=session.incident_id,
+                        target_service=session.proposal.target_service or "orders",
+                        risk_tier=session.proposal.risk_tier,
+                        status="ESCALATED",
+                        metadata={"request_id": session.request_id},
+                    )
 
                 escalated_sessions.append(session)
 
