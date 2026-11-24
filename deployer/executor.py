@@ -291,6 +291,7 @@ class ActionExecutor:
         stage_details: Dict[str, Any] = {}
 
         actual_target_file = target_file or f"target-app/services/{service}/app.py"
+        actual_faulty_file = faulty_file or f"faults/catalog/{fault_id}/buggy_app.py"
         actual_repro_cmd = reproduction_command or ["python", "tests/verifier/reproduce.py", fault_id]
         actual_test_cmd = test_command or [
             "python", "-m", "pytest", "-q",
@@ -301,12 +302,15 @@ class ActionExecutor:
         # STAGE 1: Sandbox Verification
         # -------------------------------------------------------------
         stages_executed.append("sandbox")
+        resolved_faulty_file = (
+            actual_faulty_file if (self.repo_root / actual_faulty_file).exists() else None
+        )
         try:
             sandbox_run = self.sandbox_verifier.verify(
                 incident_id=incident_id,
                 patch=diff,
                 target_file=actual_target_file,
-                faulty_file=faulty_file,
+                faulty_file=resolved_faulty_file,
                 reproduction_command=actual_repro_cmd,
                 test_command=actual_test_cmd,
             )

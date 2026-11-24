@@ -126,22 +126,60 @@ def cmd_test(args: argparse.Namespace) -> int:
 
 
 def cmd_demo(args: argparse.Namespace) -> int:
-    """Run end-to-end incident demo loop for a specific FAULT."""
-    fault_id = getattr(args, "fault", None)
-    if not fault_id:
+    """Run end-to-end incident demo loop for a specific FAULT (Day 6 Task B4)."""
+    fault_arg = getattr(args, "fault", None)
+    if not fault_arg:
         print("ERROR: Fault ID required. Usage: make demo FAULT=<id> or python run.py demo --fault <id>", file=sys.stderr)
         return 1
 
-    print(f"==> [DEMO] Triggering demo incident resolution for fault '{fault_id}'...")
-    print(f"Checking for fault definition in faults/...")
-    fault_file = ROOT_DIR / "faults" / f"fault_{fault_id}.yaml"
-    if fault_file.exists():
-        print(f"Found fault definition: {fault_file}")
-    else:
-        print(f"Fault definition not yet generated (expected in Tasks A3/A4/A5).")
+    # Normalize fault identifier (e.g. "1" -> "fault_001_bad_deploy", "fault_002" -> "fault_002_off_by_one")
+    fault_map = {
+        "1": "fault_001_bad_deploy",
+        "fault_01": "fault_001_bad_deploy",
+        "fault_001": "fault_001_bad_deploy",
+        "2": "fault_002_off_by_one",
+        "fault_02": "fault_002_off_by_one",
+        "fault_002": "fault_002_off_by_one",
+        "3": "fault_003_wrong_status_code",
+        "fault_03": "fault_003_wrong_status_code",
+        "fault_003": "fault_003_wrong_status_code",
+        "4": "fault_004_bad_parsing",
+        "fault_04": "fault_004_bad_parsing",
+        "fault_004": "fault_004_bad_parsing",
+        "5": "fault_005_unhandled_exception",
+        "fault_05": "fault_005_unhandled_exception",
+        "fault_005": "fault_005_unhandled_exception",
+    }
+    fault_id = fault_map.get(str(fault_arg), str(fault_arg))
 
-    print("Demo execution pipeline will be wired in Day 6 (make demo FAULT=<id>).")
-    return 0
+    print(f"==> [DEMO] Triggering autonomous incident resolution for fault '{fault_id}'...")
+
+    from orchestrator.engine import OrchestratorEngine
+    engine = OrchestratorEngine(repo_root=ROOT_DIR)
+    result = engine.run_demo(fault_id=fault_id)
+
+    print("\n" + "=" * 70)
+    print("NIGHTSHIFT AUTONOMOUS INCIDENT DEMO COMPLETED")
+    print("=" * 70)
+    print(f"Incident ID:    {result.incident_id}")
+    print(f"Fault ID:       {result.fault_id}")
+    print(f"Final State:    {result.final_state.value}")
+    print(f"Success:        {result.success}")
+    if result.pr_url:
+        print(f"PR Link:        {result.pr_url}")
+    if result.verification:
+        print(f"Verdict:        {result.verification.verdict}")
+        print(f"Metric Before:  {result.verification.metric_before:.1%}")
+        print(f"Metric After:   {result.verification.metric_after:.2%}")
+    if result.run_record:
+        print(
+            f"Timing (s):     t_detect={result.run_record.t_detect:.1f}s, "
+            f"t_rca={result.run_record.t_rca:.1f}s, "
+            f"t_fix={result.run_record.t_fix:.1f}s, "
+            f"t_verified={result.run_record.t_verified:.1f}s"
+        )
+    print("=" * 70 + "\n")
+    return 0 if result.success else 1
 
 
 def cmd_reset(args: argparse.Namespace) -> int:
