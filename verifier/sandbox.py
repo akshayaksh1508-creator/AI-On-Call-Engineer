@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import os
 import shutil
 import subprocess
 import sys
@@ -222,11 +223,13 @@ class SandboxVerifier:
 
     @staticmethod
     def _run(command: Sequence[str], cwd: Path, timeout: int) -> subprocess.CompletedProcess[str]:
+        env = dict(os.environ)
+        env["PYTHONDONTWRITEBYTECODE"] = "1"
         with tempfile.TemporaryFile(mode="w+t", encoding="utf-8") as stdout, tempfile.TemporaryFile(
             mode="w+t", encoding="utf-8"
         ) as stderr:
             result = subprocess.run(
-                list(command), cwd=cwd, stdin=subprocess.DEVNULL, stdout=stdout, stderr=stderr,
+                list(command), cwd=cwd, env=env, stdin=subprocess.DEVNULL, stdout=stdout, stderr=stderr,
                 timeout=timeout, check=False,
             )
             stdout.seek(0)
