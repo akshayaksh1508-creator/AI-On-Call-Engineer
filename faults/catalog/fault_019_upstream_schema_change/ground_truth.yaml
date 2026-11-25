@@ -1,0 +1,18 @@
+id: fault_019_upstream_schema_change
+fault_id: fault_019_upstream_schema_change
+title: API Field Rename Without Backwards Compatibility
+category: cross_service
+difficulty: hard
+target_service: orders
+target_file: target-app/services/orders/app.py
+culprit_change: dep_20261123_v1.0.13
+culprit_commit: a7b9c1d3
+root_cause: Orders renamed 'total' to 'total_amount_cents' without backwards compatibility
+visible_symptoms:
+- Gateway returns 422 or 502 on order creation
+- 'Gateway log indicates KeyError: ''total'''
+expected_fix_type: patch
+alternative_fix_type: rollback
+risk_tier: T2
+expected_fix: Restore backwards-compatible 'total' field in orders API response
+visible_symptom: Gateway returns 422 or 502 on order creation

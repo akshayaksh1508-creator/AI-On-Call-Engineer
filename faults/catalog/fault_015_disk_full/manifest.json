@@ -1,0 +1,19 @@
+{
+  "fault_id": "fault_015_disk_full",
+  "title": "Disk Volume Full from Verbose Debug Logs",
+  "category": "resource",
+  "difficulty": "hard",
+  "target_service": "orders",
+  "target_file": "target-app/services/orders/app.py",
+  "culprit_change": "infra_20261123_001",
+  "culprit_commit": null,
+  "root_cause": "Unrotated DEBUG payload logging exhausts partition disk capacity",
+  "visible_symptoms": [
+    "Orders fails on write operations with OSError: [Errno 28] No space left on device",
+    "Disk utilization metrics reach 100%"
+  ],
+  "expected_fix_type": "config",
+  "alternative_fix_type": "rollback",
+  "risk_tier": "T1",
+  "expected_fix": "Disable verbose DEBUG logging and enable log rotation on orders"
+}

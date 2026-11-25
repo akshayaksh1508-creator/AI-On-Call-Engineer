@@ -1,0 +1,28 @@
+id: fault_16
+mechanism: env_flag
+name: slow_query_missing_index
+category: resource
+difficulty: medium
+culprit_service: orders
+symptom_service: orders
+cross_service: false
+root_cause: Full sequential table scan across 500k rows due to missing customer_id
+  index
+change_description: Missing DB Index on customer_id
+env:
+  orders:
+    ORDERS_DB_MISSING_INDEX: '1'
+    ORDERS_DB_QUERY_LATENCY_MS: '4200'
+expected_fix:
+  type: patch
+  detail: Add B-tree index on orders(customer_id)
+keywords:
+- index
+- customer_id
+- slow query
+- latency
+- postgres
+- orders
+symptoms:
+- Query latency spikes from 8ms to 4,200ms
+- Postgres CPU utilization reaches 95%

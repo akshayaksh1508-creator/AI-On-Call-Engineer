@@ -1,0 +1,19 @@
+{
+  "fault_id": "fault_018_retry_storm",
+  "title": "Infinite Retry Storm Multiplies Load 12x",
+  "category": "cross_service",
+  "difficulty": "hard",
+  "target_service": "gateway",
+  "target_file": "target-app/services/gateway/app.py",
+  "culprit_change": "cfg_20261123_005",
+  "culprit_commit": null,
+  "root_cause": "Gateway retry policy set to 10 retries with 0s backoff, causing cascading downstream flood",
+  "visible_symptoms": [
+    "Normal 10 rps ingress traffic creates 120 rps downstream traffic to Orders",
+    "Orders thread pool and CPU fully saturated"
+  ],
+  "expected_fix_type": "config",
+  "alternative_fix_type": "rollback",
+  "risk_tier": "T1",
+  "expected_fix": "Revert gateway retry policy to max 2 retries with exponential backoff"
+}
