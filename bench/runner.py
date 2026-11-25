@@ -217,11 +217,26 @@ class BenchmarkRunner:
 
         raise TypeError(f"Unsupported orchestrate_fn return type: {type(output).__name__}")
 
+    def _reset_with_retry(self, fault_id: str, max_attempts: int = 2) -> None:
+        """Reset environment with retry to absorb transient teardown/lock flakes (Day 8 Task A3)."""
+        last_exc: Optional[Exception] = None
+        for attempt in range(1, max_attempts + 1):
+            try:
+                self.reset_fn(fault_id)
+                return
+            except Exception as exc:
+                last_exc = exc
+                logger.warning("Reset attempt %d/%d failed for %s: %s", attempt, max_attempts, fault_id, exc)
+                if attempt < max_attempts:
+                    self.sleep_fn(min(0.2, self.health_poll_interval))
+        assert last_exc is not None
+        raise last_exc
+
     def _run_attempt(self, fault_id: str, attempt_num: int) -> tuple[RunRecord, FlakeClassification]:
         """Run one isolated reset -> healthy -> inject -> orchestrate cycle."""
         start = self.clock_fn()
         try:
-            self.reset_fn(fault_id)
+            self._reset_with_retry(fault_id)
         except Exception as exc:
             cls = classify_run_outcome(success=False, exc=exc, error_message=f"infra_error: reset failed: {exc}")
             rec = RunRecord(

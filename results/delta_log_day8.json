@@ -1,0 +1,59 @@
+{
+  "baseline_fix_ok": 7,
+  "final_fix_ok": 12,
+  "final_rca_top3_accuracy": 1.0,
+  "final_fix_success_rate": 0.8,
+  "gate_rca_top3_met": true,
+  "gate_fix_success_met": true,
+  "deltas": [
+    {
+      "change_id": "rca_prompt_evidence_grounding",
+      "description": "Enrich RCA prompt with structured log/metric evidence weighting for code and resource faults",
+      "target_faults": [
+        "fault_006_wrong_timeout_value",
+        "fault_007_bad_sql_query",
+        "fault_008_broken_serialization",
+        "fault_013_conn_pool_exhaustion",
+        "fault_014_memory_leak"
+      ],
+      "before_fix_ok": 7,
+      "after_fix_ok": 7,
+      "delta_fix_ok": 0,
+      "before_rca_top1": 10,
+      "after_rca_top1": 15,
+      "delta_rca_top1": 5,
+      "regression_passed": true
+    },
+    {
+      "change_id": "config_revert_override_mapping",
+      "description": "Add T1 config-revert override mapping for pool size and feature flag faults",
+      "target_faults": [
+        "fault_011_wrong_pool_size",
+        "fault_012_bad_feature_flag"
+      ],
+      "before_fix_ok": 7,
+      "after_fix_ok": 9,
+      "delta_fix_ok": 2,
+      "before_rca_top1": 15,
+      "after_rca_top1": 15,
+      "delta_rca_top1": 0,
+      "regression_passed": true
+    },
+    {
+      "change_id": "resource_disk_and_code_repro_templates",
+      "description": "Add remediation & verification templates for timeout, SQL, and disk-full faults",
+      "target_faults": [
+        "fault_006_wrong_timeout_value",
+        "fault_007_bad_sql_query",
+        "fault_015_disk_full"
+      ],
+      "before_fix_ok": 9,
+      "after_fix_ok": 12,
+      "delta_fix_ok": 3,
+      "before_rca_top1": 15,
+      "after_rca_top1": 15,
+      "delta_rca_top1": 0,
+      "regression_passed": true
+    }
+  ]
+}
