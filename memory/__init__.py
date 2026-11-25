@@ -4,6 +4,7 @@ Owner: Person B (Brain & Trust)
 Provides SQLite-backed solved incident storage and similarity retrieval.
 """
 
+from memory.experiment import run_memory_experiment
 from memory.retrieval import score_similarity, search_past_incidents
 from memory.store import (
     IncidentMemoryRecord,
@@ -19,4 +20,5 @@ __all__ = [
     "normalize_signature",
     "score_similarity",
     "search_past_incidents",
+    "run_memory_experiment",
 ]

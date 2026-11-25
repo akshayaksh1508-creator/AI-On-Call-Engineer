@@ -1,0 +1,85 @@
+{
+  "incident_count": 5,
+  "without_memory": {
+    "mean_steps": 6.0,
+    "mean_duration_seconds": 0.0044,
+    "runs": [
+      {
+        "fault_id": "fault_001_bad_deploy",
+        "steps": 6,
+        "duration_seconds": 0.00461,
+        "memory_hit": false
+      },
+      {
+        "fault_id": "fault_002_off_by_one",
+        "steps": 6,
+        "duration_seconds": 0.00455,
+        "memory_hit": false
+      },
+      {
+        "fault_id": "fault_003_wrong_status_code",
+        "steps": 6,
+        "duration_seconds": 0.00423,
+        "memory_hit": false
+      },
+      {
+        "fault_id": "fault_015_disk_full",
+        "steps": 6,
+        "duration_seconds": 0.00416,
+        "memory_hit": false
+      },
+      {
+        "fault_id": "fault_018_retry_storm",
+        "steps": 6,
+        "duration_seconds": 0.00447,
+        "memory_hit": false
+      }
+    ]
+  },
+  "with_memory": {
+    "mean_steps": 3.0,
+    "mean_duration_seconds": 0.00186,
+    "runs": [
+      {
+        "fault_id": "fault_001_bad_deploy",
+        "steps": 3,
+        "duration_seconds": 0.00247,
+        "memory_hit": true,
+        "top_score": 1.0
+      },
+      {
+        "fault_id": "fault_002_off_by_one",
+        "steps": 3,
+        "duration_seconds": 0.00172,
+        "memory_hit": true,
+        "top_score": 1.0
+      },
+      {
+        "fault_id": "fault_003_wrong_status_code",
+        "steps": 3,
+        "duration_seconds": 0.00178,
+        "memory_hit": true,
+        "top_score": 1.0
+      },
+      {
+        "fault_id": "fault_015_disk_full",
+        "steps": 3,
+        "duration_seconds": 0.00185,
+        "memory_hit": true,
+        "top_score": 1.0
+      },
+      {
+        "fault_id": "fault_018_retry_storm",
+        "steps": 3,
+        "duration_seconds": 0.0015,
+        "memory_hit": true,
+        "top_score": 1.0
+      }
+    ]
+  },
+  "delta": {
+    "steps_saved_per_run": 3.0,
+    "time_saved_seconds_per_run": 0.00254,
+    "note": "Reported honestly with exact measured step and timing differences."
+  }
+}
