@@ -1,0 +1,19 @@
+{
+  "fault_id": "fault_016_slow_query_missing_index",
+  "title": "Missing DB Index on customer_id",
+  "category": "resource",
+  "difficulty": "medium",
+  "target_service": "orders",
+  "target_file": "target-app/services/orders/app.py",
+  "culprit_change": "dep_20261123_v1.0.11",
+  "culprit_commit": "f5a7b9c1",
+  "root_cause": "Full sequential table scan across 500k rows due to missing customer_id index",
+  "visible_symptoms": [
+    "Query latency spikes from 8ms to 4,200ms",
+    "Postgres CPU utilization reaches 95%"
+  ],
+  "expected_fix_type": "patch",
+  "alternative_fix_type": "rollback",
+  "risk_tier": "T3",
+  "expected_fix": "Add B-tree index on orders(customer_id)"
+}

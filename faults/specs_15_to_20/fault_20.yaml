@@ -1,0 +1,27 @@
+id: fault_20
+mechanism: env_flag
+name: dependency_timeout_cascade
+category: cross_service
+difficulty: hard
+culprit_service: payments
+symptom_service: gateway
+cross_service: true
+root_cause: Synchronous external webhook call without timeout cap starves worker threads
+change_description: External Synchronous Webhook Starvation
+env:
+  payments:
+    PAYMENTS_WEBHOOK_TIMEOUT_MS: '0'
+    PAYMENTS_WEBHOOK_DELAY_MS: '15000'
+expected_fix:
+  type: patch
+  detail: Add explicit 2s timeout cap or async dispatch to external webhook in payments
+keywords:
+- webhook
+- timeout
+- '504'
+- payments
+- gateway
+- starvation
+symptoms:
+- Payments latency reaches 15s, exhausting worker sockets
+- Upstream orders and gateway return 504 timeouts

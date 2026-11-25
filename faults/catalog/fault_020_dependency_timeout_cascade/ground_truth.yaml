@@ -1,0 +1,19 @@
+id: fault_020_dependency_timeout_cascade
+fault_id: fault_020_dependency_timeout_cascade
+title: External Synchronous Webhook Starvation
+category: cross_service
+difficulty: hard
+target_service: payments
+target_file: target-app/services/payments/app.py
+culprit_change: dep_20261123_v1.0.14
+culprit_commit: c9d1e3f5
+root_cause: Synchronous external webhook call without timeout cap starves worker threads
+visible_symptoms:
+- Payments latency reaches 15s, exhausting worker sockets
+- Upstream orders and gateway return 504 timeouts
+expected_fix_type: patch
+alternative_fix_type: rollback
+risk_tier: T2
+expected_fix: Add explicit 2s timeout cap or async dispatch to external webhook in
+  payments
+visible_symptom: Payments latency reaches 15s, exhausting worker sockets

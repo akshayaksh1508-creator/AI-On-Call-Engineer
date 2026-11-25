@@ -1,0 +1,26 @@
+id: fault_19
+mechanism: env_flag
+name: upstream_schema_change
+category: cross_service
+difficulty: hard
+culprit_service: orders
+symptom_service: gateway
+cross_service: true
+root_cause: Orders renamed 'total' to 'total_amount_cents' without backwards compatibility
+change_description: API Field Rename Without Backwards Compatibility
+env:
+  orders:
+    ORDERS_RESPONSE_SCHEMA_V2: '1'
+expected_fix:
+  type: patch
+  detail: Restore backwards-compatible 'total' field in orders API response
+keywords:
+- schema
+- total
+- total_amount_cents
+- keyerror
+- orders
+- gateway
+symptoms:
+- Gateway returns 422 or 502 on order creation
+- 'Gateway log indicates KeyError: ''total'''

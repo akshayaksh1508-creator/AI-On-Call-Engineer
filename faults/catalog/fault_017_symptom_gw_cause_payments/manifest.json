@@ -1,0 +1,20 @@
+{
+  "fault_id": "fault_017_symptom_gw_cause_payments",
+  "title": "Gateway 502 Outage Caused by Payments Deploy",
+  "category": "cross_service",
+  "difficulty": "hard",
+  "target_service": "payments",
+  "target_file": "target-app/services/payments/app.py",
+  "culprit_change": "dep_20261123_v1.0.12",
+  "culprit_commit": "e6f8a0b2",
+  "root_cause": "Validation failure in Payments deploy rejects orders, cascading 502 to Gateway",
+  "visible_symptoms": [
+    "Gateway alerts on High5xxErrorRate (45% error rate)",
+    "Orders service reports 200 health but fails checkout requests",
+    "Root error trace located exclusively in payments logs"
+  ],
+  "expected_fix_type": "patch",
+  "alternative_fix_type": "rollback",
+  "risk_tier": "T2",
+  "expected_fix": "Fix validation check in payments or rollback dep_20261123_v1.0.12"
+}

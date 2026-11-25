@@ -1,0 +1,27 @@
+id: fault_15
+mechanism: env_flag
+name: disk_full
+category: resource
+difficulty: hard
+culprit_service: orders
+symptom_service: orders
+cross_service: false
+root_cause: Unrotated DEBUG payload logging exhausts partition disk capacity
+change_description: Disk Volume Full from Verbose Debug Logs
+env:
+  orders:
+    ORDERS_LOG_LEVEL: DEBUG
+    ORDERS_DISK_SIMULATE_FULL: '1'
+expected_fix:
+  type: config
+  detail: Disable verbose DEBUG logging and enable log rotation on orders
+keywords:
+- disk
+- space
+- errno 28
+- debug
+- logging
+- orders
+symptoms:
+- 'Orders fails on write operations with OSError: [Errno 28] No space left on device'
+- Disk utilization metrics reach 100%

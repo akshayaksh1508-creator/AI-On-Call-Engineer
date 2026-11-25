@@ -1,0 +1,28 @@
+id: fault_18
+mechanism: env_flag
+name: retry_storm
+category: cross_service
+difficulty: hard
+culprit_service: gateway
+symptom_service: orders
+cross_service: true
+root_cause: Gateway retry policy set to 10 retries with 0s backoff, causing cascading
+  downstream flood
+change_description: Infinite Retry Storm Multiplies Load 12x
+env:
+  gateway:
+    GATEWAY_MAX_RETRIES: '10'
+    GATEWAY_RETRY_BACKOFF_MS: '0'
+expected_fix:
+  type: config
+  detail: Revert gateway retry policy to max 2 retries with exponential backoff
+keywords:
+- retry
+- storm
+- backoff
+- gateway
+- orders
+- saturation
+symptoms:
+- Normal 10 rps ingress traffic creates 120 rps downstream traffic to Orders
+- Orders thread pool and CPU fully saturated

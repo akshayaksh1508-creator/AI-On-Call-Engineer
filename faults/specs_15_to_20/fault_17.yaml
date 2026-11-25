@@ -1,0 +1,27 @@
+id: fault_17
+mechanism: env_flag
+name: symptom_gw_cause_payments
+category: cross_service
+difficulty: hard
+culprit_service: payments
+symptom_service: gateway
+cross_service: true
+root_cause: Validation failure in Payments deploy rejects orders, cascading 502 to
+  Gateway
+change_description: Gateway 502 Outage Caused by Payments Deploy
+env:
+  payments:
+    PAYMENTS_STRICT_VALIDATION_FAIL: '1'
+expected_fix:
+  type: patch
+  detail: Fix validation check in payments or rollback dep_20261123_v1.0.12
+keywords:
+- gateway
+- '502'
+- payments
+- validation
+- cascade
+symptoms:
+- Gateway alerts on High5xxErrorRate (45% error rate)
+- Orders service reports 200 health but fails checkout requests
+- Root error trace located exclusively in payments logs
