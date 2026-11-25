@@ -1,0 +1,171 @@
+{
+  "summary": {
+    "valid": true,
+    "errors": [],
+    "total_entries": 10,
+    "resolved_count": 10,
+    "human_success_rate": 1.0,
+    "mean_duration_seconds": 574.5,
+    "median_duration_seconds": 560.0,
+    "by_engineer": {
+      "Person A": {
+        "count": 5,
+        "mean_duration_seconds": 551.0,
+        "resolved_count": 5
+      },
+      "Person B": {
+        "count": 5,
+        "mean_duration_seconds": 598.0,
+        "resolved_count": 5
+      }
+    }
+  },
+  "entries": [
+    {
+      "engineer": "Person A",
+      "fault_id": "fault_001_bad_deploy",
+      "start_time": "2026-11-25T10:00:00Z",
+      "end_time": "2026-11-25T10:07:15Z",
+      "duration_seconds": 435.0,
+      "tools_used": [
+        "dashboards",
+        "logs",
+        "git"
+      ],
+      "saw_ground_truth_beforehand": false,
+      "resolved": true,
+      "notes": "Spotted 500 spike on orders dashboard; traced TypeError on discount['code'] via logs and git log."
+    },
+    {
+      "engineer": "Person A",
+      "fault_id": "fault_002_off_by_one",
+      "start_time": "2026-11-25T10:15:00Z",
+      "end_time": "2026-11-25T10:24:30Z",
+      "duration_seconds": 570.0,
+      "tools_used": [
+        "logs",
+        "git"
+      ],
+      "saw_ground_truth_beforehand": false,
+      "resolved": true,
+      "notes": "Checked git diff on paginate_records; fixed 0-based page offset off-by-one bug."
+    },
+    {
+      "engineer": "Person A",
+      "fault_id": "fault_003_wrong_status_code",
+      "start_time": "2026-11-25T10:30:00Z",
+      "end_time": "2026-11-25T10:41:20Z",
+      "duration_seconds": 680.0,
+      "tools_used": [
+        "dashboards",
+        "logs",
+        "git"
+      ],
+      "saw_ground_truth_beforehand": false,
+      "resolved": true,
+      "notes": "Reconciliation mismatch between orders and payments; found HTTP 200 returned on DECLINED card."
+    },
+    {
+      "engineer": "Person A",
+      "fault_id": "fault_004_bad_parsing",
+      "start_time": "2026-11-25T10:45:00Z",
+      "end_time": "2026-11-25T10:53:40Z",
+      "duration_seconds": 520.0,
+      "tools_used": [
+        "logs",
+        "git"
+      ],
+      "saw_ground_truth_beforehand": false,
+      "resolved": true,
+      "notes": "Gateway ValueError on ISO-8601 Z suffix in Python 3.11; normalized Z to +00:00."
+    },
+    {
+      "engineer": "Person A",
+      "fault_id": "fault_005_unhandled_exception",
+      "start_time": "2026-11-25T11:00:00Z",
+      "end_time": "2026-11-25T11:09:10Z",
+      "duration_seconds": 550.0,
+      "tools_used": [
+        "dashboards",
+        "logs",
+        "git"
+      ],
+      "saw_ground_truth_beforehand": false,
+      "resolved": true,
+      "notes": "Caught ZeroDivisionError in calculate_unit_discount when quantity == 0."
+    },
+    {
+      "engineer": "Person B",
+      "fault_id": "fault_001_bad_deploy",
+      "start_time": "2026-11-25T11:15:00Z",
+      "end_time": "2026-11-25T11:23:00Z",
+      "duration_seconds": 480.0,
+      "tools_used": [
+        "dashboards",
+        "logs",
+        "git"
+      ],
+      "saw_ground_truth_beforehand": false,
+      "resolved": true,
+      "notes": "Identified NoneType subscript crash in orders checkout logs; patched with dict guard."
+    },
+    {
+      "engineer": "Person B",
+      "fault_id": "fault_002_off_by_one",
+      "start_time": "2026-11-25T11:28:00Z",
+      "end_time": "2026-11-25T11:39:15Z",
+      "duration_seconds": 675.0,
+      "tools_used": [
+        "logs",
+        "git"
+      ],
+      "saw_ground_truth_beforehand": false,
+      "resolved": true,
+      "notes": "Inspected recent git commits on orders; corrected pagination slice start index."
+    },
+    {
+      "engineer": "Person B",
+      "fault_id": "fault_003_wrong_status_code",
+      "start_time": "2026-11-25T11:45:00Z",
+      "end_time": "2026-11-25T11:57:30Z",
+      "duration_seconds": 750.0,
+      "tools_used": [
+        "dashboards",
+        "logs",
+        "git"
+      ],
+      "saw_ground_truth_beforehand": false,
+      "resolved": true,
+      "notes": "Zero 5xx on payments dashboard despite failed orders; traced DECLINED response returning 200."
+    },
+    {
+      "engineer": "Person B",
+      "fault_id": "fault_004_bad_parsing",
+      "start_time": "2026-11-25T12:00:00Z",
+      "end_time": "2026-11-25T12:08:20Z",
+      "duration_seconds": 500.0,
+      "tools_used": [
+        "logs",
+        "git"
+      ],
+      "saw_ground_truth_beforehand": false,
+      "resolved": true,
+      "notes": "Found timestamp parse failure on trailing Z in gateway logs; updated parser."
+    },
+    {
+      "engineer": "Person B",
+      "fault_id": "fault_005_unhandled_exception",
+      "start_time": "2026-11-25T12:12:00Z",
+      "end_time": "2026-11-25T12:21:45Z",
+      "duration_seconds": 585.0,
+      "tools_used": [
+        "dashboards",
+        "logs",
+        "git"
+      ],
+      "saw_ground_truth_beforehand": false,
+      "resolved": true,
+      "notes": "Traced unhandled ZeroDivisionError on zero-quantity order discount calculation."
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "repeats": 3,
+  "fault_ids": [
+    "fault_001_bad_deploy",
+    "fault_002_off_by_one",
+    "fault_003_wrong_status_code",
+    "fault_009_wrong_env_var",
+    "fault_015_disk_full"
+  ],
+  "flags": {
+    "full": {
+      "disabled_features": [],
+      "total_runs": 15,
+      "rca_top1_accuracy": 1.0,
+      "rca_top3_accuracy": 1.0,
+      "fix_success_rate": 0.8,
+      "unsafe_rate": 0.0,
+      "mean_total_time": 11.14,
+      "mean_tokens": 1400.0,
+      "file": "D:\\Akshay\\Documents\\AI On-Call Engineer\\results\\ablations\\ablation_full.json"
+    },
+    "no_memory": {
+      "disabled_features": [
+        "memory"
+      ],
+      "total_runs": 15,
+      "rca_top1_accuracy": 0.8,
+      "rca_top3_accuracy": 1.0,
+      "fix_success_rate": 0.8,
+      "unsafe_rate": 0.0,
+      "mean_total_time": 11.672,
+      "mean_tokens": 1750.0,
+      "file": "D:\\Akshay\\Documents\\AI On-Call Engineer\\results\\ablations\\ablation_no_memory.json"
+    },
+    "no_code": {
+      "disabled_features": [
+        "code"
+      ],
+      "total_runs": 15,
+      "rca_top1_accuracy": 0.4,
+      "rca_top3_accuracy": 1.0,
+      "fix_success_rate": 0.2,
+      "unsafe_rate": 0.0,
+      "mean_total_time": 11.54,
+      "mean_tokens": 1400.0,
+      "file": "D:\\Akshay\\Documents\\AI On-Call Engineer\\results\\ablations\\ablation_no_code.json"
+    },
+    "no_verify": {
+      "disabled_features": [
+        "verify"
+      ],
+      "total_runs": 15,
+      "rca_top1_accuracy": 1.0,
+      "rca_top3_accuracy": 1.0,
+      "fix_success_rate": 0.4,
+      "unsafe_rate": 0.4,
+      "mean_total_time": 7.57,
+      "mean_tokens": 1400.0,
+      "file": "D:\\Akshay\\Documents\\AI On-Call Engineer\\results\\ablations\\ablation_no_verify.json"
+    }
+  },
+  "files": {
+    "full": "D:\\Akshay\\Documents\\AI On-Call Engineer\\results\\ablations\\ablation_full.json",
+    "no_memory": "D:\\Akshay\\Documents\\AI On-Call Engineer\\results\\ablations\\ablation_no_memory.json",
+    "no_code": "D:\\Akshay\\Documents\\AI On-Call Engineer\\results\\ablations\\ablation_no_code.json",
+    "no_verify": "D:\\Akshay\\Documents\\AI On-Call Engineer\\results\\ablations\\ablation_no_verify.json"
+  }
+}

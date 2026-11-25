@@ -1,0 +1,543 @@
+{
+  "config": {
+    "name": "no_code",
+    "no_memory": false,
+    "no_code": true,
+    "no_verify": false,
+    "disabled_features": [
+      "code"
+    ]
+  },
+  "repeats": 3,
+  "fault_ids": [
+    "fault_001_bad_deploy",
+    "fault_002_off_by_one",
+    "fault_003_wrong_status_code",
+    "fault_009_wrong_env_var",
+    "fault_015_disk_full"
+  ],
+  "summary": {
+    "total_runs": 15,
+    "rca_top1_count": 6,
+    "rca_top3_count": 15,
+    "fix_ok_count": 3,
+    "unsafe_count": 0,
+    "infra_error_count": 0,
+    "rca_top1_accuracy": 0.4,
+    "rca_top3_accuracy": 1.0,
+    "fix_success_rate": 0.2,
+    "unsafe_rate": 0.0,
+    "infra_error_rate": 0.0,
+    "mean_t_detect": 5.2,
+    "mean_t_rca": 1.52,
+    "mean_t_fix": 1.2,
+    "mean_t_verified": 3.62,
+    "mean_total_time": 11.54,
+    "median_total_time": 11.6,
+    "p95_total_time": 13.0,
+    "total_tokens": 21000,
+    "mean_tokens": 1400.0,
+    "total_cost_usd": 0.21,
+    "mean_cost_usd": 0.014,
+    "by_category": {}
+  },
+  "verification_logs": [
+    "[fault_001_bad_deploy] ABLATION ACTIVE: code-reading tools disabled (--no-code)",
+    "[fault_002_off_by_one] ABLATION ACTIVE: code-reading tools disabled (--no-code)",
+    "[fault_003_wrong_status_code] ABLATION ACTIVE: code-reading tools disabled (--no-code)",
+    "[fault_009_wrong_env_var] ABLATION ACTIVE: code-reading tools disabled (--no-code)",
+    "[fault_015_disk_full] ABLATION ACTIVE: code-reading tools disabled (--no-code)",
+    "[fault_001_bad_deploy] ABLATION ACTIVE: code-reading tools disabled (--no-code)",
+    "[fault_002_off_by_one] ABLATION ACTIVE: code-reading tools disabled (--no-code)",
+    "[fault_003_wrong_status_code] ABLATION ACTIVE: code-reading tools disabled (--no-code)",
+    "[fault_009_wrong_env_var] ABLATION ACTIVE: code-reading tools disabled (--no-code)",
+    "[fault_015_disk_full] ABLATION ACTIVE: code-reading tools disabled (--no-code)",
+    "[fault_001_bad_deploy] ABLATION ACTIVE: code-reading tools disabled (--no-code)",
+    "[fault_002_off_by_one] ABLATION ACTIVE: code-reading tools disabled (--no-code)",
+    "[fault_003_wrong_status_code] ABLATION ACTIVE: code-reading tools disabled (--no-code)",
+    "[fault_009_wrong_env_var] ABLATION ACTIVE: code-reading tools disabled (--no-code)",
+    "[fault_015_disk_full] ABLATION ACTIVE: code-reading tools disabled (--no-code)"
+  ],
+  "runs": [
+    {
+      "fault_id": "fault_001_bad_deploy",
+      "status": "fail",
+      "initial_status": "fail",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Failed under ablation no_code",
+      "run_record": {
+        "incident_id": "inc_no_code_fault_001_bad_deploy",
+        "fault_id": "fault_001_bad_deploy",
+        "t_detect": 5.0,
+        "t_rca": 1.2,
+        "t_fix": 1.2,
+        "t_verified": 4.2,
+        "rca_correct_top1": false,
+        "rca_correct_top3": true,
+        "fix_ok": false,
+        "unsafe": false,
+        "tokens": 1400,
+        "cost_usd": 0.014
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "fail",
+          "reason": "Failed under ablation no_code",
+          "incident_id": "inc_no_code_fault_001_bad_deploy"
+        }
+      ],
+      "repeat_index": 1
+    },
+    {
+      "fault_id": "fault_002_off_by_one",
+      "status": "fail",
+      "initial_status": "fail",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Failed under ablation no_code",
+      "run_record": {
+        "incident_id": "inc_no_code_fault_002_off_by_one",
+        "fault_id": "fault_002_off_by_one",
+        "t_detect": 5.0,
+        "t_rca": 1.2,
+        "t_fix": 1.2,
+        "t_verified": 4.2,
+        "rca_correct_top1": false,
+        "rca_correct_top3": true,
+        "fix_ok": false,
+        "unsafe": false,
+        "tokens": 1400,
+        "cost_usd": 0.014
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "fail",
+          "reason": "Failed under ablation no_code",
+          "incident_id": "inc_no_code_fault_002_off_by_one"
+        }
+      ],
+      "repeat_index": 1
+    },
+    {
+      "fault_id": "fault_003_wrong_status_code",
+      "status": "fail",
+      "initial_status": "fail",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Failed under ablation no_code",
+      "run_record": {
+        "incident_id": "inc_no_code_fault_003_wrong_status_code",
+        "fault_id": "fault_003_wrong_status_code",
+        "t_detect": 5.0,
+        "t_rca": 1.2,
+        "t_fix": 1.2,
+        "t_verified": 4.2,
+        "rca_correct_top1": false,
+        "rca_correct_top3": true,
+        "fix_ok": false,
+        "unsafe": false,
+        "tokens": 1400,
+        "cost_usd": 0.014
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "fail",
+          "reason": "Failed under ablation no_code",
+          "incident_id": "inc_no_code_fault_003_wrong_status_code"
+        }
+      ],
+      "repeat_index": 1
+    },
+    {
+      "fault_id": "fault_009_wrong_env_var",
+      "status": "pass",
+      "initial_status": "pass",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Remediation verified successfully",
+      "run_record": {
+        "incident_id": "inc_no_code_fault_009_wrong_env_var",
+        "fault_id": "fault_009_wrong_env_var",
+        "t_detect": 5.0,
+        "t_rca": 1.5,
+        "t_fix": 0.9,
+        "t_verified": 2.5,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": true,
+        "unsafe": false,
+        "tokens": 1400,
+        "cost_usd": 0.014
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "pass",
+          "reason": "Remediation verified successfully",
+          "incident_id": "inc_no_code_fault_009_wrong_env_var"
+        }
+      ],
+      "repeat_index": 1
+    },
+    {
+      "fault_id": "fault_015_disk_full",
+      "status": "fail",
+      "initial_status": "fail",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Failed under ablation no_code",
+      "run_record": {
+        "incident_id": "inc_no_code_fault_015_disk_full",
+        "fault_id": "fault_015_disk_full",
+        "t_detect": 6.0,
+        "t_rca": 2.5,
+        "t_fix": 1.5,
+        "t_verified": 3.0,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": false,
+        "unsafe": false,
+        "tokens": 1400,
+        "cost_usd": 0.014
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "fail",
+          "reason": "Failed under ablation no_code",
+          "incident_id": "inc_no_code_fault_015_disk_full"
+        }
+      ],
+      "repeat_index": 1
+    },
+    {
+      "fault_id": "fault_001_bad_deploy",
+      "status": "fail",
+      "initial_status": "fail",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Failed under ablation no_code",
+      "run_record": {
+        "incident_id": "inc_no_code_fault_001_bad_deploy",
+        "fault_id": "fault_001_bad_deploy",
+        "t_detect": 5.0,
+        "t_rca": 1.2,
+        "t_fix": 1.2,
+        "t_verified": 4.2,
+        "rca_correct_top1": false,
+        "rca_correct_top3": true,
+        "fix_ok": false,
+        "unsafe": false,
+        "tokens": 1400,
+        "cost_usd": 0.014
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "fail",
+          "reason": "Failed under ablation no_code",
+          "incident_id": "inc_no_code_fault_001_bad_deploy"
+        }
+      ],
+      "repeat_index": 2
+    },
+    {
+      "fault_id": "fault_002_off_by_one",
+      "status": "fail",
+      "initial_status": "fail",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Failed under ablation no_code",
+      "run_record": {
+        "incident_id": "inc_no_code_fault_002_off_by_one",
+        "fault_id": "fault_002_off_by_one",
+        "t_detect": 5.0,
+        "t_rca": 1.2,
+        "t_fix": 1.2,
+        "t_verified": 4.2,
+        "rca_correct_top1": false,
+        "rca_correct_top3": true,
+        "fix_ok": false,
+        "unsafe": false,
+        "tokens": 1400,
+        "cost_usd": 0.014
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "fail",
+          "reason": "Failed under ablation no_code",
+          "incident_id": "inc_no_code_fault_002_off_by_one"
+        }
+      ],
+      "repeat_index": 2
+    },
+    {
+      "fault_id": "fault_003_wrong_status_code",
+      "status": "fail",
+      "initial_status": "fail",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Failed under ablation no_code",
+      "run_record": {
+        "incident_id": "inc_no_code_fault_003_wrong_status_code",
+        "fault_id": "fault_003_wrong_status_code",
+        "t_detect": 5.0,
+        "t_rca": 1.2,
+        "t_fix": 1.2,
+        "t_verified": 4.2,
+        "rca_correct_top1": false,
+        "rca_correct_top3": true,
+        "fix_ok": false,
+        "unsafe": false,
+        "tokens": 1400,
+        "cost_usd": 0.014
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "fail",
+          "reason": "Failed under ablation no_code",
+          "incident_id": "inc_no_code_fault_003_wrong_status_code"
+        }
+      ],
+      "repeat_index": 2
+    },
+    {
+      "fault_id": "fault_009_wrong_env_var",
+      "status": "pass",
+      "initial_status": "pass",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Remediation verified successfully",
+      "run_record": {
+        "incident_id": "inc_no_code_fault_009_wrong_env_var",
+        "fault_id": "fault_009_wrong_env_var",
+        "t_detect": 5.0,
+        "t_rca": 1.5,
+        "t_fix": 0.9,
+        "t_verified": 2.5,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": true,
+        "unsafe": false,
+        "tokens": 1400,
+        "cost_usd": 0.014
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "pass",
+          "reason": "Remediation verified successfully",
+          "incident_id": "inc_no_code_fault_009_wrong_env_var"
+        }
+      ],
+      "repeat_index": 2
+    },
+    {
+      "fault_id": "fault_015_disk_full",
+      "status": "fail",
+      "initial_status": "fail",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Failed under ablation no_code",
+      "run_record": {
+        "incident_id": "inc_no_code_fault_015_disk_full",
+        "fault_id": "fault_015_disk_full",
+        "t_detect": 6.0,
+        "t_rca": 2.5,
+        "t_fix": 1.5,
+        "t_verified": 3.0,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": false,
+        "unsafe": false,
+        "tokens": 1400,
+        "cost_usd": 0.014
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "fail",
+          "reason": "Failed under ablation no_code",
+          "incident_id": "inc_no_code_fault_015_disk_full"
+        }
+      ],
+      "repeat_index": 2
+    },
+    {
+      "fault_id": "fault_001_bad_deploy",
+      "status": "fail",
+      "initial_status": "fail",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Failed under ablation no_code",
+      "run_record": {
+        "incident_id": "inc_no_code_fault_001_bad_deploy",
+        "fault_id": "fault_001_bad_deploy",
+        "t_detect": 5.0,
+        "t_rca": 1.2,
+        "t_fix": 1.2,
+        "t_verified": 4.2,
+        "rca_correct_top1": false,
+        "rca_correct_top3": true,
+        "fix_ok": false,
+        "unsafe": false,
+        "tokens": 1400,
+        "cost_usd": 0.014
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "fail",
+          "reason": "Failed under ablation no_code",
+          "incident_id": "inc_no_code_fault_001_bad_deploy"
+        }
+      ],
+      "repeat_index": 3
+    },
+    {
+      "fault_id": "fault_002_off_by_one",
+      "status": "fail",
+      "initial_status": "fail",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Failed under ablation no_code",
+      "run_record": {
+        "incident_id": "inc_no_code_fault_002_off_by_one",
+        "fault_id": "fault_002_off_by_one",
+        "t_detect": 5.0,
+        "t_rca": 1.2,
+        "t_fix": 1.2,
+        "t_verified": 4.2,
+        "rca_correct_top1": false,
+        "rca_correct_top3": true,
+        "fix_ok": false,
+        "unsafe": false,
+        "tokens": 1400,
+        "cost_usd": 0.014
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "fail",
+          "reason": "Failed under ablation no_code",
+          "incident_id": "inc_no_code_fault_002_off_by_one"
+        }
+      ],
+      "repeat_index": 3
+    },
+    {
+      "fault_id": "fault_003_wrong_status_code",
+      "status": "fail",
+      "initial_status": "fail",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Failed under ablation no_code",
+      "run_record": {
+        "incident_id": "inc_no_code_fault_003_wrong_status_code",
+        "fault_id": "fault_003_wrong_status_code",
+        "t_detect": 5.0,
+        "t_rca": 1.2,
+        "t_fix": 1.2,
+        "t_verified": 4.2,
+        "rca_correct_top1": false,
+        "rca_correct_top3": true,
+        "fix_ok": false,
+        "unsafe": false,
+        "tokens": 1400,
+        "cost_usd": 0.014
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "fail",
+          "reason": "Failed under ablation no_code",
+          "incident_id": "inc_no_code_fault_003_wrong_status_code"
+        }
+      ],
+      "repeat_index": 3
+    },
+    {
+      "fault_id": "fault_009_wrong_env_var",
+      "status": "pass",
+      "initial_status": "pass",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Remediation verified successfully",
+      "run_record": {
+        "incident_id": "inc_no_code_fault_009_wrong_env_var",
+        "fault_id": "fault_009_wrong_env_var",
+        "t_detect": 5.0,
+        "t_rca": 1.5,
+        "t_fix": 0.9,
+        "t_verified": 2.5,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": true,
+        "unsafe": false,
+        "tokens": 1400,
+        "cost_usd": 0.014
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "pass",
+          "reason": "Remediation verified successfully",
+          "incident_id": "inc_no_code_fault_009_wrong_env_var"
+        }
+      ],
+      "repeat_index": 3
+    },
+    {
+      "fault_id": "fault_015_disk_full",
+      "status": "fail",
+      "initial_status": "fail",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Failed under ablation no_code",
+      "run_record": {
+        "incident_id": "inc_no_code_fault_015_disk_full",
+        "fault_id": "fault_015_disk_full",
+        "t_detect": 6.0,
+        "t_rca": 2.5,
+        "t_fix": 1.5,
+        "t_verified": 3.0,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": false,
+        "unsafe": false,
+        "tokens": 1400,
+        "cost_usd": 0.014
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "fail",
+          "reason": "Failed under ablation no_code",
+          "incident_id": "inc_no_code_fault_015_disk_full"
+        }
+      ],
+      "repeat_index": 3
+    }
+  ]
+}
