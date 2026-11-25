@@ -285,3 +285,78 @@ def create_dashboard_app(
         return store.evidence_store[evidence_id]
 
     return app
+
+
+def seed_sample_incident(state: DashboardState) -> None:
+    """Populate a realistic sample incident so manual browser inspection shows all panels."""
+    events = [
+        DashboardEventIn(
+            incident_id="inc_20261125_fault_001",
+            stage="Detected",
+            message="HTTP 5xx error rate spiked to 22.0% on orders service",
+            metric_error_rate=0.002,
+        ),
+        DashboardEventIn(
+            incident_id="inc_20261125_fault_001",
+            stage="Investigating",
+            message="Anomaly confirmed; querying orders error logs",
+            tool_name="query_logs",
+            tool_args={"service": "orders", "level": "ERROR", "limit": 5},
+            tool_output="TypeError: 'NoneType' object is not subscriptable at orders/app.py:82",
+            evidence_id="ev_log_001",
+            raw_log='2026-11-25T18:45:00Z ERROR [orders] trace=93a2735c File "target-app/services/orders/app.py", line 82, in create_order: discount_code = discount["code"] -> TypeError: \'NoneType\' object is not subscriptable',
+            metric_error_rate=0.22,
+            marker="fault",
+            cost_usd=0.004,
+        ),
+        DashboardEventIn(
+            incident_id="inc_20261125_fault_001",
+            stage="Investigating",
+            message="Inspecting recent deployment diff on orders",
+            tool_name="git_diff",
+            tool_args={"commit": "c0ffee14a"},
+            tool_output="- discount_code = None\n+ discount_code = discount['code']",
+            evidence_id="ev_commit_001",
+            raw_log="commit c0ffee14a (dep_20261122_v1.0.1)\n--- a/target-app/services/orders/app.py\n+++ b/target-app/services/orders/app.py\n@@ -82,1 +82,1 @@\n-    discount_code = None\n+    discount_code = discount['code']",
+            cost_usd=0.009,
+        ),
+        DashboardEventIn(
+            incident_id="inc_20261125_fault_001",
+            stage="Proposed",
+            message="Generated T2 patch guarding optional discount dict & opened PR #101",
+            tool_name="propose_fix",
+            tool_args={"type": "patch", "risk_tier": "T2", "target_service": "orders"},
+            tool_output="PR #101 created: https://github.com/nightshift/target-app-sandbox/pull/101",
+            evidence_id="ev_pr_101",
+            raw_log="GitHub PR #101: fix(orders): guard optional discount dict\n+ discount_code = discount.get('code') if isinstance(discount, dict) else None",
+            cost_usd=0.014,
+        ),
+        DashboardEventIn(
+            incident_id="inc_20261125_fault_001",
+            stage="Verifying",
+            message="Sandbox unit tests & failing-request reproduction passed; canary healthy (0.20%)",
+            metric_error_rate=0.08,
+            marker="fix",
+        ),
+        DashboardEventIn(
+            incident_id="inc_20261125_fault_001",
+            stage="Resolved",
+            message="Production error rate recovered from 22.0% to 0.20%",
+            metric_error_rate=0.002,
+            verdict="PASS",
+            cost_usd=0.014,
+        ),
+    ]
+    for ev in events:
+        state.push_event(ev)
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    st = DashboardState()
+    seed_sample_incident(st)
+    app = create_dashboard_app(state=st)
+    print("NightShift Live Dashboard: http://127.0.0.1:8050")
+    print("NightShift 5-Chart Results: http://127.0.0.1:8050/results")
+    uvicorn.run(app, host="127.0.0.1", port=8050)

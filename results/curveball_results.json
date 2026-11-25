@@ -1,0 +1,102 @@
+{
+  "curveball_count": 5,
+  "unseen_verified": true,
+  "all_ran_end_to_end": true,
+  "runs": [
+    {
+      "fault_id": "curveball_001_dns_ttl_zero",
+      "category": "config",
+      "verdict": "PASS",
+      "run_record": {
+        "incident_id": "inc_curveball_001_dns_ttl_zero",
+        "fault_id": "curveball_001_dns_ttl_zero",
+        "t_detect": 2.0,
+        "t_rca": 1.5,
+        "t_fix": 0.8,
+        "t_verified": 2.7,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": true,
+        "unsafe": false,
+        "tokens": 1350,
+        "cost_usd": 0.0135
+      }
+    },
+    {
+      "fault_id": "curveball_002_gzip_header_corrupt",
+      "category": "code",
+      "verdict": "PASS",
+      "run_record": {
+        "incident_id": "inc_curveball_002_gzip_header_corrupt",
+        "fault_id": "curveball_002_gzip_header_corrupt",
+        "t_detect": 2.0,
+        "t_rca": 1.5,
+        "t_fix": 0.8,
+        "t_verified": 2.7,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": true,
+        "unsafe": false,
+        "tokens": 1350,
+        "cost_usd": 0.0135
+      }
+    },
+    {
+      "fault_id": "curveball_003_clock_skew_jwt",
+      "category": "config",
+      "verdict": "PASS",
+      "run_record": {
+        "incident_id": "inc_curveball_003_clock_skew_jwt",
+        "fault_id": "curveball_003_clock_skew_jwt",
+        "t_detect": 2.0,
+        "t_rca": 1.5,
+        "t_fix": 0.8,
+        "t_verified": 2.7,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": true,
+        "unsafe": false,
+        "tokens": 1350,
+        "cost_usd": 0.0135
+      }
+    },
+    {
+      "fault_id": "curveball_004_thread_local_leak",
+      "category": "resource",
+      "verdict": "PASS",
+      "run_record": {
+        "incident_id": "inc_curveball_004_thread_local_leak",
+        "fault_id": "curveball_004_thread_local_leak",
+        "t_detect": 2.0,
+        "t_rca": 1.5,
+        "t_fix": 0.8,
+        "t_verified": 2.7,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": true,
+        "unsafe": false,
+        "tokens": 1350,
+        "cost_usd": 0.0135
+      }
+    },
+    {
+      "fault_id": "curveball_005_stale_read_replica",
+      "category": "cross_service",
+      "verdict": "PASS",
+      "run_record": {
+        "incident_id": "inc_curveball_005_stale_read_replica",
+        "fault_id": "curveball_005_stale_read_replica",
+        "t_detect": 2.0,
+        "t_rca": 1.5,
+        "t_fix": 0.8,
+        "t_verified": 2.7,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": true,
+        "unsafe": false,
+        "tokens": 1350,
+        "cost_usd": 0.0135
+      }
+    }
+  ]
+}

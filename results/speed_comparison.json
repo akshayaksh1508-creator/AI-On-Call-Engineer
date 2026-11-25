@@ -1,0 +1,12 @@
+{
+  "tuned_canary_window_seconds": 30.0,
+  "day8_median_total_time": 11.2,
+  "day10_median_total_time": 7.03,
+  "median_time_reduction_pct": 37.23,
+  "speed_gate_met": true,
+  "day8_rca_top3": 1.0,
+  "day10_rca_top3": 1.0,
+  "day8_fix_rate": 0.8,
+  "day10_fix_rate": 0.8,
+  "no_accuracy_loss": true
+}

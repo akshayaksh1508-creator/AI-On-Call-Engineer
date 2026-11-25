@@ -1,0 +1,111 @@
+{
+  "fault_id": "fault_001_bad_deploy",
+  "total_runs": 10,
+  "pass_count": 10,
+  "fail_count": 0,
+  "min_required_passes": 9,
+  "every_failure_has_known_cause": true,
+  "reliability_gate_met": true,
+  "runs": [
+    {
+      "run_index": 1,
+      "incident_id": "inc_20261125_192035_fault_001_bad_deploy",
+      "fault_id": "fault_001_bad_deploy",
+      "success": true,
+      "final_state": "Resolved",
+      "verdict": "PASS",
+      "elapsed_seconds": 4.2021,
+      "known_cause": null
+    },
+    {
+      "run_index": 2,
+      "incident_id": "inc_20261125_192039_fault_001_bad_deploy",
+      "fault_id": "fault_001_bad_deploy",
+      "success": true,
+      "final_state": "Resolved",
+      "verdict": "PASS",
+      "elapsed_seconds": 4.1206,
+      "known_cause": null
+    },
+    {
+      "run_index": 3,
+      "incident_id": "inc_20261125_192043_fault_001_bad_deploy",
+      "fault_id": "fault_001_bad_deploy",
+      "success": true,
+      "final_state": "Resolved",
+      "verdict": "PASS",
+      "elapsed_seconds": 3.8623,
+      "known_cause": null
+    },
+    {
+      "run_index": 4,
+      "incident_id": "inc_20261125_192047_fault_001_bad_deploy",
+      "fault_id": "fault_001_bad_deploy",
+      "success": true,
+      "final_state": "Resolved",
+      "verdict": "PASS",
+      "elapsed_seconds": 4.6222,
+      "known_cause": null
+    },
+    {
+      "run_index": 5,
+      "incident_id": "inc_20261125_192051_fault_001_bad_deploy",
+      "fault_id": "fault_001_bad_deploy",
+      "success": true,
+      "final_state": "Resolved",
+      "verdict": "PASS",
+      "elapsed_seconds": 3.8545,
+      "known_cause": null
+    },
+    {
+      "run_index": 6,
+      "incident_id": "inc_20261125_192055_fault_001_bad_deploy",
+      "fault_id": "fault_001_bad_deploy",
+      "success": true,
+      "final_state": "Resolved",
+      "verdict": "PASS",
+      "elapsed_seconds": 3.6911,
+      "known_cause": null
+    },
+    {
+      "run_index": 7,
+      "incident_id": "inc_20261125_192059_fault_001_bad_deploy",
+      "fault_id": "fault_001_bad_deploy",
+      "success": true,
+      "final_state": "Resolved",
+      "verdict": "PASS",
+      "elapsed_seconds": 3.6427,
+      "known_cause": null
+    },
+    {
+      "run_index": 8,
+      "incident_id": "inc_20261125_192103_fault_001_bad_deploy",
+      "fault_id": "fault_001_bad_deploy",
+      "success": true,
+      "final_state": "Resolved",
+      "verdict": "PASS",
+      "elapsed_seconds": 4.0167,
+      "known_cause": null
+    },
+    {
+      "run_index": 9,
+      "incident_id": "inc_20261125_192107_fault_001_bad_deploy",
+      "fault_id": "fault_001_bad_deploy",
+      "success": true,
+      "final_state": "Resolved",
+      "verdict": "PASS",
+      "elapsed_seconds": 3.6225,
+      "known_cause": null
+    },
+    {
+      "run_index": 10,
+      "incident_id": "inc_20261125_192110_fault_001_bad_deploy",
+      "fault_id": "fault_001_bad_deploy",
+      "success": true,
+      "final_state": "Resolved",
+      "verdict": "PASS",
+      "elapsed_seconds": 3.7919,
+      "known_cause": null
+    }
+  ]
+}
