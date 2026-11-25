@@ -1,0 +1,75 @@
+{
+  "events": [
+    {
+      "incident_id": "inc_offline_replay_001",
+      "stage": "Detected",
+      "message": "[OFFLINE REPLAY] HTTP 5xx spike (22.0%) detected for fault_001_bad_deploy",
+      "metric_error_rate": 0.002,
+      "timestamp": "2026-11-25T12:00:00Z"
+    },
+    {
+      "incident_id": "inc_offline_replay_001",
+      "stage": "Investigating",
+      "message": "Querying orders service error logs",
+      "tool_name": "query_logs",
+      "tool_args": {
+        "service": "orders",
+        "level": "ERROR"
+      },
+      "tool_output": "TypeError: 'NoneType' object is not subscriptable at orders/app.py:82",
+      "evidence_id": "ev_replay_log_001",
+      "raw_log": "2026-11-25T12:00:02Z ERROR [orders] File \"target-app/services/orders/app.py\", line 82: TypeError",
+      "metric_error_rate": 0.22,
+      "marker": "fault",
+      "cost_usd": 0.005,
+      "timestamp": "2026-11-25T12:00:02Z"
+    },
+    {
+      "incident_id": "inc_offline_replay_001",
+      "stage": "Investigating",
+      "message": "Inspecting culprit commit c0ffee14a via git_diff",
+      "tool_name": "git_diff",
+      "tool_args": {
+        "commit": "c0ffee14a"
+      },
+      "tool_output": "- discount_code = None\n+ discount_code = discount['code']",
+      "evidence_id": "ev_replay_commit_001",
+      "raw_log": "commit c0ffee14a: + discount_code = discount['code']",
+      "cost_usd": 0.01,
+      "timestamp": "2026-11-25T12:00:04Z"
+    },
+    {
+      "incident_id": "inc_offline_replay_001",
+      "stage": "Proposed",
+      "message": "Generated T2 code patch & opened remediation PR #101",
+      "tool_name": "propose_fix",
+      "tool_args": {
+        "type": "patch",
+        "risk_tier": "T2",
+        "target_service": "orders"
+      },
+      "tool_output": "PR #101 opened",
+      "evidence_id": "ev_replay_pr_101",
+      "raw_log": "GitHub PR #101: + discount_code = discount.get('code') if isinstance(discount, dict) else None",
+      "cost_usd": 0.014,
+      "timestamp": "2026-11-25T12:00:06Z"
+    },
+    {
+      "incident_id": "inc_offline_replay_001",
+      "stage": "Verifying",
+      "message": "Isolated worktree tests & canary traffic window passed",
+      "metric_error_rate": 0.05,
+      "marker": "fix",
+      "timestamp": "2026-11-25T12:00:08Z"
+    },
+    {
+      "incident_id": "inc_offline_replay_001",
+      "stage": "Resolved",
+      "message": "Verified production recovery (22.0% -> 0.20%)",
+      "metric_error_rate": 0.002,
+      "verdict": "PASS",
+      "cost_usd": 0.014,
+      "timestamp": "2026-11-25T12:00:10Z"
+    }
+  ]
+}

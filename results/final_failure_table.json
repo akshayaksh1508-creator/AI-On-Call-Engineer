@@ -1,0 +1,44 @@
+{
+  "source_results": "D:\\Akshay\\Documents\\AI On-Call Engineer\\results\\final.json",
+  "total_runs": 20,
+  "total_failures": 4,
+  "fix_ok_count": 16,
+  "rows": [
+    {
+      "fault_id": "fault_008_broken_serialization",
+      "incident_id": "inc_final_fault_008_broken_serialization",
+      "split": "training",
+      "failure_classification": "real",
+      "label": "verify",
+      "cause": "verify: missing sandbox reproduction harness for fault_008_broken_serialization",
+      "proposed_change": "Implement sandbox reproducer and recovery metric check"
+    },
+    {
+      "fault_id": "fault_013_conn_pool_exhaustion",
+      "incident_id": "inc_final_fault_013_conn_pool_exhaustion",
+      "split": "training",
+      "failure_classification": "real",
+      "label": "RCA",
+      "cause": "RCA: missing resource metric telemetry for fault_013_conn_pool_exhaustion",
+      "proposed_change": "Enrich RCA prompt and platform log/metric evidence"
+    },
+    {
+      "fault_id": "fault_014_memory_leak",
+      "incident_id": "inc_final_fault_014_memory_leak",
+      "split": "training",
+      "failure_classification": "real",
+      "label": "RCA",
+      "cause": "RCA: missing resource metric telemetry for fault_014_memory_leak",
+      "proposed_change": "Enrich RCA prompt and platform log/metric evidence"
+    },
+    {
+      "fault_id": "fault_016_slow_query_missing_index",
+      "incident_id": "inc_final_fault_016_slow_query_missing_index",
+      "split": "held_out",
+      "failure_classification": "real",
+      "label": "fix",
+      "cause": "fix: T3 DB index migration requires human approval",
+      "proposed_change": "Add missing config/patch template for fault category"
+    }
+  ]
+}
