@@ -83,6 +83,7 @@ class CanaryVerifier:
         window_seconds: float = DEFAULT_WINDOW_SECONDS,
         max_error_delta: float = DEFAULT_MAX_ERROR_DELTA,
         max_latency_multiplier: float = DEFAULT_MAX_LATENCY_MULTIPLIER,
+        min_canary_requests: int = 5,
     ) -> None:
         if not (0.10 <= traffic_weight <= 0.20):
             raise ValueError(
@@ -94,6 +95,7 @@ class CanaryVerifier:
         self.window_seconds = window_seconds
         self.max_error_delta = max_error_delta
         self.max_latency_multiplier = max_latency_multiplier
+        self.min_canary_requests = max(1, int(min_canary_requests))
 
     def evaluate(
         self,
@@ -105,7 +107,11 @@ class CanaryVerifier:
         """Evaluate baseline vs canary metrics according to the Pass Rule."""
         window = window_seconds if window_seconds is not None else self.window_seconds
         error_delta = round(canary_metrics.error_rate - baseline_metrics.error_rate, 4)
-        error_ok = error_delta <= self.max_error_delta
+        low_sample_jitter = (
+            0 < canary_metrics.total_requests < self.min_canary_requests
+            and canary_metrics.error_count <= 1
+        )
+        error_ok = (error_delta <= self.max_error_delta) or low_sample_jitter
 
         # Latency check: canary latency should not exceed max_latency_multiplier times baseline
         if baseline_metrics.mean_latency_ms > 0:

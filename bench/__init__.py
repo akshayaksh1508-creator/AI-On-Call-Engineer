@@ -4,8 +4,11 @@ Owner: Person A (Systems & Proof)
 
 from bench.aggregator import aggregate_results, generate_charts, load_results_and_aggregate
 from bench.flake_handler import FlakeClassification, InfraError, ServiceKilledError, classify_run_outcome
+from bench.regression import RegressionReport, RegressionSuite, extract_passing_faults
 from bench.runner import BenchmarkRunEntry, BenchmarkRunner, load_fault_catalogue
 from bench.stage_timer import StageTimeline, StageTimer
+from bench.triage import TriagedFailure, VALID_TRIAGE_LABELS, build_triage_sheet, write_triage_artifacts
+from bench.v1_runner import get_training_fault_ids, run_benchmark_v1
 
 __all__ = [
     "StageTimer",
@@ -20,4 +23,13 @@ __all__ = [
     "InfraError",
     "ServiceKilledError",
     "classify_run_outcome",
+    "get_training_fault_ids",
+    "run_benchmark_v1",
+    "TriagedFailure",
+    "VALID_TRIAGE_LABELS",
+    "build_triage_sheet",
+    "write_triage_artifacts",
+    "RegressionReport",
+    "RegressionSuite",
+    "extract_passing_faults",
 ]

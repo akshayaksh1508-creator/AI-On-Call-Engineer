@@ -1,0 +1,69 @@
+{
+  "total_runs": 15,
+  "total_failures": 8,
+  "counts_by_label": {
+    "detect": 0,
+    "RCA": 2,
+    "fix": 2,
+    "verify": 4,
+    "infrastructure": 0
+  },
+  "failures": [
+    {
+      "fault_id": "fault_006_wrong_timeout_value",
+      "incident_id": "inc_v1_fault_006_wrong_timeout_value",
+      "label": "verify",
+      "cause": "verify: missing sandbox reproduction harness for fault_006_wrong_timeout_value",
+      "proposed_change": "Implement sandbox reproducer and recovery metric check"
+    },
+    {
+      "fault_id": "fault_007_bad_sql_query",
+      "incident_id": "inc_v1_fault_007_bad_sql_query",
+      "label": "verify",
+      "cause": "verify: missing sandbox reproduction harness for fault_007_bad_sql_query",
+      "proposed_change": "Implement sandbox reproducer and recovery metric check"
+    },
+    {
+      "fault_id": "fault_008_broken_serialization",
+      "incident_id": "inc_v1_fault_008_broken_serialization",
+      "label": "verify",
+      "cause": "verify: missing sandbox reproduction harness for fault_008_broken_serialization",
+      "proposed_change": "Implement sandbox reproducer and recovery metric check"
+    },
+    {
+      "fault_id": "fault_011_wrong_pool_size",
+      "incident_id": "inc_v1_fault_011_wrong_pool_size",
+      "label": "fix",
+      "cause": "fix: T1 config revert missing override mapping for fault_011_wrong_pool_size",
+      "proposed_change": "Add missing config/patch template for fault category"
+    },
+    {
+      "fault_id": "fault_012_bad_feature_flag",
+      "incident_id": "inc_v1_fault_012_bad_feature_flag",
+      "label": "fix",
+      "cause": "fix: T1 config revert missing override mapping for fault_012_bad_feature_flag",
+      "proposed_change": "Add missing config/patch template for fault category"
+    },
+    {
+      "fault_id": "fault_013_conn_pool_exhaustion",
+      "incident_id": "inc_v1_fault_013_conn_pool_exhaustion",
+      "label": "RCA",
+      "cause": "RCA: missing resource metric telemetry for fault_013_conn_pool_exhaustion",
+      "proposed_change": "Enrich RCA prompt and platform log/metric evidence"
+    },
+    {
+      "fault_id": "fault_014_memory_leak",
+      "incident_id": "inc_v1_fault_014_memory_leak",
+      "label": "RCA",
+      "cause": "RCA: missing resource metric telemetry for fault_014_memory_leak",
+      "proposed_change": "Enrich RCA prompt and platform log/metric evidence"
+    },
+    {
+      "fault_id": "fault_015_disk_full",
+      "incident_id": "inc_v1_fault_015_disk_full",
+      "label": "verify",
+      "cause": "verify: resource recovery check unimplemented for fault_015_disk_full",
+      "proposed_change": "Implement sandbox reproducer and recovery metric check"
+    }
+  ]
+}

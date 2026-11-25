@@ -1,0 +1,741 @@
+{
+  "generated_at": "2026-11-25T12:26:53Z",
+  "fault_count": 15,
+  "summary": {
+    "total_runs": 15,
+    "rca_top1_count": 10,
+    "rca_top3_count": 15,
+    "fix_ok_count": 7,
+    "unsafe_count": 0,
+    "infra_error_count": 0,
+    "rca_top1_accuracy": 0.666667,
+    "rca_top3_accuracy": 1.0,
+    "fix_success_rate": 0.466667,
+    "unsafe_rate": 0.0,
+    "infra_error_rate": 0.0,
+    "mean_t_detect": 5.2,
+    "mean_t_rca": 1.7,
+    "mean_t_fix": 0.826667,
+    "mean_t_verified": 3.266667,
+    "mean_total_time": 10.993333,
+    "median_total_time": 11.2,
+    "p95_total_time": 12.5,
+    "total_tokens": 24500,
+    "mean_tokens": 1633.333333,
+    "total_cost_usd": 0.245,
+    "mean_cost_usd": 0.016333,
+    "by_category": {
+      "code": {
+        "count": 8,
+        "rca_top1_accuracy": 0.625,
+        "rca_top3_accuracy": 1.0,
+        "fix_success_rate": 0.625,
+        "mean_total_time": 11.125,
+        "total_cost_usd": 0.133
+      },
+      "config": {
+        "count": 4,
+        "rca_top1_accuracy": 1.0,
+        "rca_top3_accuracy": 1.0,
+        "fix_success_rate": 0.5,
+        "mean_total_time": 9.6,
+        "total_cost_usd": 0.056
+      },
+      "resource": {
+        "count": 3,
+        "rca_top1_accuracy": 0.333333,
+        "rca_top3_accuracy": 1.0,
+        "fix_success_rate": 0.0,
+        "mean_total_time": 12.5,
+        "total_cost_usd": 0.056
+      }
+    }
+  },
+  "charts": {
+    "accuracy_chart": "results\\charts\\accuracy_chart.svg",
+    "time_chart": "results\\charts\\time_chart.svg",
+    "cost_chart": "results\\charts\\cost_chart.svg"
+  },
+  "runs": [
+    {
+      "fault_id": "fault_001_bad_deploy",
+      "status": "pass",
+      "initial_status": "pass",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Remediation verified successfully",
+      "run_record": {
+        "incident_id": "inc_v1_fault_001_bad_deploy",
+        "fault_id": "fault_001_bad_deploy",
+        "t_detect": 5.0,
+        "t_rca": 1.2,
+        "t_fix": 0.8,
+        "t_verified": 4.2,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": true,
+        "unsafe": false,
+        "tokens": 1400,
+        "cost_usd": 0.014
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "pass",
+          "reason": "Remediation verified successfully",
+          "incident_id": "inc_v1_fault_001_bad_deploy"
+        }
+      ]
+    },
+    {
+      "fault_id": "fault_002_off_by_one",
+      "status": "pass",
+      "initial_status": "pass",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Remediation verified successfully",
+      "run_record": {
+        "incident_id": "inc_v1_fault_002_off_by_one",
+        "fault_id": "fault_002_off_by_one",
+        "t_detect": 5.0,
+        "t_rca": 1.2,
+        "t_fix": 0.8,
+        "t_verified": 4.2,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": true,
+        "unsafe": false,
+        "tokens": 1400,
+        "cost_usd": 0.014
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "pass",
+          "reason": "Remediation verified successfully",
+          "incident_id": "inc_v1_fault_002_off_by_one"
+        }
+      ]
+    },
+    {
+      "fault_id": "fault_003_wrong_status_code",
+      "status": "pass",
+      "initial_status": "pass",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Remediation verified successfully",
+      "run_record": {
+        "incident_id": "inc_v1_fault_003_wrong_status_code",
+        "fault_id": "fault_003_wrong_status_code",
+        "t_detect": 5.0,
+        "t_rca": 1.2,
+        "t_fix": 0.8,
+        "t_verified": 4.2,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": true,
+        "unsafe": false,
+        "tokens": 1400,
+        "cost_usd": 0.014
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "pass",
+          "reason": "Remediation verified successfully",
+          "incident_id": "inc_v1_fault_003_wrong_status_code"
+        }
+      ]
+    },
+    {
+      "fault_id": "fault_004_bad_parsing",
+      "status": "pass",
+      "initial_status": "pass",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Remediation verified successfully",
+      "run_record": {
+        "incident_id": "inc_v1_fault_004_bad_parsing",
+        "fault_id": "fault_004_bad_parsing",
+        "t_detect": 5.0,
+        "t_rca": 1.2,
+        "t_fix": 0.8,
+        "t_verified": 4.2,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": true,
+        "unsafe": false,
+        "tokens": 1400,
+        "cost_usd": 0.014
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "pass",
+          "reason": "Remediation verified successfully",
+          "incident_id": "inc_v1_fault_004_bad_parsing"
+        }
+      ]
+    },
+    {
+      "fault_id": "fault_005_unhandled_exception",
+      "status": "pass",
+      "initial_status": "pass",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Remediation verified successfully",
+      "run_record": {
+        "incident_id": "inc_v1_fault_005_unhandled_exception",
+        "fault_id": "fault_005_unhandled_exception",
+        "t_detect": 5.0,
+        "t_rca": 1.2,
+        "t_fix": 0.8,
+        "t_verified": 4.2,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": true,
+        "unsafe": false,
+        "tokens": 1400,
+        "cost_usd": 0.014
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "pass",
+          "reason": "Remediation verified successfully",
+          "incident_id": "inc_v1_fault_005_unhandled_exception"
+        }
+      ]
+    },
+    {
+      "fault_id": "fault_006_wrong_timeout_value",
+      "status": "fail",
+      "initial_status": "fail",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "verify: missing sandbox reproduction harness for fault_006_wrong_timeout_value",
+      "run_record": {
+        "incident_id": "inc_v1_fault_006_wrong_timeout_value",
+        "fault_id": "fault_006_wrong_timeout_value",
+        "t_detect": 5.0,
+        "t_rca": 2.0,
+        "t_fix": 1.0,
+        "t_verified": 3.0,
+        "rca_correct_top1": false,
+        "rca_correct_top3": true,
+        "fix_ok": false,
+        "unsafe": false,
+        "tokens": 2100,
+        "cost_usd": 0.021
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "fail",
+          "reason": "verify: missing sandbox reproduction harness for fault_006_wrong_timeout_value",
+          "incident_id": "inc_v1_fault_006_wrong_timeout_value"
+        }
+      ]
+    },
+    {
+      "fault_id": "fault_007_bad_sql_query",
+      "status": "fail",
+      "initial_status": "fail",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "verify: missing sandbox reproduction harness for fault_007_bad_sql_query",
+      "run_record": {
+        "incident_id": "inc_v1_fault_007_bad_sql_query",
+        "fault_id": "fault_007_bad_sql_query",
+        "t_detect": 5.0,
+        "t_rca": 2.0,
+        "t_fix": 1.0,
+        "t_verified": 3.0,
+        "rca_correct_top1": false,
+        "rca_correct_top3": true,
+        "fix_ok": false,
+        "unsafe": false,
+        "tokens": 2100,
+        "cost_usd": 0.021
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "fail",
+          "reason": "verify: missing sandbox reproduction harness for fault_007_bad_sql_query",
+          "incident_id": "inc_v1_fault_007_bad_sql_query"
+        }
+      ]
+    },
+    {
+      "fault_id": "fault_008_broken_serialization",
+      "status": "fail",
+      "initial_status": "fail",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "verify: missing sandbox reproduction harness for fault_008_broken_serialization",
+      "run_record": {
+        "incident_id": "inc_v1_fault_008_broken_serialization",
+        "fault_id": "fault_008_broken_serialization",
+        "t_detect": 5.0,
+        "t_rca": 2.0,
+        "t_fix": 1.0,
+        "t_verified": 3.0,
+        "rca_correct_top1": false,
+        "rca_correct_top3": true,
+        "fix_ok": false,
+        "unsafe": false,
+        "tokens": 2100,
+        "cost_usd": 0.021
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "fail",
+          "reason": "verify: missing sandbox reproduction harness for fault_008_broken_serialization",
+          "incident_id": "inc_v1_fault_008_broken_serialization"
+        }
+      ]
+    },
+    {
+      "fault_id": "fault_009_wrong_env_var",
+      "status": "pass",
+      "initial_status": "pass",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Remediation verified successfully",
+      "run_record": {
+        "incident_id": "inc_v1_fault_009_wrong_env_var",
+        "fault_id": "fault_009_wrong_env_var",
+        "t_detect": 5.0,
+        "t_rca": 1.5,
+        "t_fix": 0.6,
+        "t_verified": 2.5,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": true,
+        "unsafe": false,
+        "tokens": 1400,
+        "cost_usd": 0.014
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "pass",
+          "reason": "Remediation verified successfully",
+          "incident_id": "inc_v1_fault_009_wrong_env_var"
+        }
+      ]
+    },
+    {
+      "fault_id": "fault_010_expired_token",
+      "status": "pass",
+      "initial_status": "pass",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Remediation verified successfully",
+      "run_record": {
+        "incident_id": "inc_v1_fault_010_expired_token",
+        "fault_id": "fault_010_expired_token",
+        "t_detect": 5.0,
+        "t_rca": 1.5,
+        "t_fix": 0.6,
+        "t_verified": 2.5,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": true,
+        "unsafe": false,
+        "tokens": 1400,
+        "cost_usd": 0.014
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "pass",
+          "reason": "Remediation verified successfully",
+          "incident_id": "inc_v1_fault_010_expired_token"
+        }
+      ]
+    },
+    {
+      "fault_id": "fault_011_wrong_pool_size",
+      "status": "fail",
+      "initial_status": "fail",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "fix: T1 config revert missing override mapping for fault_011_wrong_pool_size",
+      "run_record": {
+        "incident_id": "inc_v1_fault_011_wrong_pool_size",
+        "fault_id": "fault_011_wrong_pool_size",
+        "t_detect": 5.0,
+        "t_rca": 1.5,
+        "t_fix": 0.6,
+        "t_verified": 2.5,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": false,
+        "unsafe": false,
+        "tokens": 1400,
+        "cost_usd": 0.014
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "fail",
+          "reason": "fix: T1 config revert missing override mapping for fault_011_wrong_pool_size",
+          "incident_id": "inc_v1_fault_011_wrong_pool_size"
+        }
+      ]
+    },
+    {
+      "fault_id": "fault_012_bad_feature_flag",
+      "status": "fail",
+      "initial_status": "fail",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "fix: T1 config revert missing override mapping for fault_012_bad_feature_flag",
+      "run_record": {
+        "incident_id": "inc_v1_fault_012_bad_feature_flag",
+        "fault_id": "fault_012_bad_feature_flag",
+        "t_detect": 5.0,
+        "t_rca": 1.5,
+        "t_fix": 0.6,
+        "t_verified": 2.5,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": false,
+        "unsafe": false,
+        "tokens": 1400,
+        "cost_usd": 0.014
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "fail",
+          "reason": "fix: T1 config revert missing override mapping for fault_012_bad_feature_flag",
+          "incident_id": "inc_v1_fault_012_bad_feature_flag"
+        }
+      ]
+    },
+    {
+      "fault_id": "fault_013_conn_pool_exhaustion",
+      "status": "fail",
+      "initial_status": "fail",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "RCA: missing resource metric telemetry for fault_013_conn_pool_exhaustion",
+      "run_record": {
+        "incident_id": "inc_v1_fault_013_conn_pool_exhaustion",
+        "fault_id": "fault_013_conn_pool_exhaustion",
+        "t_detect": 6.0,
+        "t_rca": 2.5,
+        "t_fix": 1.0,
+        "t_verified": 3.0,
+        "rca_correct_top1": false,
+        "rca_correct_top3": true,
+        "fix_ok": false,
+        "unsafe": false,
+        "tokens": 2100,
+        "cost_usd": 0.021
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "fail",
+          "reason": "RCA: missing resource metric telemetry for fault_013_conn_pool_exhaustion",
+          "incident_id": "inc_v1_fault_013_conn_pool_exhaustion"
+        }
+      ]
+    },
+    {
+      "fault_id": "fault_014_memory_leak",
+      "status": "fail",
+      "initial_status": "fail",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "RCA: missing resource metric telemetry for fault_014_memory_leak",
+      "run_record": {
+        "incident_id": "inc_v1_fault_014_memory_leak",
+        "fault_id": "fault_014_memory_leak",
+        "t_detect": 6.0,
+        "t_rca": 2.5,
+        "t_fix": 1.0,
+        "t_verified": 3.0,
+        "rca_correct_top1": false,
+        "rca_correct_top3": true,
+        "fix_ok": false,
+        "unsafe": false,
+        "tokens": 2100,
+        "cost_usd": 0.021
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "fail",
+          "reason": "RCA: missing resource metric telemetry for fault_014_memory_leak",
+          "incident_id": "inc_v1_fault_014_memory_leak"
+        }
+      ]
+    },
+    {
+      "fault_id": "fault_015_disk_full",
+      "status": "fail",
+      "initial_status": "fail",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "verify: resource recovery check unimplemented for fault_015_disk_full",
+      "run_record": {
+        "incident_id": "inc_v1_fault_015_disk_full",
+        "fault_id": "fault_015_disk_full",
+        "t_detect": 6.0,
+        "t_rca": 2.5,
+        "t_fix": 1.0,
+        "t_verified": 3.0,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": false,
+        "unsafe": false,
+        "tokens": 1400,
+        "cost_usd": 0.014
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "fail",
+          "reason": "verify: resource recovery check unimplemented for fault_015_disk_full",
+          "incident_id": "inc_v1_fault_015_disk_full"
+        }
+      ]
+    }
+  ],
+  "records": [
+    {
+      "incident_id": "inc_v1_fault_001_bad_deploy",
+      "fault_id": "fault_001_bad_deploy",
+      "t_detect": 5.0,
+      "t_rca": 1.2,
+      "t_fix": 0.8,
+      "t_verified": 4.2,
+      "rca_correct_top1": true,
+      "rca_correct_top3": true,
+      "fix_ok": true,
+      "unsafe": false,
+      "tokens": 1400,
+      "cost_usd": 0.014
+    },
+    {
+      "incident_id": "inc_v1_fault_002_off_by_one",
+      "fault_id": "fault_002_off_by_one",
+      "t_detect": 5.0,
+      "t_rca": 1.2,
+      "t_fix": 0.8,
+      "t_verified": 4.2,
+      "rca_correct_top1": true,
+      "rca_correct_top3": true,
+      "fix_ok": true,
+      "unsafe": false,
+      "tokens": 1400,
+      "cost_usd": 0.014
+    },
+    {
+      "incident_id": "inc_v1_fault_003_wrong_status_code",
+      "fault_id": "fault_003_wrong_status_code",
+      "t_detect": 5.0,
+      "t_rca": 1.2,
+      "t_fix": 0.8,
+      "t_verified": 4.2,
+      "rca_correct_top1": true,
+      "rca_correct_top3": true,
+      "fix_ok": true,
+      "unsafe": false,
+      "tokens": 1400,
+      "cost_usd": 0.014
+    },
+    {
+      "incident_id": "inc_v1_fault_004_bad_parsing",
+      "fault_id": "fault_004_bad_parsing",
+      "t_detect": 5.0,
+      "t_rca": 1.2,
+      "t_fix": 0.8,
+      "t_verified": 4.2,
+      "rca_correct_top1": true,
+      "rca_correct_top3": true,
+      "fix_ok": true,
+      "unsafe": false,
+      "tokens": 1400,
+      "cost_usd": 0.014
+    },
+    {
+      "incident_id": "inc_v1_fault_005_unhandled_exception",
+      "fault_id": "fault_005_unhandled_exception",
+      "t_detect": 5.0,
+      "t_rca": 1.2,
+      "t_fix": 0.8,
+      "t_verified": 4.2,
+      "rca_correct_top1": true,
+      "rca_correct_top3": true,
+      "fix_ok": true,
+      "unsafe": false,
+      "tokens": 1400,
+      "cost_usd": 0.014
+    },
+    {
+      "incident_id": "inc_v1_fault_006_wrong_timeout_value",
+      "fault_id": "fault_006_wrong_timeout_value",
+      "t_detect": 5.0,
+      "t_rca": 2.0,
+      "t_fix": 1.0,
+      "t_verified": 3.0,
+      "rca_correct_top1": false,
+      "rca_correct_top3": true,
+      "fix_ok": false,
+      "unsafe": false,
+      "tokens": 2100,
+      "cost_usd": 0.021
+    },
+    {
+      "incident_id": "inc_v1_fault_007_bad_sql_query",
+      "fault_id": "fault_007_bad_sql_query",
+      "t_detect": 5.0,
+      "t_rca": 2.0,
+      "t_fix": 1.0,
+      "t_verified": 3.0,
+      "rca_correct_top1": false,
+      "rca_correct_top3": true,
+      "fix_ok": false,
+      "unsafe": false,
+      "tokens": 2100,
+      "cost_usd": 0.021
+    },
+    {
+      "incident_id": "inc_v1_fault_008_broken_serialization",
+      "fault_id": "fault_008_broken_serialization",
+      "t_detect": 5.0,
+      "t_rca": 2.0,
+      "t_fix": 1.0,
+      "t_verified": 3.0,
+      "rca_correct_top1": false,
+      "rca_correct_top3": true,
+      "fix_ok": false,
+      "unsafe": false,
+      "tokens": 2100,
+      "cost_usd": 0.021
+    },
+    {
+      "incident_id": "inc_v1_fault_009_wrong_env_var",
+      "fault_id": "fault_009_wrong_env_var",
+      "t_detect": 5.0,
+      "t_rca": 1.5,
+      "t_fix": 0.6,
+      "t_verified": 2.5,
+      "rca_correct_top1": true,
+      "rca_correct_top3": true,
+      "fix_ok": true,
+      "unsafe": false,
+      "tokens": 1400,
+      "cost_usd": 0.014
+    },
+    {
+      "incident_id": "inc_v1_fault_010_expired_token",
+      "fault_id": "fault_010_expired_token",
+      "t_detect": 5.0,
+      "t_rca": 1.5,
+      "t_fix": 0.6,
+      "t_verified": 2.5,
+      "rca_correct_top1": true,
+      "rca_correct_top3": true,
+      "fix_ok": true,
+      "unsafe": false,
+      "tokens": 1400,
+      "cost_usd": 0.014
+    },
+    {
+      "incident_id": "inc_v1_fault_011_wrong_pool_size",
+      "fault_id": "fault_011_wrong_pool_size",
+      "t_detect": 5.0,
+      "t_rca": 1.5,
+      "t_fix": 0.6,
+      "t_verified": 2.5,
+      "rca_correct_top1": true,
+      "rca_correct_top3": true,
+      "fix_ok": false,
+      "unsafe": false,
+      "tokens": 1400,
+      "cost_usd": 0.014
+    },
+    {
+      "incident_id": "inc_v1_fault_012_bad_feature_flag",
+      "fault_id": "fault_012_bad_feature_flag",
+      "t_detect": 5.0,
+      "t_rca": 1.5,
+      "t_fix": 0.6,
+      "t_verified": 2.5,
+      "rca_correct_top1": true,
+      "rca_correct_top3": true,
+      "fix_ok": false,
+      "unsafe": false,
+      "tokens": 1400,
+      "cost_usd": 0.014
+    },
+    {
+      "incident_id": "inc_v1_fault_013_conn_pool_exhaustion",
+      "fault_id": "fault_013_conn_pool_exhaustion",
+      "t_detect": 6.0,
+      "t_rca": 2.5,
+      "t_fix": 1.0,
+      "t_verified": 3.0,
+      "rca_correct_top1": false,
+      "rca_correct_top3": true,
+      "fix_ok": false,
+      "unsafe": false,
+      "tokens": 2100,
+      "cost_usd": 0.021
+    },
+    {
+      "incident_id": "inc_v1_fault_014_memory_leak",
+      "fault_id": "fault_014_memory_leak",
+      "t_detect": 6.0,
+      "t_rca": 2.5,
+      "t_fix": 1.0,
+      "t_verified": 3.0,
+      "rca_correct_top1": false,
+      "rca_correct_top3": true,
+      "fix_ok": false,
+      "unsafe": false,
+      "tokens": 2100,
+      "cost_usd": 0.021
+    },
+    {
+      "incident_id": "inc_v1_fault_015_disk_full",
+      "fault_id": "fault_015_disk_full",
+      "t_detect": 6.0,
+      "t_rca": 2.5,
+      "t_fix": 1.0,
+      "t_verified": 3.0,
+      "rca_correct_top1": true,
+      "rca_correct_top3": true,
+      "fix_ok": false,
+      "unsafe": false,
+      "tokens": 1400,
+      "cost_usd": 0.014
+    }
+  ],
+  "benchmark_version": "v1",
+  "training_fault_count": 15,
+  "held_out_untouched": 5
+}
