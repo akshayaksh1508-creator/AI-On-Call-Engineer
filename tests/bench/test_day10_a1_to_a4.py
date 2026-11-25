@@ -10,6 +10,7 @@ Verifies:
 from __future__ import annotations
 
 import subprocess
+import sys
 import tempfile
 import time
 import unittest
@@ -129,10 +130,15 @@ class TestDay10TasksA1ToA4(unittest.TestCase):
         self.assertIn("demo", sh_text)
         self.assertIn("900", sh_text)
 
-        # Run quick verify-only check
+        # Run quick verify-only check using the platform-appropriate script
+        cmd = (
+            ["powershell", "-ExecutionPolicy", "Bypass", "-File", str(ps1_path), "-VerifyOnly"]
+            if sys.platform == "win32"
+            else ["bash", str(sh_path), "--verify-only"]
+        )
         t0 = time.monotonic()
         proc = subprocess.run(
-            ["powershell", "-ExecutionPolicy", "Bypass", "-File", str(ps1_path), "-VerifyOnly"],
+            cmd,
             cwd=REPO_ROOT,
             capture_output=True,
             text=True,
