@@ -1,0 +1,119 @@
+{
+  "task": "Day 12 A3 - Backup Video, README, and Submission Package",
+  "generated_at_utc": "2026-11-26T15:13:24.617554+00:00",
+  "all_passed": true,
+  "all_artifacts_ok": true,
+  "readme_third_person_setup_ok": true,
+  "artifacts": [
+    {
+      "path": "README.md",
+      "exists": true,
+      "size_bytes": 5448,
+      "passed": true
+    },
+    {
+      "path": "requirements-frozen.txt",
+      "exists": true,
+      "size_bytes": 317,
+      "passed": true
+    },
+    {
+      "path": ".env.example",
+      "exists": true,
+      "size_bytes": 1375,
+      "passed": true
+    },
+    {
+      "path": "results/final.json",
+      "exists": true,
+      "size_bytes": 33245,
+      "passed": true
+    },
+    {
+      "path": "results/final_results_page.html",
+      "exists": true,
+      "size_bytes": 12688,
+      "passed": true
+    },
+    {
+      "path": "results/final_failure_table.md",
+      "exists": true,
+      "size_bytes": 1029,
+      "passed": true
+    },
+    {
+      "path": "results/demo_backup_video.gif",
+      "exists": true,
+      "size_bytes": 279500,
+      "passed": true
+    },
+    {
+      "path": "results/demo_backup_video.webp",
+      "exists": true,
+      "size_bytes": 264538,
+      "passed": true
+    },
+    {
+      "path": "results/demo_backup_video.html",
+      "exists": true,
+      "size_bytes": 628912,
+      "passed": true
+    },
+    {
+      "path": "results/recorded_replay_fault_001.json",
+      "exists": true,
+      "size_bytes": 2629,
+      "passed": true
+    },
+    {
+      "path": "pitch/deck_final.md",
+      "exists": true,
+      "size_bytes": 3917,
+      "passed": true
+    },
+    {
+      "path": "pitch/demo_script_3min.md",
+      "exists": true,
+      "size_bytes": 1588,
+      "passed": true
+    },
+    {
+      "path": "pitch/qa_bank.md",
+      "exists": true,
+      "size_bytes": 5852,
+      "passed": true
+    },
+    {
+      "path": "pitch/dry_run_critique.md",
+      "exists": true,
+      "size_bytes": 2235,
+      "passed": true
+    }
+  ],
+  "readme_checks": [
+    {
+      "token": "requirements-frozen.txt",
+      "present": true
+    },
+    {
+      "token": ".env.example",
+      "present": true
+    },
+    {
+      "token": "ANTHROPIC_SPEND_CAP_USD",
+      "present": true
+    },
+    {
+      "token": "python run.py test",
+      "present": true
+    },
+    {
+      "token": "demo_backup_video",
+      "present": true
+    },
+    {
+      "token": "offline_replay",
+      "present": true
+    }
+  ]
+}
