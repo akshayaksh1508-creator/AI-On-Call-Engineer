@@ -380,6 +380,7 @@ DASHBOARD_HTML = """<!DOCTYPE html>
     width: 230px; flex-shrink: 0; background: var(--sidebar);
     border-right: 1px solid var(--border); padding: 20px 14px;
     display: flex; flex-direction: column; justify-content: space-between;
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
   }
   .brand { display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 22px; }
   .brand-logo {
@@ -951,6 +952,7 @@ def create_dashboard_app(
             "border-radius:14px!important;box-shadow:0 8px 24px rgba(15,23,42,0.08)!important;}"
             ".controls{background:#f8fbff!important;border-top:1px solid #dce6f2!important;color:#0f172a!important;}"
             ".video-viewport{background:#f1f5f9!important;}"
+            ".video-viewport img{filter:invert(0.93) hue-rotate(180deg) contrast(1.06)!important;}"
             "button{background:#2563eb!important;color:#fff!important;border:none!important;border-radius:8px!important;}"
             "</style></head>",
         )
