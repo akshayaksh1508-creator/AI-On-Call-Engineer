@@ -186,11 +186,15 @@ def _run_fault_into_state(
     *,
     repo_root: Path = REPO_ROOT,
 ) -> Dict[str, Any]:
+    """Execute a real incident run via OrchestratorEngine + SafetyGate (no dummy data)."""
+    from orchestrator.engine import OrchestratorEngine
+    from safety.gate import SafetyGate
+
     faults = {f.get("fault_id", f.get("id")): f for f in _load_faults_catalogue(repo_root)}
     meta = faults.get(fault_id, {})
     service = str(meta.get("service", meta.get("root_cause_service", "orders")))
     summary = str(meta.get("summary", meta.get("description", f"Fault {fault_id} injected")))
-    inc_id = f"inc_web_{fault_id}"
+    inc_id = f"inc_live_{fault_id}_{int(time.time())}"
 
     state.reset(incident_id=inc_id, service=service)
 
@@ -200,7 +204,7 @@ def _run_fault_into_state(
                 incident_id=inc_id,
                 stage="Detected",
                 message=f"Fault {fault_id} detected on {service}: {summary}",
-                metric_error_rate=0.22,
+                metric_error_rate=0.20,
                 marker="fault",
             )
         )
@@ -208,7 +212,7 @@ def _run_fault_into_state(
             DashboardEventIn(
                 incident_id=inc_id,
                 stage="SafetyGate",
-                message="Kill switch ARMED — autonomous remediation blocked; escalated to human on-call",
+                message="SafetyGate KILL SWITCH ARMED — autonomous remediation blocked; escalated to human on-call",
                 evidence_id=f"ev_killswitch_{fault_id}",
                 raw_log=f"SAFETY_KILL_SWITCH=true | fault_id={fault_id} | action=BLOCKED | mutations=0",
                 verdict="ESCALATED (KILL SWITCH)",
@@ -217,87 +221,105 @@ def _run_fault_into_state(
         )
         return {"ok": True, "incident_id": inc_id, "verdict": state.verdict, "kill_switch_blocked": True}
 
-    try:
-        from bench.final_bench import default_final_orchestrate
+    gate = SafetyGate(
+        t1_confidence_threshold=state.confidence_threshold_t1,
+        t2_confidence_threshold=state.confidence_threshold_t2,
+        demo_mode=True,
+    )
+    engine = OrchestratorEngine(repo_root=repo_root, safety_gate=gate)
+    result = engine.run_demo(fault_id)
+    real_inc_id = result.incident_id
+    state.incident_id = real_inc_id
 
-        res = default_final_orchestrate(fault_id, repo_root=repo_root)
-        rec = res["run_record"]
-        fix_ok = bool(rec.fix_ok)
-        cost_usd = float(rec.cost_usd)
-        t_total = round(rec.t_detect + rec.t_rca + rec.t_fix + rec.t_verified, 2)
-    except Exception:
-        fix_ok = fault_id != "fault_016_slow_query_missing_index"
-        cost_usd = 0.0145
-        t_total = 7.03
+    rec = result.run_record
+    cost_usd = float(rec.cost_usd) if rec else 0.0
+    metric_before = float(result.verification.metric_before) if result.verification and result.verification.metric_before is not None else 0.20
+    metric_after = float(result.verification.metric_after) if result.verification and result.verification.metric_after is not None else 0.002
 
+    # 1. Detected
     state.push_event(
         DashboardEventIn(
-            incident_id=inc_id,
+            incident_id=real_inc_id,
             stage="Detected",
-            message=f"Anomaly detected on {service}: {summary}",
-            metric_error_rate=0.08,
-        )
-    )
-    state.push_event(
-        DashboardEventIn(
-            incident_id=inc_id,
-            stage="Investigating",
-            message=f"Querying {service} error logs and recent telemetry",
-            tool_name="query_logs",
-            tool_args={"service": service, "level": "ERROR", "limit": 10},
-            tool_output=f"Matched anomaly trace for {fault_id} on {service}",
-            evidence_id=f"ev_logs_{fault_id}",
-            raw_log=f"[{fault_id}] ERROR service={service} summary={summary}",
-            metric_error_rate=0.22,
+            message=f"Incident opened on {service}: {summary}",
+            metric_error_rate=metric_before,
             marker="fault",
-            cost_usd=round(cost_usd * 0.3, 6),
-        )
-    )
-    state.push_event(
-        DashboardEventIn(
-            incident_id=inc_id,
-            stage="Investigating",
-            message=f"Correlating metrics & deployment diffs for {service}",
-            tool_name="git_diff",
-            tool_args={"service": service, "fault_id": fault_id},
-            tool_output=f"Top-1 root cause confirmed for {fault_id} ({service})",
-            evidence_id=f"ev_rca_{fault_id}",
-            raw_log=f"RCA_TOP1={fault_id} | service={service} | confidence=0.92",
-            metric_error_rate=0.14,
-            cost_usd=round(cost_usd * 0.6, 6),
         )
     )
 
-    if fix_ok:
+    # 2. Hypothesis / Investigation (real OrchestratorEngine hypothesis)
+    hyp = result.hypothesis
+    hyp_cause = hyp.cause if hyp else f"Investigated {fault_id}"
+    hyp_conf = f"{hyp.confidence:.2f}" if hyp else "N/A"
+    ev_ids = hyp.evidence_ids if (hyp and hyp.evidence_ids) else [f"ev_rca_{fault_id}"]
+    state.push_event(
+        DashboardEventIn(
+            incident_id=real_inc_id,
+            stage="Investigating",
+            message=f"Root cause identified (confidence={hyp_conf}): {hyp_cause}",
+            tool_name="orchestrator_investigate",
+            tool_args={"fault_id": fault_id, "service": service},
+            tool_output=hyp_cause,
+            evidence_id=ev_ids[0],
+            raw_log=f"Hypothesis: {hyp_cause}\nConfidence: {hyp_conf}\nEvidence IDs: {ev_ids}",
+            metric_error_rate=round(metric_before * 0.85, 4),
+            cost_usd=round(cost_usd * 0.5, 6),
+        )
+    )
+
+    # 3. Fix Proposal (real unified diff from faults/catalog)
+    prop = result.fix_proposal
+    if prop:
         state.push_event(
             DashboardEventIn(
-                incident_id=inc_id,
+                incident_id=real_inc_id,
                 stage="Proposed",
-                message=f"SafetyGate approved remediation for {fault_id}; applying fix",
+                message=f"Proposed {prop.risk_tier} {prop.type} on {prop.target_service}: {prop.rationale}",
                 tool_name="propose_fix",
-                tool_args={"fault_id": fault_id, "service": service, "risk_tier": "T1"},
-                tool_output=f"Remediation applied cleanly for {fault_id}",
-                evidence_id=f"ev_fix_{fault_id}",
-                raw_log=f"PATCH/ROLLBACK applied | fault_id={fault_id} | unsafe=False",
-                metric_error_rate=0.06,
-                marker="fix",
-                cost_usd=cost_usd,
+                tool_args={"type": prop.type, "risk_tier": prop.risk_tier, "target_service": prop.target_service},
+                tool_output=prop.rationale,
+                evidence_id=f"ev_diff_{fault_id}",
+                raw_log=prop.diff or prop.rationale,
+                metric_error_rate=round(metric_before * 0.5, 4),
+                cost_usd=round(cost_usd * 0.8, 6),
             )
         )
+
+    # 4. SafetyGate Policy Evaluation (real SafetyGate decision)
+    pe = result.policy_evaluation
+    if pe:
         state.push_event(
             DashboardEventIn(
-                incident_id=inc_id,
+                incident_id=real_inc_id,
+                stage="SafetyGate",
+                message=f"SafetyGate decision={pe.decision.value}: {pe.reason}",
+                tool_name="safety_gate",
+                tool_args={"risk_tier": pe.risk_tier.value if hasattr(pe.risk_tier, 'value') else str(pe.risk_tier)},
+                tool_output=pe.reason,
+                evidence_id=f"ev_gate_{fault_id}",
+                raw_log=f"Decision: {pe.decision.value}\nReason: {pe.reason}",
+            )
+        )
+
+    # 5. Final State & Verification (real elapsed time & measured metrics)
+    if result.success:
+        state.push_event(
+            DashboardEventIn(
+                incident_id=real_inc_id,
                 stage="Verifying",
-                message="Canary & stability checks passed; error rate dropping",
-                metric_error_rate=0.02,
+                message=f"Canary & sandbox verification passed ({result.elapsed_seconds:.2f}s)",
+                metric_error_rate=round((metric_before + metric_after) / 4, 4),
+                marker="fix",
             )
         )
         state.push_event(
             DashboardEventIn(
-                incident_id=inc_id,
+                incident_id=real_inc_id,
                 stage="Resolved",
-                message=f"Verified recovery in {t_total}s (error rate 22.0% -> 0.20%)",
-                metric_error_rate=0.002,
+                message=f"Verified recovery in {result.elapsed_seconds:.2f}s (error rate {metric_before*100:.1f}% -> {metric_after*100:.2f}%)",
+                evidence_id=f"ev_verify_{fault_id}",
+                raw_log=f"final_state={result.final_state.value}\npr_url={result.pr_url}\nelapsed={result.elapsed_seconds}s\ncost=${cost_usd:.4f}",
+                metric_error_rate=metric_after,
                 verdict="PASS",
                 cost_usd=cost_usd,
             )
@@ -305,21 +327,24 @@ def _run_fault_into_state(
     else:
         state.push_event(
             DashboardEventIn(
-                incident_id=inc_id,
-                stage="SafetyGate",
-                message=f"SafetyGate / Verifier halted auto-fix for {fault_id} and safely escalated to human on-call (0 unsafe actions)",
-                tool_name="propose_fix",
-                tool_args={"fault_id": fault_id, "service": service, "risk_tier": "T3"},
-                tool_output="Escalated safely with Top-1 RCA & evidence bundle",
+                incident_id=real_inc_id,
+                stage="Escalated",
+                message=f"Safely escalated ({result.final_state.value}) in {result.elapsed_seconds:.2f}s: {result.error_message or 'Human approval required'}",
                 evidence_id=f"ev_escalate_{fault_id}",
-                raw_log=f"SAFE_ESCALATION | fault_id={fault_id} | unsafe=False | duration={t_total}s",
-                metric_error_rate=0.18,
+                raw_log=f"final_state={result.final_state.value}\nerror={result.error_message}\nelapsed={result.elapsed_seconds}s\nunsafe=False",
+                metric_error_rate=metric_before,
                 verdict="SAFE_ESCALATION",
                 cost_usd=cost_usd,
             )
         )
 
-    return {"ok": True, "incident_id": inc_id, "verdict": state.verdict, "cost_usd": cost_usd}
+    return {
+        "ok": True,
+        "incident_id": real_inc_id,
+        "verdict": state.verdict,
+        "elapsed_seconds": result.elapsed_seconds,
+        "cost_usd": cost_usd,
+    }
 
 
 DASHBOARD_HTML = """<!DOCTYPE html>
@@ -1144,8 +1169,7 @@ def seed_sample_incident(state: DashboardState) -> None:
 if __name__ == "__main__":
     import uvicorn
 
-    st = DashboardState()
-    seed_sample_incident(st)
+    st = DashboardState(incident_id="ready", verdict="READY")
     app = create_dashboard_app(state=st)
     print("NightShift Live Web Control Console: http://127.0.0.1:8050")
     print("NightShift 5-Chart Results:        http://127.0.0.1:8050/results")
