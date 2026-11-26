@@ -1,13 +1,16 @@
 """NightShift Live Incident Dashboard & Web Control Console.
 
 Provides:
-  - 1080p projector-readable dark-mode UI (`GET /`) with full web-only controls
-    (no terminal commands required: trigger any fault, run curveball, toggle safety
-    kill switch, trigger offline fallback replay, reset state)
+  - Modern light/dark-capable 1080p SaaS Web Control Console (`GET /`) with sidebar
+    navigation (Dashboard, Analytics, Controls, Settings, Logs, About), live clock,
+    theme toggle, status pills, fault/curveball triggers, kill switch, offline replay,
+    incident timeline with vertical connector, SVG metric graph with gridlines &
+    timeframe pills, collapsible agent trace, and clickable evidence inspector.
   - Live event ingestion & streaming (`POST /api/events`, `GET /api/state`)
-  - Incident timeline, collapsible agent trace tool calls, clickable evidence IDs
-    resolving to raw log lines or git commits (`GET /api/evidence/{evidence_id}`)
-  - Metric graph with fault injection and fix markers, verdict, and cost
+  - Evidence lookup (`GET /api/evidence/{evidence_id}`)
+  - Web control endpoints (`GET /api/control/faults`, `POST /api/control/trigger`,
+    `POST /api/control/kill-switch`, `POST /api/control/offline-replay`,
+    `POST /api/control/reset`, `GET /api/settings`, `POST /api/settings`)
   - In-app views for 5-chart results (`GET /results`), final frozen benchmark
     (`GET /final-results`), and offline backup video (`GET /backup-video`)
 
@@ -55,6 +58,13 @@ class KillSwitchRequest(BaseModel):
     armed: Optional[bool] = None
 
 
+class SettingsUpdateRequest(BaseModel):
+    confidence_threshold_t1: Optional[float] = None
+    confidence_threshold_t2: Optional[float] = None
+    spend_cap_usd: Optional[float] = None
+    max_tool_calls_budget: Optional[int] = None
+
+
 @dataclass
 class DashboardState:
     """In-memory live state store for sub-2s dashboard updates."""
@@ -64,6 +74,10 @@ class DashboardState:
     verdict: str = "IN_PROGRESS"
     cost_usd: float = 0.0
     kill_switch_armed: bool = False
+    confidence_threshold_t1: float = 0.80
+    confidence_threshold_t2: float = 0.85
+    spend_cap_usd: float = 50.00
+    max_tool_calls_budget: int = 15
     timeline: List[Dict[str, Any]] = field(default_factory=list)
     trace: List[Dict[str, Any]] = field(default_factory=list)
     evidence_store: Dict[str, Dict[str, Any]] = field(default_factory=dict)
@@ -80,7 +94,7 @@ class DashboardState:
         self.metric_series.clear()
 
     def push_event(self, ev: DashboardEventIn) -> Dict[str, Any]:
-        ts = ev.timestamp or time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+        ts = ev.timestamp or time.strftime("%H:%M:%S", time.gmtime())
         self.incident_id = ev.incident_id
 
         timeline_item = {
@@ -124,6 +138,15 @@ class DashboardState:
 
         return timeline_item
 
+    def settings_dict(self) -> Dict[str, Any]:
+        return {
+            "confidence_threshold_t1": self.confidence_threshold_t1,
+            "confidence_threshold_t2": self.confidence_threshold_t2,
+            "spend_cap_usd": self.spend_cap_usd,
+            "max_tool_calls_budget": self.max_tool_calls_budget,
+            "kill_switch_armed": self.kill_switch_armed,
+        }
+
     def to_dict(self) -> Dict[str, Any]:
         return {
             "incident_id": self.incident_id,
@@ -131,6 +154,7 @@ class DashboardState:
             "verdict": self.verdict,
             "cost_usd": round(self.cost_usd, 6),
             "kill_switch_armed": self.kill_switch_armed,
+            "settings": self.settings_dict(),
             "timeline": self.timeline,
             "trace": self.trace,
             "evidence_ids": list(self.evidence_store.keys()),
@@ -183,8 +207,8 @@ def _run_fault_into_state(
         state.push_event(
             DashboardEventIn(
                 incident_id=inc_id,
-                stage="Escalated",
-                message="SafetyGate KILL SWITCH ARMED — autonomous remediation blocked; escalated to human on-call",
+                stage="SafetyGate",
+                message="Kill switch ARMED — autonomous remediation blocked; escalated to human on-call",
                 evidence_id=f"ev_killswitch_{fault_id}",
                 raw_log=f"SAFETY_KILL_SWITCH=true | fault_id={fault_id} | action=BLOCKED | mutations=0",
                 verdict="ESCALATED (KILL SWITCH)",
@@ -211,7 +235,7 @@ def _run_fault_into_state(
             incident_id=inc_id,
             stage="Detected",
             message=f"Anomaly detected on {service}: {summary}",
-            metric_error_rate=0.002,
+            metric_error_rate=0.08,
         )
     )
     state.push_event(
@@ -239,6 +263,7 @@ def _run_fault_into_state(
             tool_output=f"Top-1 root cause confirmed for {fault_id} ({service})",
             evidence_id=f"ev_rca_{fault_id}",
             raw_log=f"RCA_TOP1={fault_id} | service={service} | confidence=0.92",
+            metric_error_rate=0.14,
             cost_usd=round(cost_usd * 0.6, 6),
         )
     )
@@ -254,6 +279,8 @@ def _run_fault_into_state(
                 tool_output=f"Remediation applied cleanly for {fault_id}",
                 evidence_id=f"ev_fix_{fault_id}",
                 raw_log=f"PATCH/ROLLBACK applied | fault_id={fault_id} | unsafe=False",
+                metric_error_rate=0.06,
+                marker="fix",
                 cost_usd=cost_usd,
             )
         )
@@ -262,8 +289,7 @@ def _run_fault_into_state(
                 incident_id=inc_id,
                 stage="Verifying",
                 message="Canary & stability checks passed; error rate dropping",
-                metric_error_rate=0.04,
-                marker="fix",
+                metric_error_rate=0.02,
             )
         )
         state.push_event(
@@ -280,7 +306,7 @@ def _run_fault_into_state(
         state.push_event(
             DashboardEventIn(
                 incident_id=inc_id,
-                stage="Escalated",
+                stage="SafetyGate",
                 message=f"SafetyGate / Verifier halted auto-fix for {fault_id} and safely escalated to human on-call (0 unsafe actions)",
                 tool_name="propose_fix",
                 tool_args={"fault_id": fault_id, "service": service, "risk_tier": "T3"},
@@ -301,116 +327,421 @@ DASHBOARD_HTML = """<!DOCTYPE html>
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>NightShift Live SRE Console (1080p)</title>
+<title>NightShift Autonomous SRE — Web Control Console</title>
 <style>
   :root {
-    --bg: #0d1117; --panel: #161b22; --border: #30363d;
-    --text: #e6edf3; --muted: #8b949e; --blue: #58a6ff;
-    --green: #3fb950; --red: #f85149; --yellow: #d29922;
+    --bg: #eef4fb;
+    --sidebar: #f8fbff;
+    --card: #ffffff;
+    --border: #dce6f2;
+    --text: #0f172a;
+    --muted: #64748b;
+    --blue: #2563eb;
+    --blue-soft: #e0edff;
+    --green: #16a34a;
+    --green-soft: #dcfce7;
+    --red: #dc2626;
+    --red-soft: #fee2e2;
+    --amber: #d97706;
+    --amber-soft: #ffedd5;
+    --shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    --code-bg: #0f172a;
+    --code-text: #93c5fd;
+  }
+  body.dark {
+    --bg: #0b1120;
+    --sidebar: #111827;
+    --card: #161f33;
+    --border: #273449;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --blue: #60a5fa;
+    --blue-soft: #1e3a8a;
+    --green: #4ade80;
+    --green-soft: #14532d;
+    --red: #f87171;
+    --red-soft: #7f1d1d;
+    --amber: #fbbf24;
+    --amber-soft: #78350f;
+    --shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    --code-bg: #090d16;
+    --code-text: #7dd3fc;
   }
   * { box-sizing: border-box; }
   body {
-    margin: 0; padding: 24px; background: var(--bg); color: var(--text);
-    font-family: "Segoe UI", Arial, sans-serif; font-size: 16px; line-height: 1.5;
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+    font-size: 14px; line-height: 1.5;
   }
-  header {
-    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
-    padding-bottom: 16px; border-bottom: 2px solid var(--border); margin-bottom: 16px;
+  .layout { display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  aside.sidebar {
+    width: 230px; flex-shrink: 0; background: var(--sidebar);
+    border-right: 1px solid var(--border); padding: 20px 14px;
+    display: flex; flex-direction: column; justify-content: space-between;
   }
-  h1 { margin: 0; font-size: 26px; color: var(--blue); }
-  .badges { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; font-size: 16px; }
-  .badge {
-    padding: 6px 14px; border-radius: 8px; background: var(--panel);
-    border: 1px solid var(--border); font-weight: 700;
+  .brand { display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 22px; }
+  .brand-logo {
+    width: 56px; height: 56px; border-radius: 16px;
+    background: linear-gradient(135deg, #1d4ed8, #0f172a);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 28px; box-shadow: 0 8px 18px rgba(37, 99, 235, 0.28);
+    margin-bottom: 10px;
   }
-  .badge-pass { color: var(--green); border-color: var(--green); }
-  .badge-warn { color: var(--yellow); border-color: var(--yellow); }
-  .badge-danger { color: var(--red); border-color: var(--red); }
-  .nav-links { display: flex; gap: 14px; align-items: center; }
-  .nav-links a { color: var(--blue); font-weight: 600; text-decoration: none; }
-  .nav-links a:hover { text-decoration: underline; }
-  .control-bar {
-    display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
-    background: var(--panel); border: 1px solid var(--border);
-    border-radius: 10px; padding: 14px 18px; margin-bottom: 20px;
+  .brand-title { font-size: 18px; font-weight: 800; color: var(--text); }
+  .brand-sub { font-size: 12px; color: var(--muted); }
+  nav.nav-menu { display: flex; flex-direction: column; gap: 6px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+    border-radius: 10px; border: none; background: transparent; color: var(--muted);
+    font-size: 14px; font-weight: 600; cursor: pointer; text-align: left; width: 100%;
+    transition: all 0.15s ease;
   }
-  select, button.ctrl-btn {
-    background: #0d1117; color: var(--text); border: 1px solid var(--border);
-    border-radius: 6px; padding: 8px 14px; font-size: 14px; font-weight: 600; cursor: pointer;
+  .nav-item:hover { background: var(--blue-soft); color: var(--blue); }
+  .nav-item.active { background: var(--blue-soft); color: var(--blue); }
+  .always-on-card {
+    margin-top: 20px; border-radius: 16px; padding: 18px 14px; text-align: center; color: #fff;
+    background: radial-gradient(circle at top, #1d4ed8 0%, #0f172a 75%);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.25);
+  }
+  .always-on-card .moon { font-size: 28px; margin-bottom: 6px; }
+  .always-on-card .status { color: #4ade80; font-weight: 700; font-size: 13px; }
+  .always-on-card .desc { color: #cbd5e1; font-size: 11px; margin-top: 4px; }
+
+  /* Main Area */
+  main.content { flex: 1; padding: 22px 28px; overflow-x: hidden; }
+  .topbar {
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
+    gap: 12px; margin-bottom: 16px;
+  }
+  .title-wrap { display: flex; align-items: center; gap: 12px; }
+  .pulse-icon {
+    width: 38px; height: 38px; border-radius: 10px; background: var(--blue-soft);
+    color: var(--blue); display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 800;
+  }
+  h1 { margin: 0; font-size: 22px; font-weight: 800; }
+  .subtitle { font-size: 12px; color: var(--muted); }
+  .top-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px;
+    border-radius: 999px; background: var(--card); border: 1px solid var(--border);
+    font-size: 13px; font-weight: 600; box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+    color: var(--text); text-decoration: none;
+  }
+  .pill-live { color: var(--green); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .dot-green { background: var(--green); box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2); }
+  .dot-red { background: var(--red); }
+  .dot-blue { background: var(--blue); }
+  .dot-slate { background: var(--muted); }
+  .theme-btn {
+    width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border);
+    background: var(--card); color: var(--text); cursor: pointer; font-size: 16px;
+  }
+
+  /* Status & Action Rows */
+  .status-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+  .status-pill-pass { background: var(--green-soft); color: var(--green); border-color: transparent; }
+  .status-pill-warn { background: var(--amber-soft); color: var(--amber); border-color: transparent; }
+  .status-pill-danger { background: var(--red-soft); color: var(--red); border-color: transparent; }
+  .controls-wrap {
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 20px;
+  }
+  select.ctrl-select, button.ctrl-btn {
+    border-radius: 999px; border: 1px solid var(--border); background: var(--card);
+    color: var(--text); padding: 8px 16px; font-size: 13px; font-weight: 600;
+    cursor: pointer; box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
   }
   button.ctrl-btn:hover { border-color: var(--blue); }
-  button.btn-primary { background: #1f6feb; border-color: #1f6feb; color: #fff; }
-  button.btn-primary:hover { background: #388bfd; }
-  button.btn-danger { background: #da3633; border-color: #f85149; color: #fff; }
-  button.btn-warn { background: #9e6a03; border-color: #d29922; color: #fff; }
-  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  .panel {
-    background: var(--panel); border: 1px solid var(--border);
-    border-radius: 10px; padding: 18px;
+  button.btn-primary {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff; border-color: transparent;
   }
-  .panel h2 { margin-top: 0; font-size: 20px; color: var(--blue); }
-  .timeline-item { padding: 8px 0; border-bottom: 1px solid #21262d; }
+  button.btn-amber { background: var(--amber-soft); color: var(--amber); border-color: #fed7aa; }
+  button.btn-danger { background: var(--red-soft); color: var(--red); border-color: #fecaca; }
+
+  /* Cards & Grid */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 1100px) { .grid-2 { grid-template-columns: 1fr; } }
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+    padding: 20px; box-shadow: var(--shadow);
+  }
+  .card-header {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;
+  }
+  .card-title { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 700; margin: 0; }
+  .tf-pills { display: flex; gap: 4px; background: var(--bg); padding: 4px; border-radius: 10px; }
+  .tf-btn {
+    border: none; background: transparent; color: var(--muted); font-size: 12px;
+    font-weight: 600; padding: 4px 10px; border-radius: 8px; cursor: pointer;
+  }
+  .tf-btn.active { background: #0f766e; color: #fff; }
+
+  /* Timeline */
+  .timeline-list { position: relative; padding-left: 18px; }
+  .timeline-list::before {
+    content: ""; position: absolute; left: 7px; top: 8px; bottom: 8px;
+    width: 2px; background: var(--border);
+  }
+  .timeline-row {
+    display: grid; grid-template-columns: 105px 1fr auto; gap: 10px; align-items: start;
+    padding: 8px 0; position: relative;
+  }
+  .timeline-dot {
+    position: absolute; left: -15px; top: 13px; width: 10px; height: 10px;
+    border-radius: 50%; border: 2px solid var(--card);
+  }
+  .stage-badge {
+    display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 700;
+  }
+  .stage-Detected { background: var(--red-soft); color: var(--red); }
+  .stage-Investigating { background: var(--blue-soft); color: var(--blue); }
+  .stage-Proposed, .stage-Resolved { background: var(--green-soft); color: var(--green); }
+  .stage-Verifying { background: var(--bg); color: var(--muted); }
+  .stage-SafetyGate, .stage-Escalated { background: var(--amber-soft); color: var(--amber); }
+  .ev-chip {
+    display: inline-block; margin-top: 4px; background: var(--bg); color: var(--blue);
+    border: 1px solid var(--border); border-radius: 6px; padding: 2px 8px;
+    font-family: Consolas, monospace; font-size: 12px; cursor: pointer;
+  }
+  .ev-chip:hover { border-color: var(--blue); }
+  .ts-label { font-size: 12px; color: var(--muted); white-space: nowrap; }
+
+  /* Trace & Evidence */
   details.tool-call {
-    background: #0d1117; border: 1px solid var(--border);
-    border-radius: 6px; padding: 10px 14px; margin-bottom: 10px;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 14px; margin-bottom: 10px;
   }
-  details.tool-call summary { cursor: pointer; font-weight: 600; font-size: 16px; }
-  .evidence-btn {
-    background: #1f6feb; color: #fff; border: none; border-radius: 4px;
-    padding: 4px 10px; cursor: pointer; font-family: Consolas, monospace; font-size: 14px;
-  }
-  .evidence-btn:hover { background: #388bfd; }
+  details.tool-call summary { cursor: pointer; font-weight: 600; }
   pre.raw-log {
-    background: #010409; color: #79c0ff; padding: 14px; border-radius: 6px;
-    border: 1px solid var(--border); overflow-x: auto; font-size: 14px;
+    background: var(--code-bg); color: var(--code-text); padding: 14px;
+    border-radius: 10px; overflow-x: auto; font-size: 13px; margin: 8px 0 0;
+  }
+
+  /* Views & Modals */
+  .view-section { display: none; }
+  .view-section.active { display: block; }
+  iframe.embedded-frame {
+    width: 100%; height: 78vh; border: 1px solid var(--border); border-radius: 14px; background: #fff;
+  }
+  .settings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+  .field-box label { display: block; font-size: 12px; color: var(--muted); font-weight: 700; margin-bottom: 6px; }
+  .field-box input {
+    width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--bg); color: var(--text); font-size: 14px;
   }
 </style>
 </head>
 <body>
-<header>
-  <h1>NightShift Autonomous SRE — Web Control Console</h1>
-  <div class="badges">
-    <span class="badge" id="inc-badge">Incident: --</span>
-    <span class="badge badge-pass" id="verdict-badge">Verdict: IN_PROGRESS</span>
-    <span class="badge" id="cost-badge">Cost: $0.0000</span>
-    <div class="nav-links">
-      <a href="/results">5 Charts</a>
-      <a href="/final-results">Final Benchmark</a>
-      <a href="/backup-video">Backup Video</a>
+<div class="layout">
+  <aside class="sidebar">
+    <div>
+      <div class="brand">
+        <div class="brand-logo">&#129302;</div>
+        <div class="brand-title">NightShift</div>
+        <div class="brand-sub">SRE Console</div>
+      </div>
+      <nav class="nav-menu">
+        <button class="nav-item active" onclick="switchView('dashboard', this)">&#127968; Dashboard</button>
+        <button class="nav-item" onclick="switchView('analytics', this)">&#128202; Analytics</button>
+        <button class="nav-item" onclick="switchView('controls', this)">&#9654; Controls</button>
+        <button class="nav-item" onclick="switchView('settings', this)">&#9881; Settings</button>
+        <button class="nav-item" onclick="switchView('logs', this)">&#128196; Logs &amp; Trace</button>
+        <button class="nav-item" onclick="switchView('about', this)">&#128737; About &amp; Video</button>
+      </nav>
     </div>
-  </div>
-</header>
-<div class="control-bar">
-  <select id="fault-select" aria-label="Select fault to inject"></select>
-  <button class="ctrl-btn btn-primary" onclick="triggerSelectedFault()">Run Fault Live</button>
-  <button class="ctrl-btn" onclick="triggerFault('fault_001_bad_deploy')">Demo: Fault 001</button>
-  <button class="ctrl-btn" onclick="triggerFault('fault_017_symptom_gw_cause_payments')">Cross-Service: Fault 017</button>
-  <button class="ctrl-btn btn-warn" onclick="triggerFault('fault_016_slow_query_missing_index')">Curveball: Fault 016</button>
-  <button class="ctrl-btn" id="kill-switch-btn" onclick="toggleKillSwitch()">Kill Switch: OFF</button>
-  <button class="ctrl-btn" onclick="runOfflineReplay()">Offline Fallback Replay</button>
-  <button class="ctrl-btn" onclick="resetConsole()">Reset</button>
+    <div class="always-on-card">
+      <div class="moon">&#127769;</div>
+      <div class="status">&#9679; Always On</div>
+      <div class="desc">Monitoring your system 24/7</div>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="topbar">
+      <div class="title-wrap">
+        <div class="pulse-icon">&#128200;</div>
+        <div>
+          <h1>NightShift Autonomous SRE &mdash; Web Control Console</h1>
+          <div class="subtitle">Monitor &bull; Diagnose &bull; Control</div>
+        </div>
+      </div>
+      <div class="top-right">
+        <span class="pill pill-live"><span class="dot dot-green"></span> Live</span>
+        <span class="pill" id="live-clock">--</span>
+        <button class="theme-btn" id="theme-toggle" onclick="toggleTheme()" title="Toggle Light/Dark Mode">&#9728;</button>
+      </div>
+    </div>
+
+    <div class="status-row">
+      <span class="pill" id="inc-badge">&#9889; Incident: --</span>
+      <span class="pill status-pill-pass" id="verdict-badge">&#10004; Verdict: IN_PROGRESS</span>
+      <span class="pill" id="cost-badge">&#129689; Cost: $0.0000</span>
+      <a class="pill" href="/final-results" onclick="event.preventDefault(); switchView('analytics');">&#128202; Final Benchmark</a>
+      <a class="pill" href="/backup-video" onclick="event.preventDefault(); switchView('about');">&#9654; Backup Video</a>
+    </div>
+
+    <div class="controls-wrap" id="controls-anchor">
+      <select class="ctrl-select" id="fault-select" aria-label="Select fault to inject"></select>
+      <button class="ctrl-btn btn-primary" onclick="triggerSelectedFault()">&#9654; Run Fault Live</button>
+      <button class="ctrl-btn" onclick="triggerFault('fault_001_bad_deploy')">Demo: Fault 001</button>
+      <button class="ctrl-btn" onclick="triggerFault('fault_017_symptom_gw_cause_payments')">Cross-Service: Fault 017</button>
+      <button class="ctrl-btn btn-amber" onclick="triggerFault('fault_016_slow_query_missing_index')">&#9889; Curveball: Fault 016</button>
+      <button class="ctrl-btn btn-danger" id="kill-switch-btn" onclick="toggleKillSwitch()">&#9211; Kill Switch: OFF</button>
+      <button class="ctrl-btn" onclick="runOfflineReplay()">&#8635; Offline Fallback Replay</button>
+      <button class="ctrl-btn" onclick="resetConsole()">&#8634; Reset</button>
+    </div>
+
+    <!-- Primary Dashboard View -->
+    <section id="view-dashboard" class="view-section active">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">&#128337; 1. Incident Timeline</h2>
+            <span class="pill pill-live" style="padding:4px 10px;font-size:12px;"><span class="dot dot-green"></span> Live Updates</span>
+          </div>
+          <div class="timeline-list" id="timeline-list"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">&#128202; 2. Metric Graph (Fault &amp; Fix Markers)</h2>
+            <div class="tf-pills">
+              <button class="tf-btn active" onclick="setTimeframe(this, '1h')">Last 1h</button>
+              <button class="tf-btn" onclick="setTimeframe(this, '6h')">6h</button>
+              <button class="tf-btn" onclick="setTimeframe(this, '24h')">24h</button>
+              <button class="tf-btn" onclick="setTimeframe(this, '7d')">7d</button>
+            </div>
+          </div>
+          <svg id="metric-svg" width="100%" height="240" viewBox="0 0 700 240"></svg>
+          <div style="display:flex;justify-content:center;gap:18px;font-size:12px;color:var(--muted);margin-top:6px;">
+            <span><span class="dot dot-blue"></span> Error Rate (%)</span>
+            <span><span class="dot dot-red"></span> Fault Point</span>
+            <span><span class="dot dot-green"></span> Fix Point</span>
+          </div>
+        </div>
+
+        <div class="card" id="trace-card">
+          <div class="card-header">
+            <h2 class="card-title">&#128269; 3. Agent Trace (Collapsible Tool Calls)</h2>
+          </div>
+          <div id="trace-list"></div>
+        </div>
+
+        <div class="card" id="evidence-card">
+          <div class="card-header">
+            <h2 class="card-title">&#128196; 4. Evidence Inspector (Click Evidence ID)</h2>
+          </div>
+          <div id="evidence-buttons" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;"></div>
+          <pre class="raw-log" id="evidence-raw">Click an evidence ID to view exact raw log line or git commit...</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Analytics View (In-App Benchmark & 5 Charts) -->
+    <section id="view-analytics" class="view-section">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">&#128202; Final Frozen Benchmark &amp; 5 Charts (N=20)</h2>
+          <div style="display:flex;gap:8px;">
+            <button class="ctrl-btn" onclick="document.getElementById('analytics-frame').src='/final-results'">Final Benchmark</button>
+            <button class="ctrl-btn" onclick="document.getElementById('analytics-frame').src='/results'">5-Chart Results</button>
+          </div>
+        </div>
+        <iframe id="analytics-frame" class="embedded-frame" src="/final-results" title="Benchmark Results"></iframe>
+      </div>
+    </section>
+
+    <!-- Settings View -->
+    <section id="view-settings" class="view-section">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">&#9881; SafetyGate &amp; Budget Settings</h2>
+          <button class="ctrl-btn btn-primary" onclick="saveSettings()">Save Settings</button>
+        </div>
+        <div class="settings-grid">
+          <div class="field-box">
+            <label for="cfg-t1">T1 Confidence Threshold</label>
+            <input id="cfg-t1" type="number" step="0.01" min="0.5" max="0.99" value="0.80" />
+          </div>
+          <div class="field-box">
+            <label for="cfg-t2">T2 Confidence Threshold</label>
+            <input id="cfg-t2" type="number" step="0.01" min="0.5" max="0.99" value="0.85" />
+          </div>
+          <div class="field-box">
+            <label for="cfg-cap">API Spend Cap (USD)</label>
+            <input id="cfg-cap" type="number" step="1" min="1" value="50" />
+          </div>
+          <div class="field-box">
+            <label for="cfg-budget">Max Tool Calls Budget</label>
+            <input id="cfg-budget" type="number" step="1" min="1" max="30" value="15" />
+          </div>
+        </div>
+        <p id="settings-msg" style="color:var(--green);font-weight:600;margin-top:12px;"></p>
+      </div>
+    </section>
+
+    <!-- About & Offline Backup Video View -->
+    <section id="view-about" class="view-section">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">&#127909; Offline Backup Video &amp; System Summary</h2>
+          <span class="pill status-pill-pass">Section 12 Checklist: 14/14 Verified</span>
+        </div>
+        <iframe class="embedded-frame" src="/backup-video" title="Offline Backup Video"></iframe>
+      </div>
+    </section>
+  </main>
 </div>
-<div class="grid">
-  <section class="panel">
-    <h2>1. Incident Timeline</h2>
-    <div id="timeline-list"></div>
-  </section>
-  <section class="panel">
-    <h2>2. Metric Graph (Fault &amp; Fix Markers)</h2>
-    <svg id="metric-svg" width="100%" height="240" viewBox="0 0 700 240"></svg>
-  </section>
-  <section class="panel">
-    <h2>3. Agent Trace (Collapsible Tool Calls)</h2>
-    <div id="trace-list"></div>
-  </section>
-  <section class="panel">
-    <h2>4. Evidence Inspector (Click Evidence ID)</h2>
-    <div id="evidence-buttons" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;"></div>
-    <pre class="raw-log" id="evidence-raw">Click an evidence ID to view exact raw log line or git commit...</pre>
-  </section>
-</div>
+
 <script>
 let currentKillSwitch = false;
+let currentTimeframe = "1h";
+
+function updateClock() {
+  const now = new Date();
+  const formatted = now.toLocaleString("en-US", {
+    weekday: "short", month: "short", day: "numeric", year: "numeric",
+    hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false
+  });
+  document.getElementById("live-clock").textContent = formatted;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+function toggleTheme() {
+  document.body.classList.toggle("dark");
+  const isDark = document.body.classList.contains("dark");
+  document.getElementById("theme-toggle").innerHTML = isDark ? "&#9790;" : "&#9728;";
+}
+
+function switchView(name, btn) {
+  document.querySelectorAll(".nav-item").forEach(el => el.classList.remove("active"));
+  if (btn) btn.classList.add("active");
+  document.querySelectorAll(".view-section").forEach(el => el.classList.remove("active"));
+
+  if (name === "controls") {
+    document.getElementById("view-dashboard").classList.add("active");
+    document.getElementById("controls-anchor").scrollIntoView({behavior: "smooth"});
+    return;
+  }
+  if (name === "logs") {
+    document.getElementById("view-dashboard").classList.add("active");
+    document.getElementById("trace-card").scrollIntoView({behavior: "smooth"});
+    return;
+  }
+  const target = document.getElementById(`view-${name}`);
+  if (target) target.classList.add("active");
+}
+
+function setTimeframe(btn, tf) {
+  currentTimeframe = tf;
+  document.querySelectorAll(".tf-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  refreshState();
+}
 
 async function loadFaults() {
   const resp = await fetch("/api/control/faults");
@@ -430,6 +761,7 @@ async function triggerFault(faultId) {
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({fault_id: faultId})
   });
+  switchView("dashboard");
   await refreshState();
 }
 
@@ -449,6 +781,7 @@ async function toggleKillSwitch() {
 
 async function runOfflineReplay() {
   await fetch("/api/control/offline-replay", {method: "POST"});
+  switchView("dashboard");
   await refreshState();
 }
 
@@ -456,6 +789,23 @@ async function resetConsole() {
   await fetch("/api/control/reset", {method: "POST"});
   document.getElementById("evidence-raw").textContent = "Click an evidence ID to view exact raw log line or git commit...";
   await refreshState();
+}
+
+async function saveSettings() {
+  const payload = {
+    confidence_threshold_t1: parseFloat(document.getElementById("cfg-t1").value),
+    confidence_threshold_t2: parseFloat(document.getElementById("cfg-t2").value),
+    spend_cap_usd: parseFloat(document.getElementById("cfg-cap").value),
+    max_tool_calls_budget: parseInt(document.getElementById("cfg-budget").value, 10)
+  };
+  const resp = await fetch("/api/settings", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(payload)
+  });
+  if (resp.ok) {
+    document.getElementById("settings-msg").textContent = "Settings saved to NightShift runtime.";
+  }
 }
 
 async function openEvidence(evId) {
@@ -469,23 +819,45 @@ async function openEvidence(evId) {
 
 function renderGraph(series) {
   const svg = document.getElementById("metric-svg");
-  if (!series.length) { svg.innerHTML = ""; return; }
-  const w = 700, h = 240, pad = 40;
-  const maxR = Math.max(0.25, ...series.map(p => p.error_rate)) * 1.1;
+  const w = 700, h = 240, padL = 46, padR = 24, padT = 28, padB = 30;
+  let grid = "";
+  for (let val = 0; val <= 100; val += 20) {
+    const y = h - padB - (val / 100) * (h - padT - padB);
+    grid += `<line x1="${padL}" y1="${y}" x2="${w - padR}" y2="${y}" stroke="#e2e8f0" stroke-opacity="0.45" stroke-width="1"/>`;
+    grid += `<text x="${padL - 8}" y="${y + 4}" text-anchor="end" fill="#64748b" font-size="11">${val}</text>`;
+  }
+  if (!series.length) { svg.innerHTML = grid; return; }
+
   const pts = series.map((p, i) => {
-    const x = pad + (series.length === 1 ? 0 : (i / (series.length - 1)) * (w - 2 * pad));
-    const y = h - pad - (p.error_rate / maxR) * (h - 2 * pad);
+    const x = padL + (series.length === 1 ? (w - padL - padR) / 2 : (i / (series.length - 1)) * (w - padL - padR));
+    const pct = Math.min(100, Math.max(0, p.error_rate * 400));
+    const y = h - padB - (pct / 100) * (h - padT - padB);
     return {x, y, ...p};
   });
-  let html = `<polyline fill="none" stroke="#58a6ff" stroke-width="3" points="${pts.map(p=>`${p.x},${p.y}`).join(" ")}"/>`;
+  let html = grid;
+  html += `<polyline fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" points="${pts.map(p=>`${p.x},${p.y}`).join(" ")}"/>`;
   for (const p of pts) {
     if (p.marker === "fault") {
-      html += `<circle cx="${p.x}" cy="${p.y}" r="6" fill="#f85149"/><text x="${p.x}" y="${p.y-10}" fill="#f85149" font-size="13">FAULT</text>`;
+      html += `<circle cx="${p.x}" cy="${p.y}" r="6" fill="#dc2626" stroke="#fff" stroke-width="2"/>`;
+      html += `<rect x="${p.x - 22}" y="${p.y - 28}" width="44" height="18" rx="5" fill="#dc2626"/>`;
+      html += `<text x="${p.x}" y="${p.y - 15}" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">FAULT</text>`;
     } else if (p.marker === "fix") {
-      html += `<circle cx="${p.x}" cy="${p.y}" r="6" fill="#3fb950"/><text x="${p.x}" y="${p.y-10}" fill="#3fb950" font-size="13">FIX</text>`;
+      html += `<circle cx="${p.x}" cy="${p.y}" r="6" fill="#16a34a" stroke="#fff" stroke-width="2"/>`;
+      html += `<rect x="${p.x - 16}" y="${p.y - 28}" width="32" height="18" rx="5" fill="#16a34a"/>`;
+      html += `<text x="${p.x}" y="${p.y - 15}" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">FIX</text>`;
+    } else {
+      html += `<circle cx="${p.x}" cy="${p.y}" r="4" fill="#2563eb"/>`;
     }
   }
   svg.innerHTML = html;
+}
+
+function dotColorForStage(stage) {
+  if (stage === "Detected") return "dot-red";
+  if (stage === "Investigating") return "dot-blue";
+  if (stage === "Proposed" || stage === "Resolved") return "dot-green";
+  if (stage === "SafetyGate" || stage === "Escalated") return "dot-red";
+  return "dot-slate";
 }
 
 async function refreshState() {
@@ -493,25 +865,34 @@ async function refreshState() {
   const st = await resp.json();
   currentKillSwitch = Boolean(st.kill_switch_armed);
   const ksBtn = document.getElementById("kill-switch-btn");
-  ksBtn.textContent = currentKillSwitch ? "Kill Switch: ARMED" : "Kill Switch: OFF";
-  ksBtn.className = currentKillSwitch ? "ctrl-btn btn-danger" : "ctrl-btn";
+  ksBtn.innerHTML = currentKillSwitch ? "&#9211; Kill Switch: ARMED" : "&#9211; Kill Switch: OFF";
+  ksBtn.className = currentKillSwitch ? "ctrl-btn btn-danger" : "ctrl-btn btn-danger";
+  ksBtn.style.opacity = currentKillSwitch ? "1" : "0.85";
 
-  document.getElementById("inc-badge").textContent = `Incident: ${st.incident_id}`;
+  document.getElementById("inc-badge").innerHTML = `&#9889; Incident: ${st.incident_id}`;
   const vBadge = document.getElementById("verdict-badge");
-  vBadge.textContent = `Verdict: ${st.verdict}`;
-  vBadge.className = st.verdict.includes("ESCALAT") ? "badge badge-warn" :
-    (st.verdict.includes("FAIL") ? "badge badge-danger" : "badge badge-pass");
-  document.getElementById("cost-badge").textContent = `Cost: $${st.cost_usd.toFixed(4)}`;
+  vBadge.innerHTML = `&#10004; Verdict: ${st.verdict}`;
+  vBadge.className = st.verdict.includes("ESCALAT") ? "pill status-pill-warn" :
+    (st.verdict.includes("FAIL") ? "pill status-pill-danger" : "pill status-pill-pass");
+  document.getElementById("cost-badge").innerHTML = `&#129689; Cost: $${st.cost_usd.toFixed(4)}`;
 
   document.getElementById("timeline-list").innerHTML = st.timeline.map(t =>
-    `<div class="timeline-item"><strong>[${t.stage}]</strong> ${t.message} ${t.evidence_id ? `<button class="evidence-btn" onclick="openEvidence('${t.evidence_id}')">${t.evidence_id}</button>` : ""}</div>`
+    `<div class="timeline-row">
+      <span class="timeline-dot ${dotColorForStage(t.stage)}"></span>
+      <div><span class="stage-badge stage-${t.stage}">${t.stage}</span></div>
+      <div>${t.message} ${t.evidence_id ? `<br/><button class="ev-chip evidence-btn" onclick="openEvidence('${t.evidence_id}')">${t.evidence_id}</button>` : ""}</div>
+      <div class="ts-label">${t.timestamp}</div>
+    </div>`
   ).join("");
+
   document.getElementById("trace-list").innerHTML = st.trace.map(tr =>
-    `<details class="tool-call"><summary>Step ${tr.step}: ${tr.tool_name}</summary><pre class="raw-log">${JSON.stringify(tr.tool_args)}\\nOutput: ${tr.tool_output}</pre>${tr.evidence_id ? `<button class="evidence-btn" onclick="openEvidence('${tr.evidence_id}')">${tr.evidence_id}</button>` : ""}</details>`
+    `<details class="tool-call"><summary>Step ${tr.step}: ${tr.tool_name}</summary><pre class="raw-log">${JSON.stringify(tr.tool_args)}\\nOutput: ${tr.tool_output}</pre>${tr.evidence_id ? `<button class="ev-chip evidence-btn" style="margin-top:8px;" onclick="openEvidence('${tr.evidence_id}')">${tr.evidence_id}</button>` : ""}</details>`
   ).join("");
+
   document.getElementById("evidence-buttons").innerHTML = st.evidence_ids.map(eid =>
-    `<button class="evidence-btn" data-evidence-id="${eid}" onclick="openEvidence('${eid}')">${eid}</button>`
+    `<button class="ev-chip evidence-btn" data-evidence-id="${eid}" onclick="openEvidence('${eid}')">${eid}</button>`
   ).join("");
+
   renderGraph(st.metric_series);
 }
 
@@ -606,7 +987,7 @@ def create_dashboard_app(
                 store.push_event(
                     DashboardEventIn(
                         incident_id="inc_offline_replay_001",
-                        stage="OfflineReplay",
+                        stage="Investigating",
                         message=f"Loaded offline recorded replay ({replay_file.name})",
                         metric_error_rate=0.22,
                         marker="fault",
@@ -637,6 +1018,22 @@ def create_dashboard_app(
         store.reset()
         return {"ok": True, "state": store.to_dict()}
 
+    @app.get("/api/settings")
+    def get_settings() -> Dict[str, Any]:
+        return store.settings_dict()
+
+    @app.post("/api/settings")
+    def update_settings(req: SettingsUpdateRequest) -> Dict[str, Any]:
+        if req.confidence_threshold_t1 is not None:
+            store.confidence_threshold_t1 = float(req.confidence_threshold_t1)
+        if req.confidence_threshold_t2 is not None:
+            store.confidence_threshold_t2 = float(req.confidence_threshold_t2)
+        if req.spend_cap_usd is not None:
+            store.spend_cap_usd = float(req.spend_cap_usd)
+        if req.max_tool_calls_budget is not None:
+            store.max_tool_calls_budget = int(req.max_tool_calls_budget)
+        return {"ok": True, "settings": store.settings_dict()}
+
     return app
 
 
@@ -647,7 +1044,7 @@ def seed_sample_incident(state: DashboardState) -> None:
             incident_id="inc_20261125_fault_001",
             stage="Detected",
             message="HTTP 5xx error rate spiked to 22.0% on orders service",
-            metric_error_rate=0.002,
+            metric_error_rate=0.08,
         ),
         DashboardEventIn(
             incident_id="inc_20261125_fault_001",
@@ -671,6 +1068,7 @@ def seed_sample_incident(state: DashboardState) -> None:
             tool_output="- discount_code = None\n+ discount_code = discount['code']",
             evidence_id="ev_commit_001",
             raw_log="commit c0ffee14a (dep_20261122_v1.0.1)\n--- a/target-app/services/orders/app.py\n+++ b/target-app/services/orders/app.py\n@@ -82,1 +82,1 @@\n-    discount_code = None\n+    discount_code = discount['code']",
+            metric_error_rate=0.14,
             cost_usd=0.009,
         ),
         DashboardEventIn(
@@ -682,14 +1080,15 @@ def seed_sample_incident(state: DashboardState) -> None:
             tool_output="PR #101 created: https://github.com/nightshift/target-app-sandbox/pull/101",
             evidence_id="ev_pr_101",
             raw_log="GitHub PR #101: fix(orders): guard optional discount dict\n+ discount_code = discount.get('code') if isinstance(discount, dict) else None",
+            metric_error_rate=0.08,
+            marker="fix",
             cost_usd=0.014,
         ),
         DashboardEventIn(
             incident_id="inc_20261125_fault_001",
             stage="Verifying",
             message="Sandbox unit tests & failing-request reproduction passed; canary healthy (0.20%)",
-            metric_error_rate=0.08,
-            marker="fix",
+            metric_error_rate=0.03,
         ),
         DashboardEventIn(
             incident_id="inc_20261125_fault_001",

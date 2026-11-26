@@ -58,6 +58,19 @@ class TestWebControls(unittest.TestCase):
         r2 = self.client.get("/backup-video")
         self.assertEqual(r2.status_code, 200)
 
+    def test_settings_get_and_update(self):
+        r1 = self.client.get("/api/settings")
+        self.assertEqual(r1.status_code, 200)
+        self.assertAlmostEqual(r1.json()["spend_cap_usd"], 50.0)
+
+        r2 = self.client.post(
+            "/api/settings",
+            json={"spend_cap_usd": 75.0, "confidence_threshold_t1": 0.85},
+        )
+        self.assertEqual(r2.status_code, 200)
+        self.assertAlmostEqual(r2.json()["settings"]["spend_cap_usd"], 75.0)
+        self.assertAlmostEqual(r2.json()["settings"]["confidence_threshold_t1"], 0.85)
+
 
 if __name__ == "__main__":
     unittest.main()
