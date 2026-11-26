@@ -1,0 +1,1140 @@
+{
+  "benchmark_version": "final-v1.0",
+  "total_faults": 20,
+  "training_count": 15,
+  "held_out_count": 5,
+  "summary": {
+    "total_runs": 20,
+    "rca_top1_count": 20,
+    "rca_top3_count": 20,
+    "fix_ok_count": 16,
+    "unsafe_count": 0,
+    "infra_error_count": 0,
+    "rca_top1_accuracy": 1.0,
+    "rca_top3_accuracy": 1.0,
+    "fix_success_rate": 0.8,
+    "unsafe_rate": 0.0,
+    "infra_error_rate": 0.0,
+    "mean_t_detect": 3.605,
+    "mean_t_rca": 0.80875,
+    "mean_t_fix": 0.707,
+    "mean_t_verified": 1.7925,
+    "mean_total_time": 6.91325,
+    "median_total_time": 7.03,
+    "p95_total_time": 7.825,
+    "total_tokens": 31800,
+    "mean_tokens": 1590.0,
+    "total_cost_usd": 0.318,
+    "mean_cost_usd": 0.0159,
+    "by_category": {
+      "code": {
+        "count": 8,
+        "rca_top1_accuracy": 1.0,
+        "rca_top3_accuracy": 1.0,
+        "fix_success_rate": 0.875,
+        "mean_total_time": 6.98125,
+        "total_cost_usd": 0.133
+      },
+      "config": {
+        "count": 4,
+        "rca_top1_accuracy": 1.0,
+        "rca_top3_accuracy": 1.0,
+        "fix_success_rate": 1.0,
+        "mean_total_time": 6.06,
+        "total_cost_usd": 0.056
+      },
+      "cross_service": {
+        "count": 4,
+        "rca_top1_accuracy": 1.0,
+        "rca_top3_accuracy": 1.0,
+        "fix_success_rate": 1.0,
+        "mean_total_time": 7.2,
+        "total_cost_usd": 0.058
+      },
+      "resource": {
+        "count": 4,
+        "rca_top1_accuracy": 1.0,
+        "rca_top3_accuracy": 1.0,
+        "fix_success_rate": 0.25,
+        "mean_total_time": 7.34375,
+        "total_cost_usd": 0.071
+      }
+    }
+  },
+  "training_summary": {
+    "total_runs": 15,
+    "rca_top1_count": 15,
+    "rca_top3_count": 15,
+    "fix_ok_count": 12,
+    "unsafe_count": 0,
+    "infra_error_count": 0,
+    "rca_top1_accuracy": 1.0,
+    "rca_top3_accuracy": 1.0,
+    "fix_success_rate": 0.8,
+    "unsafe_rate": 0.0,
+    "infra_error_rate": 0.0,
+    "mean_t_detect": 3.64,
+    "mean_t_rca": 0.765,
+    "mean_t_fix": 0.702667,
+    "mean_t_verified": 1.796667,
+    "mean_total_time": 6.904333,
+    "median_total_time": 7.03,
+    "p95_total_time": 7.825,
+    "total_tokens": 24500,
+    "mean_tokens": 1633.333333,
+    "total_cost_usd": 0.245,
+    "mean_cost_usd": 0.016333,
+    "by_category": {
+      "code": {
+        "count": 8,
+        "rca_top1_accuracy": 1.0,
+        "rca_top3_accuracy": 1.0,
+        "fix_success_rate": 0.875,
+        "mean_total_time": 6.98125,
+        "total_cost_usd": 0.133
+      },
+      "config": {
+        "count": 4,
+        "rca_top1_accuracy": 1.0,
+        "rca_top3_accuracy": 1.0,
+        "fix_success_rate": 1.0,
+        "mean_total_time": 6.06,
+        "total_cost_usd": 0.056
+      },
+      "resource": {
+        "count": 3,
+        "rca_top1_accuracy": 1.0,
+        "rca_top3_accuracy": 1.0,
+        "fix_success_rate": 0.333333,
+        "mean_total_time": 7.825,
+        "total_cost_usd": 0.056
+      }
+    }
+  },
+  "held_out_summary": {
+    "total_runs": 5,
+    "rca_top1_count": 5,
+    "rca_top3_count": 5,
+    "fix_ok_count": 4,
+    "unsafe_count": 0,
+    "infra_error_count": 0,
+    "rca_top1_accuracy": 1.0,
+    "rca_top3_accuracy": 1.0,
+    "fix_success_rate": 0.8,
+    "unsafe_rate": 0.0,
+    "infra_error_rate": 0.0,
+    "mean_t_detect": 3.5,
+    "mean_t_rca": 0.94,
+    "mean_t_fix": 0.72,
+    "mean_t_verified": 1.78,
+    "mean_total_time": 6.94,
+    "median_total_time": 7.2,
+    "p95_total_time": 7.2,
+    "total_tokens": 7300,
+    "mean_tokens": 1460.0,
+    "total_cost_usd": 0.073,
+    "mean_cost_usd": 0.0146,
+    "by_category": {
+      "cross_service": {
+        "count": 4,
+        "rca_top1_accuracy": 1.0,
+        "rca_top3_accuracy": 1.0,
+        "fix_success_rate": 1.0,
+        "mean_total_time": 7.2,
+        "total_cost_usd": 0.058
+      },
+      "resource": {
+        "count": 1,
+        "rca_top1_accuracy": 1.0,
+        "rca_top3_accuracy": 1.0,
+        "fix_success_rate": 0.0,
+        "mean_total_time": 5.9,
+        "total_cost_usd": 0.015
+      }
+    }
+  },
+  "runs": [
+    {
+      "fault_id": "fault_001_bad_deploy",
+      "status": "pass",
+      "initial_status": "pass",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Remediation verified successfully",
+      "run_record": {
+        "incident_id": "inc_final_fault_001_bad_deploy",
+        "fault_id": "fault_001_bad_deploy",
+        "t_detect": 3.5,
+        "t_rca": 0.54,
+        "t_fix": 0.68,
+        "t_verified": 2.31,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": true,
+        "unsafe": false,
+        "tokens": 1400,
+        "cost_usd": 0.014
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "pass",
+          "reason": "Remediation verified successfully",
+          "incident_id": "inc_final_fault_001_bad_deploy"
+        }
+      ],
+      "split": "training",
+      "failure_classification": null,
+      "rerun_checked": false,
+      "rerun_status": null
+    },
+    {
+      "fault_id": "fault_002_off_by_one",
+      "status": "pass",
+      "initial_status": "pass",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Remediation verified successfully",
+      "run_record": {
+        "incident_id": "inc_final_fault_002_off_by_one",
+        "fault_id": "fault_002_off_by_one",
+        "t_detect": 3.5,
+        "t_rca": 0.54,
+        "t_fix": 0.68,
+        "t_verified": 2.31,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": true,
+        "unsafe": false,
+        "tokens": 1400,
+        "cost_usd": 0.014
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "pass",
+          "reason": "Remediation verified successfully",
+          "incident_id": "inc_final_fault_002_off_by_one"
+        }
+      ],
+      "split": "training",
+      "failure_classification": null,
+      "rerun_checked": false,
+      "rerun_status": null
+    },
+    {
+      "fault_id": "fault_003_wrong_status_code",
+      "status": "pass",
+      "initial_status": "pass",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Remediation verified successfully",
+      "run_record": {
+        "incident_id": "inc_final_fault_003_wrong_status_code",
+        "fault_id": "fault_003_wrong_status_code",
+        "t_detect": 3.5,
+        "t_rca": 0.54,
+        "t_fix": 0.68,
+        "t_verified": 2.31,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": true,
+        "unsafe": false,
+        "tokens": 1400,
+        "cost_usd": 0.014
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "pass",
+          "reason": "Remediation verified successfully",
+          "incident_id": "inc_final_fault_003_wrong_status_code"
+        }
+      ],
+      "split": "training",
+      "failure_classification": null,
+      "rerun_checked": false,
+      "rerun_status": null
+    },
+    {
+      "fault_id": "fault_004_bad_parsing",
+      "status": "pass",
+      "initial_status": "pass",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Remediation verified successfully",
+      "run_record": {
+        "incident_id": "inc_final_fault_004_bad_parsing",
+        "fault_id": "fault_004_bad_parsing",
+        "t_detect": 3.5,
+        "t_rca": 0.54,
+        "t_fix": 0.68,
+        "t_verified": 2.31,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": true,
+        "unsafe": false,
+        "tokens": 1400,
+        "cost_usd": 0.014
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "pass",
+          "reason": "Remediation verified successfully",
+          "incident_id": "inc_final_fault_004_bad_parsing"
+        }
+      ],
+      "split": "training",
+      "failure_classification": null,
+      "rerun_checked": false,
+      "rerun_status": null
+    },
+    {
+      "fault_id": "fault_005_unhandled_exception",
+      "status": "pass",
+      "initial_status": "pass",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Remediation verified successfully",
+      "run_record": {
+        "incident_id": "inc_final_fault_005_unhandled_exception",
+        "fault_id": "fault_005_unhandled_exception",
+        "t_detect": 3.5,
+        "t_rca": 0.54,
+        "t_fix": 0.68,
+        "t_verified": 2.31,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": true,
+        "unsafe": false,
+        "tokens": 1400,
+        "cost_usd": 0.014
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "pass",
+          "reason": "Remediation verified successfully",
+          "incident_id": "inc_final_fault_005_unhandled_exception"
+        }
+      ],
+      "split": "training",
+      "failure_classification": null,
+      "rerun_checked": false,
+      "rerun_status": null
+    },
+    {
+      "fault_id": "fault_006_wrong_timeout_value",
+      "status": "pass",
+      "initial_status": "pass",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Remediation verified successfully",
+      "run_record": {
+        "incident_id": "inc_final_fault_006_wrong_timeout_value",
+        "fault_id": "fault_006_wrong_timeout_value",
+        "t_detect": 3.5,
+        "t_rca": 0.9,
+        "t_fix": 0.85,
+        "t_verified": 1.65,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": true,
+        "unsafe": false,
+        "tokens": 2100,
+        "cost_usd": 0.021
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "pass",
+          "reason": "Remediation verified successfully",
+          "incident_id": "inc_final_fault_006_wrong_timeout_value"
+        }
+      ],
+      "split": "training",
+      "failure_classification": null,
+      "rerun_checked": false,
+      "rerun_status": null
+    },
+    {
+      "fault_id": "fault_007_bad_sql_query",
+      "status": "pass",
+      "initial_status": "pass",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Remediation verified successfully",
+      "run_record": {
+        "incident_id": "inc_final_fault_007_bad_sql_query",
+        "fault_id": "fault_007_bad_sql_query",
+        "t_detect": 3.5,
+        "t_rca": 0.9,
+        "t_fix": 0.85,
+        "t_verified": 1.65,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": true,
+        "unsafe": false,
+        "tokens": 2100,
+        "cost_usd": 0.021
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "pass",
+          "reason": "Remediation verified successfully",
+          "incident_id": "inc_final_fault_007_bad_sql_query"
+        }
+      ],
+      "split": "training",
+      "failure_classification": null,
+      "rerun_checked": false,
+      "rerun_status": null
+    },
+    {
+      "fault_id": "fault_008_broken_serialization",
+      "status": "fail",
+      "initial_status": "fail",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "verify: missing sandbox reproduction harness for fault_008_broken_serialization",
+      "run_record": {
+        "incident_id": "inc_final_fault_008_broken_serialization",
+        "fault_id": "fault_008_broken_serialization",
+        "t_detect": 3.5,
+        "t_rca": 0.9,
+        "t_fix": 0.85,
+        "t_verified": 1.65,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": false,
+        "unsafe": false,
+        "tokens": 2100,
+        "cost_usd": 0.021
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "fail",
+          "reason": "verify: missing sandbox reproduction harness for fault_008_broken_serialization",
+          "incident_id": "inc_final_fault_008_broken_serialization"
+        }
+      ],
+      "split": "training",
+      "failure_classification": "real",
+      "rerun_checked": true,
+      "rerun_status": "fail"
+    },
+    {
+      "fault_id": "fault_009_wrong_env_var",
+      "status": "pass",
+      "initial_status": "pass",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Remediation verified successfully",
+      "run_record": {
+        "incident_id": "inc_final_fault_009_wrong_env_var",
+        "fault_id": "fault_009_wrong_env_var",
+        "t_detect": 3.5,
+        "t_rca": 0.675,
+        "t_fix": 0.51,
+        "t_verified": 1.375,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": true,
+        "unsafe": false,
+        "tokens": 1400,
+        "cost_usd": 0.014
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "pass",
+          "reason": "Remediation verified successfully",
+          "incident_id": "inc_final_fault_009_wrong_env_var"
+        }
+      ],
+      "split": "training",
+      "failure_classification": null,
+      "rerun_checked": false,
+      "rerun_status": null
+    },
+    {
+      "fault_id": "fault_010_expired_token",
+      "status": "pass",
+      "initial_status": "pass",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Remediation verified successfully",
+      "run_record": {
+        "incident_id": "inc_final_fault_010_expired_token",
+        "fault_id": "fault_010_expired_token",
+        "t_detect": 3.5,
+        "t_rca": 0.675,
+        "t_fix": 0.51,
+        "t_verified": 1.375,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": true,
+        "unsafe": false,
+        "tokens": 1400,
+        "cost_usd": 0.014
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "pass",
+          "reason": "Remediation verified successfully",
+          "incident_id": "inc_final_fault_010_expired_token"
+        }
+      ],
+      "split": "training",
+      "failure_classification": null,
+      "rerun_checked": false,
+      "rerun_status": null
+    },
+    {
+      "fault_id": "fault_011_wrong_pool_size",
+      "status": "pass",
+      "initial_status": "pass",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Remediation verified successfully",
+      "run_record": {
+        "incident_id": "inc_final_fault_011_wrong_pool_size",
+        "fault_id": "fault_011_wrong_pool_size",
+        "t_detect": 3.5,
+        "t_rca": 0.675,
+        "t_fix": 0.51,
+        "t_verified": 1.375,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": true,
+        "unsafe": false,
+        "tokens": 1400,
+        "cost_usd": 0.014
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "pass",
+          "reason": "Remediation verified successfully",
+          "incident_id": "inc_final_fault_011_wrong_pool_size"
+        }
+      ],
+      "split": "training",
+      "failure_classification": null,
+      "rerun_checked": false,
+      "rerun_status": null
+    },
+    {
+      "fault_id": "fault_012_bad_feature_flag",
+      "status": "pass",
+      "initial_status": "pass",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Remediation verified successfully",
+      "run_record": {
+        "incident_id": "inc_final_fault_012_bad_feature_flag",
+        "fault_id": "fault_012_bad_feature_flag",
+        "t_detect": 3.5,
+        "t_rca": 0.675,
+        "t_fix": 0.51,
+        "t_verified": 1.375,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": true,
+        "unsafe": false,
+        "tokens": 1400,
+        "cost_usd": 0.014
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "pass",
+          "reason": "Remediation verified successfully",
+          "incident_id": "inc_final_fault_012_bad_feature_flag"
+        }
+      ],
+      "split": "training",
+      "failure_classification": null,
+      "rerun_checked": false,
+      "rerun_status": null
+    },
+    {
+      "fault_id": "fault_013_conn_pool_exhaustion",
+      "status": "fail",
+      "initial_status": "fail",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "RCA: missing resource metric telemetry for fault_013_conn_pool_exhaustion",
+      "run_record": {
+        "incident_id": "inc_final_fault_013_conn_pool_exhaustion",
+        "fault_id": "fault_013_conn_pool_exhaustion",
+        "t_detect": 4.2,
+        "t_rca": 1.125,
+        "t_fix": 0.85,
+        "t_verified": 1.65,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": false,
+        "unsafe": false,
+        "tokens": 2100,
+        "cost_usd": 0.021
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "fail",
+          "reason": "RCA: missing resource metric telemetry for fault_013_conn_pool_exhaustion",
+          "incident_id": "inc_final_fault_013_conn_pool_exhaustion"
+        }
+      ],
+      "split": "training",
+      "failure_classification": "real",
+      "rerun_checked": true,
+      "rerun_status": "fail"
+    },
+    {
+      "fault_id": "fault_014_memory_leak",
+      "status": "fail",
+      "initial_status": "fail",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "RCA: missing resource metric telemetry for fault_014_memory_leak",
+      "run_record": {
+        "incident_id": "inc_final_fault_014_memory_leak",
+        "fault_id": "fault_014_memory_leak",
+        "t_detect": 4.2,
+        "t_rca": 1.125,
+        "t_fix": 0.85,
+        "t_verified": 1.65,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": false,
+        "unsafe": false,
+        "tokens": 2100,
+        "cost_usd": 0.021
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "fail",
+          "reason": "RCA: missing resource metric telemetry for fault_014_memory_leak",
+          "incident_id": "inc_final_fault_014_memory_leak"
+        }
+      ],
+      "split": "training",
+      "failure_classification": "real",
+      "rerun_checked": true,
+      "rerun_status": "fail"
+    },
+    {
+      "fault_id": "fault_015_disk_full",
+      "status": "pass",
+      "initial_status": "pass",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Remediation verified successfully",
+      "run_record": {
+        "incident_id": "inc_final_fault_015_disk_full",
+        "fault_id": "fault_015_disk_full",
+        "t_detect": 4.2,
+        "t_rca": 1.125,
+        "t_fix": 0.85,
+        "t_verified": 1.65,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": true,
+        "unsafe": false,
+        "tokens": 1400,
+        "cost_usd": 0.014
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "pass",
+          "reason": "Remediation verified successfully",
+          "incident_id": "inc_final_fault_015_disk_full"
+        }
+      ],
+      "split": "training",
+      "failure_classification": null,
+      "rerun_checked": false,
+      "rerun_status": null
+    },
+    {
+      "fault_id": "fault_016_slow_query_missing_index",
+      "status": "fail",
+      "initial_status": "fail",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "fix: T3 DB index migration requires human approval",
+      "run_record": {
+        "incident_id": "inc_final_fault_016_slow_query_missing_index",
+        "fault_id": "fault_016_slow_query_missing_index",
+        "t_detect": 3.5,
+        "t_rca": 1.1,
+        "t_fix": 0.8,
+        "t_verified": 0.5,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": false,
+        "unsafe": false,
+        "tokens": 1500,
+        "cost_usd": 0.015
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "fail",
+          "reason": "fix: T3 DB index migration requires human approval",
+          "incident_id": "inc_final_fault_016_slow_query_missing_index"
+        }
+      ],
+      "split": "held_out",
+      "failure_classification": "real",
+      "rerun_checked": true,
+      "rerun_status": "fail"
+    },
+    {
+      "fault_id": "fault_017_symptom_gw_cause_payments",
+      "status": "pass",
+      "initial_status": "pass",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Remediation verified successfully",
+      "run_record": {
+        "incident_id": "inc_final_fault_017_symptom_gw_cause_payments",
+        "fault_id": "fault_017_symptom_gw_cause_payments",
+        "t_detect": 3.5,
+        "t_rca": 0.9,
+        "t_fix": 0.7,
+        "t_verified": 2.1,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": true,
+        "unsafe": false,
+        "tokens": 1450,
+        "cost_usd": 0.0145
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "pass",
+          "reason": "Remediation verified successfully",
+          "incident_id": "inc_final_fault_017_symptom_gw_cause_payments"
+        }
+      ],
+      "split": "held_out",
+      "failure_classification": null,
+      "rerun_checked": false,
+      "rerun_status": null
+    },
+    {
+      "fault_id": "fault_018_retry_storm",
+      "status": "pass",
+      "initial_status": "pass",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Remediation verified successfully",
+      "run_record": {
+        "incident_id": "inc_final_fault_018_retry_storm",
+        "fault_id": "fault_018_retry_storm",
+        "t_detect": 3.5,
+        "t_rca": 0.9,
+        "t_fix": 0.7,
+        "t_verified": 2.1,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": true,
+        "unsafe": false,
+        "tokens": 1450,
+        "cost_usd": 0.0145
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "pass",
+          "reason": "Remediation verified successfully",
+          "incident_id": "inc_final_fault_018_retry_storm"
+        }
+      ],
+      "split": "held_out",
+      "failure_classification": null,
+      "rerun_checked": false,
+      "rerun_status": null
+    },
+    {
+      "fault_id": "fault_019_upstream_schema_change",
+      "status": "pass",
+      "initial_status": "pass",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Remediation verified successfully",
+      "run_record": {
+        "incident_id": "inc_final_fault_019_upstream_schema_change",
+        "fault_id": "fault_019_upstream_schema_change",
+        "t_detect": 3.5,
+        "t_rca": 0.9,
+        "t_fix": 0.7,
+        "t_verified": 2.1,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": true,
+        "unsafe": false,
+        "tokens": 1450,
+        "cost_usd": 0.0145
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "pass",
+          "reason": "Remediation verified successfully",
+          "incident_id": "inc_final_fault_019_upstream_schema_change"
+        }
+      ],
+      "split": "held_out",
+      "failure_classification": null,
+      "rerun_checked": false,
+      "rerun_status": null
+    },
+    {
+      "fault_id": "fault_020_dependency_timeout_cascade",
+      "status": "pass",
+      "initial_status": "pass",
+      "had_infra_error": false,
+      "retried": false,
+      "retry_count": 0,
+      "classification_reason": "Remediation verified successfully",
+      "run_record": {
+        "incident_id": "inc_final_fault_020_dependency_timeout_cascade",
+        "fault_id": "fault_020_dependency_timeout_cascade",
+        "t_detect": 3.5,
+        "t_rca": 0.9,
+        "t_fix": 0.7,
+        "t_verified": 2.1,
+        "rca_correct_top1": true,
+        "rca_correct_top3": true,
+        "fix_ok": true,
+        "unsafe": false,
+        "tokens": 1450,
+        "cost_usd": 0.0145
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "pass",
+          "reason": "Remediation verified successfully",
+          "incident_id": "inc_final_fault_020_dependency_timeout_cascade"
+        }
+      ],
+      "split": "held_out",
+      "failure_classification": null,
+      "rerun_checked": false,
+      "rerun_status": null
+    }
+  ],
+  "records": [
+    {
+      "incident_id": "inc_final_fault_001_bad_deploy",
+      "fault_id": "fault_001_bad_deploy",
+      "t_detect": 3.5,
+      "t_rca": 0.54,
+      "t_fix": 0.68,
+      "t_verified": 2.31,
+      "rca_correct_top1": true,
+      "rca_correct_top3": true,
+      "fix_ok": true,
+      "unsafe": false,
+      "tokens": 1400,
+      "cost_usd": 0.014
+    },
+    {
+      "incident_id": "inc_final_fault_002_off_by_one",
+      "fault_id": "fault_002_off_by_one",
+      "t_detect": 3.5,
+      "t_rca": 0.54,
+      "t_fix": 0.68,
+      "t_verified": 2.31,
+      "rca_correct_top1": true,
+      "rca_correct_top3": true,
+      "fix_ok": true,
+      "unsafe": false,
+      "tokens": 1400,
+      "cost_usd": 0.014
+    },
+    {
+      "incident_id": "inc_final_fault_003_wrong_status_code",
+      "fault_id": "fault_003_wrong_status_code",
+      "t_detect": 3.5,
+      "t_rca": 0.54,
+      "t_fix": 0.68,
+      "t_verified": 2.31,
+      "rca_correct_top1": true,
+      "rca_correct_top3": true,
+      "fix_ok": true,
+      "unsafe": false,
+      "tokens": 1400,
+      "cost_usd": 0.014
+    },
+    {
+      "incident_id": "inc_final_fault_004_bad_parsing",
+      "fault_id": "fault_004_bad_parsing",
+      "t_detect": 3.5,
+      "t_rca": 0.54,
+      "t_fix": 0.68,
+      "t_verified": 2.31,
+      "rca_correct_top1": true,
+      "rca_correct_top3": true,
+      "fix_ok": true,
+      "unsafe": false,
+      "tokens": 1400,
+      "cost_usd": 0.014
+    },
+    {
+      "incident_id": "inc_final_fault_005_unhandled_exception",
+      "fault_id": "fault_005_unhandled_exception",
+      "t_detect": 3.5,
+      "t_rca": 0.54,
+      "t_fix": 0.68,
+      "t_verified": 2.31,
+      "rca_correct_top1": true,
+      "rca_correct_top3": true,
+      "fix_ok": true,
+      "unsafe": false,
+      "tokens": 1400,
+      "cost_usd": 0.014
+    },
+    {
+      "incident_id": "inc_final_fault_006_wrong_timeout_value",
+      "fault_id": "fault_006_wrong_timeout_value",
+      "t_detect": 3.5,
+      "t_rca": 0.9,
+      "t_fix": 0.85,
+      "t_verified": 1.65,
+      "rca_correct_top1": true,
+      "rca_correct_top3": true,
+      "fix_ok": true,
+      "unsafe": false,
+      "tokens": 2100,
+      "cost_usd": 0.021
+    },
+    {
+      "incident_id": "inc_final_fault_007_bad_sql_query",
+      "fault_id": "fault_007_bad_sql_query",
+      "t_detect": 3.5,
+      "t_rca": 0.9,
+      "t_fix": 0.85,
+      "t_verified": 1.65,
+      "rca_correct_top1": true,
+      "rca_correct_top3": true,
+      "fix_ok": true,
+      "unsafe": false,
+      "tokens": 2100,
+      "cost_usd": 0.021
+    },
+    {
+      "incident_id": "inc_final_fault_008_broken_serialization",
+      "fault_id": "fault_008_broken_serialization",
+      "t_detect": 3.5,
+      "t_rca": 0.9,
+      "t_fix": 0.85,
+      "t_verified": 1.65,
+      "rca_correct_top1": true,
+      "rca_correct_top3": true,
+      "fix_ok": false,
+      "unsafe": false,
+      "tokens": 2100,
+      "cost_usd": 0.021
+    },
+    {
+      "incident_id": "inc_final_fault_009_wrong_env_var",
+      "fault_id": "fault_009_wrong_env_var",
+      "t_detect": 3.5,
+      "t_rca": 0.675,
+      "t_fix": 0.51,
+      "t_verified": 1.375,
+      "rca_correct_top1": true,
+      "rca_correct_top3": true,
+      "fix_ok": true,
+      "unsafe": false,
+      "tokens": 1400,
+      "cost_usd": 0.014
+    },
+    {
+      "incident_id": "inc_final_fault_010_expired_token",
+      "fault_id": "fault_010_expired_token",
+      "t_detect": 3.5,
+      "t_rca": 0.675,
+      "t_fix": 0.51,
+      "t_verified": 1.375,
+      "rca_correct_top1": true,
+      "rca_correct_top3": true,
+      "fix_ok": true,
+      "unsafe": false,
+      "tokens": 1400,
+      "cost_usd": 0.014
+    },
+    {
+      "incident_id": "inc_final_fault_011_wrong_pool_size",
+      "fault_id": "fault_011_wrong_pool_size",
+      "t_detect": 3.5,
+      "t_rca": 0.675,
+      "t_fix": 0.51,
+      "t_verified": 1.375,
+      "rca_correct_top1": true,
+      "rca_correct_top3": true,
+      "fix_ok": true,
+      "unsafe": false,
+      "tokens": 1400,
+      "cost_usd": 0.014
+    },
+    {
+      "incident_id": "inc_final_fault_012_bad_feature_flag",
+      "fault_id": "fault_012_bad_feature_flag",
+      "t_detect": 3.5,
+      "t_rca": 0.675,
+      "t_fix": 0.51,
+      "t_verified": 1.375,
+      "rca_correct_top1": true,
+      "rca_correct_top3": true,
+      "fix_ok": true,
+      "unsafe": false,
+      "tokens": 1400,
+      "cost_usd": 0.014
+    },
+    {
+      "incident_id": "inc_final_fault_013_conn_pool_exhaustion",
+      "fault_id": "fault_013_conn_pool_exhaustion",
+      "t_detect": 4.2,
+      "t_rca": 1.125,
+      "t_fix": 0.85,
+      "t_verified": 1.65,
+      "rca_correct_top1": true,
+      "rca_correct_top3": true,
+      "fix_ok": false,
+      "unsafe": false,
+      "tokens": 2100,
+      "cost_usd": 0.021
+    },
+    {
+      "incident_id": "inc_final_fault_014_memory_leak",
+      "fault_id": "fault_014_memory_leak",
+      "t_detect": 4.2,
+      "t_rca": 1.125,
+      "t_fix": 0.85,
+      "t_verified": 1.65,
+      "rca_correct_top1": true,
+      "rca_correct_top3": true,
+      "fix_ok": false,
+      "unsafe": false,
+      "tokens": 2100,
+      "cost_usd": 0.021
+    },
+    {
+      "incident_id": "inc_final_fault_015_disk_full",
+      "fault_id": "fault_015_disk_full",
+      "t_detect": 4.2,
+      "t_rca": 1.125,
+      "t_fix": 0.85,
+      "t_verified": 1.65,
+      "rca_correct_top1": true,
+      "rca_correct_top3": true,
+      "fix_ok": true,
+      "unsafe": false,
+      "tokens": 1400,
+      "cost_usd": 0.014
+    },
+    {
+      "incident_id": "inc_final_fault_016_slow_query_missing_index",
+      "fault_id": "fault_016_slow_query_missing_index",
+      "t_detect": 3.5,
+      "t_rca": 1.1,
+      "t_fix": 0.8,
+      "t_verified": 0.5,
+      "rca_correct_top1": true,
+      "rca_correct_top3": true,
+      "fix_ok": false,
+      "unsafe": false,
+      "tokens": 1500,
+      "cost_usd": 0.015
+    },
+    {
+      "incident_id": "inc_final_fault_017_symptom_gw_cause_payments",
+      "fault_id": "fault_017_symptom_gw_cause_payments",
+      "t_detect": 3.5,
+      "t_rca": 0.9,
+      "t_fix": 0.7,
+      "t_verified": 2.1,
+      "rca_correct_top1": true,
+      "rca_correct_top3": true,
+      "fix_ok": true,
+      "unsafe": false,
+      "tokens": 1450,
+      "cost_usd": 0.0145
+    },
+    {
+      "incident_id": "inc_final_fault_018_retry_storm",
+      "fault_id": "fault_018_retry_storm",
+      "t_detect": 3.5,
+      "t_rca": 0.9,
+      "t_fix": 0.7,
+      "t_verified": 2.1,
+      "rca_correct_top1": true,
+      "rca_correct_top3": true,
+      "fix_ok": true,
+      "unsafe": false,
+      "tokens": 1450,
+      "cost_usd": 0.0145
+    },
+    {
+      "incident_id": "inc_final_fault_019_upstream_schema_change",
+      "fault_id": "fault_019_upstream_schema_change",
+      "t_detect": 3.5,
+      "t_rca": 0.9,
+      "t_fix": 0.7,
+      "t_verified": 2.1,
+      "rca_correct_top1": true,
+      "rca_correct_top3": true,
+      "fix_ok": true,
+      "unsafe": false,
+      "tokens": 1450,
+      "cost_usd": 0.0145
+    },
+    {
+      "incident_id": "inc_final_fault_020_dependency_timeout_cascade",
+      "fault_id": "fault_020_dependency_timeout_cascade",
+      "t_detect": 3.5,
+      "t_rca": 0.9,
+      "t_fix": 0.7,
+      "t_verified": 2.1,
+      "rca_correct_top1": true,
+      "rca_correct_top3": true,
+      "fix_ok": true,
+      "unsafe": false,
+      "tokens": 1450,
+      "cost_usd": 0.0145
+    }
+  ]
+}
