@@ -401,13 +401,20 @@ DASHBOARD_HTML = """<!DOCTYPE html>
   .nav-item:hover { background: var(--blue-soft); color: var(--blue); }
   .nav-item.active { background: var(--blue-soft); color: var(--blue); }
   .always-on-card {
-    margin-top: 20px; border-radius: 16px; padding: 18px 14px; text-align: center; color: #fff;
-    background: radial-gradient(circle at top, #1d4ed8 0%, #0f172a 75%);
-    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.25);
+    margin-top: 20px; border-radius: 16px; padding: 18px 14px; text-align: center; color: #0f172a;
+    background: linear-gradient(135deg, #e0f2fe 0%, #eff6ff 100%);
+    border: 1px solid #bfdbfe;
+    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.08);
   }
   .always-on-card .moon { font-size: 28px; margin-bottom: 6px; }
-  .always-on-card .status { color: #4ade80; font-weight: 700; font-size: 13px; }
-  .always-on-card .desc { color: #cbd5e1; font-size: 11px; margin-top: 4px; }
+  .always-on-card .status { color: #16a34a; font-weight: 700; font-size: 13px; }
+  .always-on-card .desc { color: #475569; font-size: 11px; margin-top: 4px; }
+  body.dark .always-on-card {
+    color: #fff; border-color: #1e3a8a;
+    background: radial-gradient(circle at top, #1d4ed8 0%, #0f172a 75%);
+  }
+  body.dark .always-on-card .status { color: #4ade80; }
+  body.dark .always-on-card .desc { color: #cbd5e1; }
 
   /* Main Area */
   main.content { flex: 1; padding: 22px 28px; overflow-x: hidden; }
@@ -919,26 +926,55 @@ def create_dashboard_app(
     def dashboard_home() -> HTMLResponse:
         return HTMLResponse(DASHBOARD_HTML)
 
+    def _light_results_html(raw: str) -> str:
+        themed = (
+            raw.replace("#0d1117", "#eef4fb")
+            .replace("#161b22", "#ffffff")
+            .replace("#1f242c", "#e2e8f0")
+            .replace("#30363d", "#dce6f2")
+            .replace("#e6edf3", "#0f172a")
+            .replace("#58a6ff", "#2563eb")
+        )
+        return themed.replace(
+            "</head>",
+            "<style>body{background:#eef4fb!important;color:#0f172a!important;}"
+            ".card{background:#ffffff!important;border:1px solid #dce6f2!important;"
+            "border-radius:14px!important;box-shadow:0 6px 20px rgba(15,23,42,0.06)!important;}"
+            "svg rect[fill='#eef4fb']{fill:#ffffff!important;}</style></head>",
+        )
+
+    def _light_video_html(raw: str) -> str:
+        return raw.replace(
+            "</head>",
+            "<style>body{background:#eef4fb!important;color:#0f172a!important;}"
+            ".player-container{background:#ffffff!important;border:1px solid #dce6f2!important;"
+            "border-radius:14px!important;box-shadow:0 8px 24px rgba(15,23,42,0.08)!important;}"
+            ".controls{background:#f8fbff!important;border-top:1px solid #dce6f2!important;color:#0f172a!important;}"
+            ".video-viewport{background:#f1f5f9!important;}"
+            "button{background:#2563eb!important;color:#fff!important;border:none!important;border-radius:8px!important;}"
+            "</style></head>",
+        )
+
     @app.get("/results", response_class=HTMLResponse)
     def results_page() -> HTMLResponse:
         for candidate in ("results_page.html", "final_results_page.html"):
             page = res_root / candidate
             if page.exists():
-                return HTMLResponse(page.read_text(encoding="utf-8"))
+                return HTMLResponse(_light_results_html(page.read_text(encoding="utf-8")))
         return HTMLResponse("<h1>Results page not generated yet</h1>", status_code=404)
 
     @app.get("/final-results", response_class=HTMLResponse)
     def final_results_page() -> HTMLResponse:
         page = res_root / "final_results_page.html"
         if page.exists():
-            return HTMLResponse(page.read_text(encoding="utf-8"))
+            return HTMLResponse(_light_results_html(page.read_text(encoding="utf-8")))
         return HTMLResponse("<h1>Final results page not generated yet</h1>", status_code=404)
 
     @app.get("/backup-video", response_class=HTMLResponse)
     def backup_video_page() -> HTMLResponse:
         page = res_root / "demo_backup_video.html"
         if page.exists():
-            return HTMLResponse(page.read_text(encoding="utf-8"))
+            return HTMLResponse(_light_video_html(page.read_text(encoding="utf-8")))
         return HTMLResponse("<h1>Backup video not generated yet</h1>", status_code=404)
 
     @app.post("/api/events")
