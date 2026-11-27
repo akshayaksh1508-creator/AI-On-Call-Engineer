@@ -114,6 +114,11 @@ class TestWebControls(unittest.TestCase):
         r2 = self.client.get("/backup-video")
         self.assertEqual(r2.status_code, 200)
 
+    def test_n8n_inbound_webhook_triggers_incident(self):
+        resp = self.client.post("/api/webhooks/n8n", json={"fault_id": "fault_001_bad_deploy"})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json()["verdict"], "Resolved")
+
     def test_settings_get_and_update(self):
         r1 = self.client.get("/api/settings")
         self.assertEqual(r1.status_code, 200)

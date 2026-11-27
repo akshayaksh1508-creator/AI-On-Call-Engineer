@@ -232,19 +232,46 @@ def _load_faults_catalogue(repo_root: Path = REPO_ROOT) -> List[Dict[str, Any]]:
     return []
 
 
-def _resolve_api_key(repo_root: Path = REPO_ROOT) -> Optional[str]:
-    env_key = os.environ.get("ANTHROPIC_API_KEY", "").strip()
-    if env_key and env_key != "your-anthropic-api-key-here":
-        return env_key
+def _resolve_env_var(name: str, repo_root: Path = REPO_ROOT) -> Optional[str]:
+    placeholders = {
+        "your-anthropic-api-key-here",
+        "your-n8n-api-key-here",
+        "your-olostep-api-key-here",
+        "https://your-n8n-instance/webhook/nightshift-events",
+    }
+    env_val = os.environ.get(name, "").strip()
+    if env_val and env_val not in placeholders:
+        return env_val
     env_file = repo_root / ".env"
     if env_file.exists():
         for raw in env_file.read_text(encoding="utf-8").splitlines():
             line = raw.strip()
-            if line.startswith("ANTHROPIC_API_KEY="):
+            if line.startswith(f"{name}="):
                 val = line.split("=", 1)[1].strip().strip('"').strip("'")
-                if val and val != "your-anthropic-api-key-here":
+                if val and val not in placeholders:
                     return val
     return None
+
+
+def _resolve_api_key(repo_root: Path = REPO_ROOT) -> Optional[str]:
+    return _resolve_env_var("ANTHROPIC_API_KEY", repo_root)
+
+
+def _notify_n8n_webhook(payload: Dict[str, Any], repo_root: Path = REPO_ROOT) -> bool:
+    webhook_url = _resolve_env_var("N8N_WEBHOOK_URL", repo_root)
+    if not webhook_url:
+        return False
+    try:
+        import httpx
+
+        headers = {"Content-Type": "application/json"}
+        n8n_key = _resolve_env_var("N8N_API_KEY", repo_root)
+        if n8n_key:
+            headers["X-N8N-API-KEY"] = n8n_key
+        httpx.post(webhook_url, json=payload, headers=headers, timeout=3.0)
+        return True
+    except Exception:
+        return False
 
 
 def _inspect_source_ast(repo_root: Path, fault_id: str, service: str) -> Dict[str, Any]:
@@ -583,7 +610,7 @@ def _run_fault_into_state(
         "service": service,
     }
 
-    return {
+    result_payload = {
         "ok": True,
         "incident_id": inc_id,
         "verdict": state.verdict,
@@ -593,6 +620,8 @@ def _run_fault_into_state(
         "elapsed_seconds": round(time.monotonic() - run_start, 3),
         "ground_truth": state.revealed_ground_truth,
     }
+    _notify_n8n_webhook(result_payload, repo_root)
+    return result_payload
 
 
 DASHBOARD_HTML = """<!DOCTYPE html>
@@ -1369,6 +1398,11 @@ def create_dashboard_app(
 
     @app.post("/api/control/trigger")
     def trigger_fault_web(req: TriggerFaultRequest) -> Dict[str, Any]:
+        return _run_fault_into_state(store, req.fault_id)
+
+    @app.post("/api/webhooks/n8n")
+    def n8n_inbound_webhook(req: TriggerFaultRequest) -> Dict[str, Any]:
+        """Real-time inbound webhook endpoint for n8n workflows."""
         return _run_fault_into_state(store, req.fault_id)
 
     @app.post("/api/control/curveball")
