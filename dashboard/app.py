@@ -644,7 +644,7 @@ DASHBOARD_HTML = """<!DOCTYPE html>
   body {
     margin: 0; background: var(--bg); color: var(--text);
     font-family: "Inter", "Segoe UI", system-ui, sans-serif;
-    font-size: 14px; line-height: 1.5;
+    font-size: 15px; line-height: 1.5;
   }
   .layout { display: flex; min-height: 100vh; }
 
@@ -703,9 +703,9 @@ DASHBOARD_HTML = """<!DOCTYPE html>
   .subtitle { font-size: 12px; color: var(--muted); }
   .top-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
   .pill {
-    display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px;
+    display: inline-flex; align-items: center; gap: 8px; padding: 8px 15px;
     border-radius: 999px; background: var(--card); border: 1px solid var(--border);
-    font-size: 13px; font-weight: 600; box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+    font-size: 14px; font-weight: 700; box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
     color: var(--text); text-decoration: none;
   }
   .pill-live { color: var(--green); }
@@ -725,17 +725,23 @@ DASHBOARD_HTML = """<!DOCTYPE html>
   .status-pill-warn { background: var(--amber-soft); color: var(--amber); border-color: transparent; }
   .status-pill-danger { background: var(--red-soft); color: var(--red); border-color: transparent; }
   .controls-wrap {
-    display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 20px;
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin-bottom: 20px;
+  }
+  .ctrl-group {
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 8px 12px;
   }
   select.ctrl-select, button.ctrl-btn {
-    border-radius: 999px; border: 1px solid var(--border); background: var(--card);
-    color: var(--text); padding: 8px 16px; font-size: 13px; font-weight: 600;
-    cursor: pointer; box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+    border-radius: 999px; border: 1px solid var(--border); background: var(--bg);
+    color: var(--text); padding: 8px 15px; font-size: 14px; font-weight: 700;
+    cursor: pointer;
   }
   button.ctrl-btn:hover { border-color: var(--blue); }
   button.btn-primary {
     background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff; border-color: transparent;
+    padding: 9px 20px;
   }
+  button.btn-green { background: var(--green-soft); color: var(--green); border-color: #86efac; }
   button.btn-amber { background: var(--amber-soft); color: var(--amber); border-color: #fed7aa; }
   button.btn-danger { background: var(--red-soft); color: var(--red); border-color: #fecaca; }
 
@@ -819,11 +825,8 @@ DASHBOARD_HTML = """<!DOCTYPE html>
       </div>
       <nav class="nav-menu">
         <button class="nav-item active" onclick="switchView('dashboard', this)">&#127968; Dashboard</button>
-        <button class="nav-item" onclick="switchView('analytics', this)">&#128202; Analytics</button>
-        <button class="nav-item" onclick="switchView('controls', this)">&#9654; Controls</button>
-        <button class="nav-item" onclick="switchView('settings', this)">&#9881; Settings</button>
+        <button class="nav-item" onclick="switchView('analytics', this)">&#128202; Benchmark results</button>
         <button class="nav-item" onclick="switchView('logs', this)">&#128196; Logs &amp; Trace</button>
-        <button class="nav-item" onclick="switchView('about', this)">&#128737; About &amp; Video</button>
       </nav>
     </div>
     <div class="always-on-card" id="sidebar-detector-card">
@@ -860,15 +863,21 @@ DASHBOARD_HTML = """<!DOCTYPE html>
     </div>
 
     <div class="controls-wrap" id="controls-anchor">
-      <select class="ctrl-select" id="fault-select" aria-label="Select scenario to inject"></select>
-      <button class="ctrl-btn btn-primary" onclick="triggerSelectedFault()">&#9654; Run Fault Live</button>
-      <button class="ctrl-btn" onclick="triggerByCategory('primary')">Demo: Primary Scenario</button>
-      <button class="ctrl-btn" onclick="triggerByCategory('cross')">Cross-Service Scenario</button>
-      <select class="ctrl-select" id="curveball-select" aria-label="Select held-out curveball"></select>
-      <button class="ctrl-btn btn-amber" onclick="triggerCurveball()">&#9889; Curveball (Random / Selected)</button>
-      <button class="ctrl-btn btn-danger" id="kill-switch-btn" onclick="toggleKillSwitch()">&#9211; Kill Switch: OFF</button>
-      <button class="ctrl-btn" onclick="runOfflineReplay()">&#8635; Replay (Offline)</button>
-      <button class="ctrl-btn" onclick="resetConsole()">&#8634; Reset</button>
+      <div class="ctrl-group">
+        <select class="ctrl-select" id="fault-select" aria-label="Select scenario to inject"></select>
+        <button class="ctrl-btn btn-primary" onclick="triggerSelectedFault()">&#9654; Run</button>
+      </div>
+      <div class="ctrl-group">
+        <button class="ctrl-btn" onclick="triggerByCategory('primary')">Primary Scenario</button>
+        <button class="ctrl-btn" onclick="triggerByCategory('cross')">Cross-Service</button>
+        <select class="ctrl-select" id="curveball-select" aria-label="Select held-out curveball"></select>
+        <button class="ctrl-btn btn-amber" onclick="triggerCurveball()">&#9889; Curveball</button>
+        <button class="ctrl-btn" onclick="runOfflineReplay()">&#8635; Replay (Offline)</button>
+      </div>
+      <div class="ctrl-group">
+        <button class="ctrl-btn btn-green" id="kill-switch-btn" onclick="toggleKillSwitch()">&#9211; Autonomy: ON</button>
+        <button class="ctrl-btn" onclick="resetConsole()">&#8634; Reset</button>
+      </div>
     </div>
 
     <section id="view-dashboard" class="view-section active">
@@ -1061,6 +1070,12 @@ async function triggerSelectedFault() {
 }
 
 async function toggleKillSwitch() {
+  if (!currentKillSwitch) {
+    const ok = window.confirm(
+      "Stop autonomous remediation (arm Kill Switch)? The agent will only escalate until autonomy is re-enabled."
+    );
+    if (!ok) return;
+  }
   await fetch("/api/control/kill-switch", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
@@ -1109,12 +1124,14 @@ async function openEvidence(evId) {
 
 function renderGraph(series) {
   const svg = document.getElementById("metric-svg");
-  const w = 700, h = 245, padL = 46, padR = 24, padT = 32, padB = 34;
+  const w = 700, h = 245, padL = 52, padR = 24, padT = 32, padB = 38;
+  const isDark = document.body.classList.contains("dark");
+  const axisColor = isDark ? "#cbd5e1" : "#1e293b";
   let grid = "";
   for (let val = 0; val <= 25; val += 5) {
     const y = h - padB - (val / 25) * (h - padT - padB);
-    grid += `<line x1="${padL}" y1="${y}" x2="${w - padR}" y2="${y}" stroke="#e2e8f0" stroke-opacity="0.5" stroke-width="1"/>`;
-    grid += `<text x="${padL - 8}" y="${y + 4}" text-anchor="end" fill="#64748b" font-size="11">${val}%</text>`;
+    grid += `<line x1="${padL}" y1="${y}" x2="${w - padR}" y2="${y}" stroke="#cbd5e1" stroke-opacity="0.55" stroke-width="1"/>`;
+    grid += `<text x="${padL - 8}" y="${y + 4}" text-anchor="end" fill="${axisColor}" font-size="13" font-weight="700">${val}%</text>`;
   }
   if (!series.length) { svg.innerHTML = grid; return; }
 
@@ -1129,7 +1146,7 @@ function renderGraph(series) {
 
   let html = grid;
   for (const p of pts) {
-    html += `<text x="${p.x}" y="${h - 10}" text-anchor="middle" fill="#64748b" font-size="11">${p.t}s</text>`;
+    html += `<text x="${p.x}" y="${h - 10}" text-anchor="middle" fill="${axisColor}" font-size="13" font-weight="700">${p.t}s</text>`;
   }
   html += `<polyline fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" points="${pts.map(p=>`${p.x},${p.y}`).join(" ")}"/>`;
 
@@ -1158,12 +1175,24 @@ function renderGraph(series) {
   svg.innerHTML = html;
 }
 
-function dotColorForStage(stage) {
-  if (stage === "Detected") return "dot-red";
-  if (stage === "Investigating") return "dot-blue";
-  if (stage === "Proposed" || stage === "Resolved") return "dot-green";
-  if (stage === "SafetyGate" || stage === "Escalated") return "dot-amber";
-  return "dot-slate";
+function semanticStyleForStep(stage, message) {
+  const msg = (message || "").toLowerCase();
+  if (stage === "SafetyGate") {
+    if (msg.includes("allow") || msg.includes("approved")) {
+      return {dot: "dot-green", badge: "stage-Resolved"};
+    }
+    if (msg.includes("escalat")) {
+      return {dot: "dot-amber", badge: "stage-SafetyGate"};
+    }
+    if (msg.includes("block") || msg.includes("deny") || msg.includes("kill switch")) {
+      return {dot: "dot-red", badge: "stage-Detected"};
+    }
+  }
+  if (stage === "Detected") return {dot: "dot-red", badge: "stage-Detected"};
+  if (stage === "Investigating") return {dot: "dot-blue", badge: "stage-Investigating"};
+  if (stage === "Proposed" || stage === "Resolved") return {dot: "dot-green", badge: "stage-Resolved"};
+  if (stage === "Escalated") return {dot: "dot-amber", badge: "stage-SafetyGate"};
+  return {dot: "dot-slate", badge: "stage-Verifying"};
 }
 
 async function refreshState() {
@@ -1171,8 +1200,8 @@ async function refreshState() {
   const st = await resp.json();
   currentKillSwitch = Boolean(st.kill_switch_armed);
   const ksBtn = document.getElementById("kill-switch-btn");
-  ksBtn.innerHTML = currentKillSwitch ? "&#9211; Kill Switch: ARMED" : "&#9211; Kill Switch: OFF";
-  ksBtn.style.opacity = currentKillSwitch ? "1" : "0.85";
+  ksBtn.innerHTML = currentKillSwitch ? "&#9211; Autonomy: STOPPED" : "&#9211; Autonomy: ON";
+  ksBtn.className = currentKillSwitch ? "ctrl-btn btn-danger" : "ctrl-btn btn-green";
 
   const isWatching = st.detector_state === "Watching";
   const detPill = document.getElementById("detector-pill");
@@ -1209,9 +1238,10 @@ async function refreshState() {
 
   document.getElementById("timeline-list").innerHTML = st.timeline.map(t => {
     const elStr = t.elapsed_s !== null && t.elapsed_s !== undefined ? ` (+${Number(t.elapsed_s).toFixed(2)}s)` : "";
+    const sem = semanticStyleForStep(t.stage, t.message);
     return `<div class="timeline-row">
-      <span class="timeline-dot ${dotColorForStage(t.stage)}"></span>
-      <div><span class="stage-badge stage-${t.stage}">${t.stage}</span></div>
+      <span class="timeline-dot ${sem.dot}"></span>
+      <div><span class="stage-badge ${sem.badge}">${t.stage}</span></div>
       <div>${t.message} ${t.evidence_id ? `<br/><button class="ev-chip evidence-btn" onclick="openEvidence('${t.evidence_id}')">${t.evidence_id}</button>` : ""}</div>
       <div class="ts-label">${t.timestamp}${elStr}</div>
     </div>`;
