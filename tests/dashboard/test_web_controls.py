@@ -148,7 +148,12 @@ class TestWebControls(unittest.TestCase):
             "choices": [{"message": {"content": "Null discount dict dereference in create_order()."}}],
             "usage": {"prompt_tokens": 500, "completion_tokens": 50, "total_tokens": 550},
         }
-        with patch.dict(os.environ, {"OPENAI_API_KEY": "sk-test-chatgpt-key"}, clear=False):
+        def _fake_env(name, repo_root=REPO_ROOT):
+            if name == "OPENAI_API_KEY":
+                return "sk-test-chatgpt-key"
+            return None
+
+        with patch("dashboard.app._resolve_env_var", side_effect=_fake_env):
             with patch("httpx.post", return_value=mock_resp):
                 resp = self.client.post("/api/control/trigger", json={"fault_id": "fault_001_bad_deploy"})
         self.assertEqual(resp.status_code, 200)
