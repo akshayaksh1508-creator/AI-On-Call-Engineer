@@ -289,7 +289,7 @@ def _call_gemini_chat(
             json={
                 "system_instruction": {"parts": [{"text": system_prompt}]},
                 "contents": [{"role": "user", "parts": [{"text": user_prompt}]}],
-                "generationConfig": {"temperature": 0.1, "maxOutputTokens": 180},
+                "generationConfig": {"temperature": 0.1, "maxOutputTokens": 1024},
             },
             timeout=30.0,
         )

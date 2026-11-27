@@ -36,7 +36,10 @@ class TestWebControls(unittest.TestCase):
         self.assertEqual(trig.status_code, 200)
         body = trig.json()
         self.assertEqual(body["verdict"], "Resolved")
-        self.assertIn(body["execution_mode"], ("Heuristic Baseline", "Live LLM"))
+        self.assertIn(
+            body["execution_mode"],
+            ("Heuristic Baseline", "Live LLM (Gemini)", "Live LLM (ChatGPT)", "Live LLM (Claude)"),
+        )
         self.assertEqual(body["ground_truth"]["fault_id"], "fault_001_bad_deploy")
 
         st = self.client.get("/api/state").json()
