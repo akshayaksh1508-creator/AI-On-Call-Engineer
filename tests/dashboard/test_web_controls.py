@@ -1,8 +1,11 @@
 import unittest
+from pathlib import Path
 
 from fastapi.testclient import TestClient
 
 from dashboard.app import create_dashboard_app
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
 class TestWebControls(unittest.TestCase):
@@ -10,7 +13,7 @@ class TestWebControls(unittest.TestCase):
         self.app = create_dashboard_app()
         self.client = TestClient(self.app)
 
-    def test_faults_list_and_trigger_fault_001(self):
+    def test_faults_list_and_trigger_fault_001_no_leak_and_increasing_times(self):
         resp = self.client.get("/api/control/faults")
         self.assertEqual(resp.status_code, 200)
         faults = resp.json()["faults"]
@@ -18,12 +21,43 @@ class TestWebControls(unittest.TestCase):
 
         trig = self.client.post("/api/control/trigger", json={"fault_id": "fault_001_bad_deploy"})
         self.assertEqual(trig.status_code, 200)
-        self.assertEqual(trig.json()["verdict"], "PASS")
+        body = trig.json()
+        self.assertEqual(body["verdict"], "PASS")
+        self.assertIn(body["execution_mode"], ("Heuristic Baseline", "Live LLM"))
 
         st = self.client.get("/api/state").json()
         self.assertEqual(st["verdict"], "PASS")
-        self.assertGreaterEqual(len(st["trace"]), 3)
-        self.assertGreaterEqual(len(st["evidence_ids"]), 3)
+        # 1. No fault name leak in incident_id, timeline, or evidence IDs
+        self.assertNotIn("fault_0", st["incident_id"])
+        for ev_id in st["evidence_ids"]:
+            self.assertRegex(ev_id, r"^E\d+$")
+        for item in st["timeline"]:
+            self.assertNotIn("fault_0", item["message"])
+
+        # 2. Strictly increasing timestamps and elapsed_s
+        timestamps = [item["timestamp"] for item in st["timeline"]]
+        elapsed = [item["elapsed_s"] for item in st["timeline"]]
+        for i in range(1, len(timestamps)):
+            self.assertGreater(timestamps[i], timestamps[i - 1])
+            self.assertGreater(elapsed[i], elapsed[i - 1])
+
+        # 3. Metric graph has t_sec and all 4 markers
+        markers = [pt.get("marker") for pt in st["metric_series"] if pt.get("marker")]
+        for required in ("Fault", "Detected", "Fix promoted", "Recovered"):
+            self.assertIn(required, markers)
+
+    def test_live_source_change_alters_diagnosis(self):
+        buggy_path = REPO_ROOT / "faults" / "catalog" / "fault_001_bad_deploy" / "buggy_app.py"
+        original = buggy_path.read_text(encoding="utf-8")
+        try:
+            modified = original.replace("def create_order(", "def create_order_judge_check(", 1)
+            buggy_path.write_text(modified, encoding="utf-8")
+            self.client.post("/api/control/trigger", json={"fault_id": "fault_001_bad_deploy"})
+            st = self.client.get("/api/state").json()
+            trace_text = " ".join(tr["tool_output"] for tr in st["trace"])
+            self.assertIn("create_order_judge_check", trace_text)
+        finally:
+            buggy_path.write_text(original, encoding="utf-8")
 
     def test_curveball_triggers_safe_escalation(self):
         trig = self.client.post(
@@ -46,7 +80,8 @@ class TestWebControls(unittest.TestCase):
     def test_offline_replay_and_reset(self):
         rep = self.client.post("/api/control/offline-replay")
         self.assertEqual(rep.status_code, 200)
-        self.assertIn("OFFLINE REPLAY", rep.json()["verdict"])
+        self.assertEqual(rep.json()["execution_mode"], "Replay")
+        self.assertIn("REPLAY", rep.json()["verdict"])
 
         rst = self.client.post("/api/control/reset")
         self.assertEqual(rst.status_code, 200)
