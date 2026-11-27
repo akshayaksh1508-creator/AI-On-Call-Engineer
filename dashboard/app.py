@@ -266,13 +266,16 @@ def _call_gemini_chat(
     import httpx
 
     pricing = {
+        "gemini-3-flash-preview": (0.15, 0.60),
+        "gemini-flash-latest": (0.10, 0.40),
+        "gemini-2.5-flash-lite": (0.10, 0.40),
         "gemini-2.5-flash": (0.15, 0.60),
         "gemini-2.0-flash": (0.10, 0.40),
         "gemini-1.5-flash": (0.075, 0.30),
     }
-    in_rate, out_rate = pricing.get(model, (0.10, 0.40))
+    in_rate, out_rate = pricing.get(model, (0.15, 0.60))
     candidates = []
-    for m in (model, "gemini-2.0-flash", "gemini-1.5-flash", "gemini-2.5-flash"):
+    for m in (model, "gemini-3-flash-preview", "gemini-flash-latest", "gemini-2.5-flash-lite", "gemini-2.0-flash"):
         if m and m not in candidates:
             candidates.append(m)
 
@@ -288,7 +291,7 @@ def _call_gemini_chat(
                 "contents": [{"role": "user", "parts": [{"text": user_prompt}]}],
                 "generationConfig": {"temperature": 0.1, "maxOutputTokens": 180},
             },
-            timeout=20.0,
+            timeout=30.0,
         )
         if resp.status_code == 404:
             last_exc = httpx.HTTPStatusError("404 Not Found", request=resp.request, response=resp)
@@ -523,7 +526,7 @@ def _run_fault_into_state(
 
     if gemini_key:
         try:
-            gm_model = _resolve_env_var("GEMINI_MODEL", repo_root) or "gemini-2.5-flash"
+            gm_model = _resolve_env_var("GEMINI_MODEL", repo_root) or "gemini-3-flash-preview"
             gm_res = _call_gemini_chat(
                 gemini_key,
                 model=gm_model,
