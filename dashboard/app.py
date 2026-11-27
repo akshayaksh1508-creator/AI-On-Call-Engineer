@@ -234,6 +234,7 @@ def _load_faults_catalogue(repo_root: Path = REPO_ROOT) -> List[Dict[str, Any]]:
 
 def _resolve_env_var(name: str, repo_root: Path = REPO_ROOT) -> Optional[str]:
     placeholders = {
+        "your-openai-api-key-here",
         "your-anthropic-api-key-here",
         "your-n8n-api-key-here",
         "your-olostep-api-key-here",
@@ -253,8 +254,50 @@ def _resolve_env_var(name: str, repo_root: Path = REPO_ROOT) -> Optional[str]:
     return None
 
 
-def _resolve_api_key(repo_root: Path = REPO_ROOT) -> Optional[str]:
-    return _resolve_env_var("ANTHROPIC_API_KEY", repo_root)
+def _call_openai_chat(
+    api_key: str,
+    *,
+    model: str,
+    system_prompt: str,
+    user_prompt: str,
+) -> Dict[str, Any]:
+    """Call OpenAI Chat Completions API via httpx and return diagnosis, tokens, and USD cost."""
+    import httpx
+
+    pricing = {
+        "gpt-4o-mini": (0.15, 0.60),
+        "gpt-4o": (2.50, 10.00),
+        "gpt-4.1-mini": (0.40, 1.60),
+        "gpt-4.1": (2.00, 8.00),
+    }
+    in_rate, out_rate = pricing.get(model, (0.15, 0.60))
+
+    resp = httpx.post(
+        "https://api.openai.com/v1/chat/completions",
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        },
+        json={
+            "model": model,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
+            ],
+            "temperature": 0.1,
+            "max_tokens": 180,
+        },
+        timeout=20.0,
+    )
+    resp.raise_for_status()
+    data = resp.json()
+    content = data["choices"][0]["message"]["content"].strip()
+    usage = data.get("usage", {})
+    prompt_tok = int(usage.get("prompt_tokens", 0))
+    comp_tok = int(usage.get("completion_tokens", 0))
+    total_tok = int(usage.get("total_tokens", prompt_tok + comp_tok))
+    cost_usd = round((prompt_tok / 1_000_000.0) * in_rate + (comp_tok / 1_000_000.0) * out_rate, 6)
+    return {"content": content, "tokens": total_tok, "cost_usd": cost_usd}
 
 
 def _notify_n8n_webhook(payload: Dict[str, Any], repo_root: Path = REPO_ROOT) -> bool:
@@ -360,8 +403,13 @@ def _run_fault_into_state(
 
     state.reset(incident_id=inc_id, service=service)
 
-    api_key = _resolve_api_key(repo_root)
-    exec_mode = "Live LLM" if api_key else "Heuristic Baseline"
+    openai_key = _resolve_env_var("OPENAI_API_KEY", repo_root)
+    anthropic_key = _resolve_env_var("ANTHROPIC_API_KEY", repo_root)
+    exec_mode = (
+        "Live LLM (ChatGPT)"
+        if openai_key
+        else ("Live LLM (Claude)" if anthropic_key else "Heuristic Baseline")
+    )
     state.execution_mode = exec_mode
 
     if state.kill_switch_armed:
@@ -407,22 +455,35 @@ def _run_fault_into_state(
     fn_summary = ", ".join(src_info["functions"]) if src_info["functions"] else f"{service}_handler()"
     tokens_used = 0
     cost_usd = 0.0
+    diag_prompt = (
+        f"Service: {service}\nSymptom: {symptom_msg}\n"
+        f"Source file: {src_info['file']}\nFunctions: {fn_summary}\n"
+        f"Snippet:\n{src_info['snippet']}"
+    )
 
-    if api_key:
+    if openai_key:
+        try:
+            oa_model = _resolve_env_var("OPENAI_MODEL", repo_root) or "gpt-4o-mini"
+            oa_res = _call_openai_chat(
+                openai_key,
+                model=oa_model,
+                system_prompt="You are NightShift SRE. Identify the likely root cause in 1 concise sentence.",
+                user_prompt=diag_prompt,
+            )
+            tokens_used = int(oa_res["tokens"])
+            cost_usd = float(oa_res["cost_usd"])
+            live_cause = str(oa_res["content"]).splitlines()[0][:240]
+        except Exception as exc:
+            exec_mode = "Heuristic Baseline"
+            live_cause = f"Fault in {src_info['file']} ({fn_summary}); ChatGPT fallback: {exc}"
+    elif anthropic_key:
         try:
             from agent.llm_client import LLMClient
 
-            llm = LLMClient(api_key=api_key, mock=False, spend_cap_usd=state.spend_cap_usd)
+            llm = LLMClient(api_key=anthropic_key, mock=False, spend_cap_usd=state.spend_cap_usd)
             llm_resp = llm.call(
                 system_prompt="You are NightShift SRE. Identify the likely root cause in 1 concise sentence.",
-                messages=[{
-                    "role": "user",
-                    "content": (
-                        f"Service: {service}\nSymptom: {symptom_msg}\n"
-                        f"Source file: {src_info['file']}\nFunctions: {fn_summary}\n"
-                        f"Snippet:\n{src_info['snippet']}"
-                    ),
-                }],
+                messages=[{"role": "user", "content": diag_prompt}],
             )
             tokens_used = int(llm_resp.total_tokens)
             cost_usd = float(llm_resp.cost_usd)

@@ -119,6 +119,25 @@ class TestWebControls(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json()["verdict"], "Resolved")
 
+    def test_openai_chatgpt_live_mode_and_cost_tracking(self):
+        import os
+        from unittest.mock import MagicMock, patch
+
+        mock_resp = MagicMock()
+        mock_resp.raise_for_status.return_value = None
+        mock_resp.json.return_value = {
+            "choices": [{"message": {"content": "Null discount dict dereference in create_order()."}}],
+            "usage": {"prompt_tokens": 500, "completion_tokens": 50, "total_tokens": 550},
+        }
+        with patch.dict(os.environ, {"OPENAI_API_KEY": "sk-test-chatgpt-key"}, clear=False):
+            with patch("httpx.post", return_value=mock_resp):
+                resp = self.client.post("/api/control/trigger", json={"fault_id": "fault_001_bad_deploy"})
+        self.assertEqual(resp.status_code, 200)
+        body = resp.json()
+        self.assertEqual(body["execution_mode"], "Live LLM (ChatGPT)")
+        self.assertEqual(body["tokens"], 550)
+        self.assertGreater(body["cost_usd"], 0.0)
+
     def test_settings_get_and_update(self):
         r1 = self.client.get("/api/settings")
         self.assertEqual(r1.status_code, 200)
