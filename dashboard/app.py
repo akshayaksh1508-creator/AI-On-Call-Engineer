@@ -234,6 +234,7 @@ def _load_faults_catalogue(repo_root: Path = REPO_ROOT) -> List[Dict[str, Any]]:
 
 def _resolve_env_var(name: str, repo_root: Path = REPO_ROOT) -> Optional[str]:
     placeholders = {
+        "your-gemini-api-key-here",
         "your-openai-api-key-here",
         "your-anthropic-api-key-here",
         "your-n8n-api-key-here",
@@ -252,6 +253,45 @@ def _resolve_env_var(name: str, repo_root: Path = REPO_ROOT) -> Optional[str]:
                 if val and val not in placeholders:
                     return val
     return None
+
+
+def _call_gemini_chat(
+    api_key: str,
+    *,
+    model: str,
+    system_prompt: str,
+    user_prompt: str,
+) -> Dict[str, Any]:
+    """Call Google Gemini generateContent API via httpx and return diagnosis, tokens, and USD cost."""
+    import httpx
+
+    pricing = {
+        "gemini-2.5-flash": (0.15, 0.60),
+        "gemini-2.0-flash": (0.10, 0.40),
+        "gemini-1.5-flash": (0.075, 0.30),
+    }
+    in_rate, out_rate = pricing.get(model, (0.10, 0.40))
+
+    resp = httpx.post(
+        f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
+        params={"key": api_key},
+        headers={"Content-Type": "application/json"},
+        json={
+            "system_instruction": {"parts": [{"text": system_prompt}]},
+            "contents": [{"role": "user", "parts": [{"text": user_prompt}]}],
+            "generationConfig": {"temperature": 0.1, "maxOutputTokens": 180},
+        },
+        timeout=20.0,
+    )
+    resp.raise_for_status()
+    data = resp.json()
+    content = data["candidates"][0]["content"]["parts"][0]["text"].strip()
+    usage = data.get("usageMetadata", {})
+    prompt_tok = int(usage.get("promptTokenCount", 0))
+    comp_tok = int(usage.get("candidatesTokenCount", 0))
+    total_tok = int(usage.get("totalTokenCount", prompt_tok + comp_tok))
+    cost_usd = round((prompt_tok / 1_000_000.0) * in_rate + (comp_tok / 1_000_000.0) * out_rate, 6)
+    return {"content": content, "tokens": total_tok, "cost_usd": cost_usd}
 
 
 def _call_openai_chat(
@@ -403,12 +443,17 @@ def _run_fault_into_state(
 
     state.reset(incident_id=inc_id, service=service)
 
+    gemini_key = _resolve_env_var("GEMINI_API_KEY", repo_root)
     openai_key = _resolve_env_var("OPENAI_API_KEY", repo_root)
     anthropic_key = _resolve_env_var("ANTHROPIC_API_KEY", repo_root)
     exec_mode = (
-        "Live LLM (ChatGPT)"
-        if openai_key
-        else ("Live LLM (Claude)" if anthropic_key else "Heuristic Baseline")
+        "Live LLM (Gemini)"
+        if gemini_key
+        else (
+            "Live LLM (ChatGPT)"
+            if openai_key
+            else ("Live LLM (Claude)" if anthropic_key else "Heuristic Baseline")
+        )
     )
     state.execution_mode = exec_mode
 
@@ -461,7 +506,23 @@ def _run_fault_into_state(
         f"Snippet:\n{src_info['snippet']}"
     )
 
-    if openai_key:
+    if gemini_key:
+        try:
+            gm_model = _resolve_env_var("GEMINI_MODEL", repo_root) or "gemini-2.5-flash"
+            gm_res = _call_gemini_chat(
+                gemini_key,
+                model=gm_model,
+                system_prompt="You are NightShift SRE. Identify the likely root cause in 1 concise sentence.",
+                user_prompt=diag_prompt,
+            )
+            tokens_used = int(gm_res["tokens"])
+            cost_usd = float(gm_res["cost_usd"])
+            live_cause = str(gm_res["content"]).splitlines()[0][:240]
+        except Exception as exc:
+            exec_mode = "Heuristic Baseline"
+            short_err = str(exc).splitlines()[0][:120]
+            live_cause = f"Detected regression in {src_info['file']} ({fn_summary}) [Gemini fallback: {short_err}]"
+    elif openai_key:
         try:
             oa_model = _resolve_env_var("OPENAI_MODEL", repo_root) or "gpt-4o-mini"
             oa_res = _call_openai_chat(
@@ -475,7 +536,8 @@ def _run_fault_into_state(
             live_cause = str(oa_res["content"]).splitlines()[0][:240]
         except Exception as exc:
             exec_mode = "Heuristic Baseline"
-            live_cause = f"Fault in {src_info['file']} ({fn_summary}); ChatGPT fallback: {exc}"
+            short_err = str(exc).splitlines()[0][:120]
+            live_cause = f"Detected regression in {src_info['file']} ({fn_summary}) [ChatGPT fallback: {short_err}]"
     elif anthropic_key:
         try:
             from agent.llm_client import LLMClient
@@ -490,7 +552,8 @@ def _run_fault_into_state(
             live_cause = llm_resp.content.strip().splitlines()[0][:240]
         except Exception as exc:
             exec_mode = "Heuristic Baseline"
-            live_cause = f"Fault in {src_info['file']} ({fn_summary}); LLM fallback: {exc}"
+            short_err = str(exc).splitlines()[0][:120]
+            live_cause = f"Detected regression in {src_info['file']} ({fn_summary}) [Claude fallback: {short_err}]"
     else:
         live_cause = f"Detected error-handling regression in {src_info['file']} affecting {fn_summary}"
 
