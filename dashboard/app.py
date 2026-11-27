@@ -77,10 +77,12 @@ class SettingsUpdateRequest(BaseModel):
 class DashboardState:
     """In-memory live state store for sub-2s dashboard updates."""
 
-    incident_id: str = "ready"
+    incident_id: str = "None yet"
     service: str = "orders"
-    verdict: str = "READY"
-    execution_mode: str = "READY"  # "Live LLM" | "Heuristic Baseline" | "Replay" | "READY"
+    verdict: str = "None yet"
+    detector_state: str = "Idle"  # "Idle" | "Watching"
+    execution_mode: str = "None yet"  # "Live LLM" | "Heuristic Baseline" | "Replay" | "None yet"
+    revealed_ground_truth: Optional[Dict[str, Any]] = None
     tokens: int = 0
     cost_usd: float = 0.0
     kill_switch_armed: bool = False
@@ -94,11 +96,13 @@ class DashboardState:
     metric_series: List[Dict[str, Any]] = field(default_factory=list)
     _last_received_at: float = 0.0
 
-    def reset(self, *, incident_id: str = "ready", service: str = "orders") -> None:
+    def reset(self, *, incident_id: str = "None yet", service: str = "orders") -> None:
         self.incident_id = incident_id
         self.service = service
-        self.verdict = "READY" if incident_id == "ready" else "IN_PROGRESS"
-        self.execution_mode = "READY" if incident_id == "ready" else self.execution_mode
+        self.verdict = "None yet" if incident_id == "None yet" else "Investigating"
+        self.detector_state = "Idle" if incident_id == "None yet" else "Watching"
+        self.execution_mode = "None yet" if incident_id == "None yet" else self.execution_mode
+        self.revealed_ground_truth = None
         self.tokens = 0
         self.cost_usd = 0.0
         self.timeline.clear()
@@ -183,7 +187,9 @@ class DashboardState:
             "incident_id": self.incident_id,
             "service": self.service,
             "verdict": self.verdict,
+            "detector_state": self.detector_state,
             "execution_mode": self.execution_mode,
+            "revealed_ground_truth": self.revealed_ground_truth,
             "tokens": self.tokens,
             "cost_usd": round(self.cost_usd, 6),
             "kill_switch_armed": self.kill_switch_armed,
@@ -356,12 +362,18 @@ def _run_fault_into_state(
                 message="SafetyGate KILL SWITCH ARMED — autonomous remediation blocked; escalated to human on-call",
                 evidence_id="E1",
                 raw_log=f"SAFETY_KILL_SWITCH=true | service={service} | action=BLOCKED | mutations=0",
-                verdict="ESCALATED (KILL SWITCH)",
+                verdict="Escalated (Kill Switch)",
                 cost_usd=0.0,
                 tokens=0,
                 execution_mode=exec_mode,
             )
         )
+        state.detector_state = "Idle"
+        state.revealed_ground_truth = {
+            "fault_id": fault_id,
+            "category": str(meta.get("category", "unknown")),
+            "service": service,
+        }
         return {"ok": True, "incident_id": inc_id, "verdict": state.verdict, "kill_switch_blocked": True}
 
     src_info = _inspect_source_ast(repo_root, fault_id, service)
@@ -395,10 +407,13 @@ def _run_fault_into_state(
         live_cause = f"Detected error-handling regression in {src_info['file']} affecting {fn_summary}"
 
     def _live_investigate(incident: Any) -> Tuple[Hypothesis, List[Any]]:
+        raw_cat = str(meta.get("category", "code")).replace("-", "_")
+        valid_cats = {"code", "config", "resource", "cross_service", "dependency", "unknown"}
+        hyp_cat = raw_cat if raw_cat in valid_cats else "unknown"
         hyp = Hypothesis(
             rank=1,
             service=service,
-            category=str(meta.get("category", "code")),
+            category=hyp_cat,
             cause=live_cause,
             confidence=0.92,
             evidence_ids=["E1", "E2"],
@@ -509,7 +524,7 @@ def _run_fault_into_state(
             "marker": pt["marker"],
         })
 
-    # Stage 5 & 6: Verifying -> Resolved / Escalated
+    # Stage 5 & 6: Verifying -> Resolved / Rolled back / Escalated
     if result.success:
         time.sleep(0.01)
         t_ver = time.monotonic() - run_start
@@ -536,7 +551,7 @@ def _run_fault_into_state(
                     f"elapsed={t_total:.2f}s | mode={exec_mode} | tokens={tokens_used} | cost=${cost_usd:.4f}"
                 ),
                 message=f"Verified recovery in {t_total:.2f}s (error rate {metric_before * 100:.1f}% -> {metric_after * 100:.2f}%)",
-                verdict="PASS",
+                verdict="Resolved",
                 tokens=tokens_used,
                 cost_usd=cost_usd,
                 execution_mode=exec_mode,
@@ -545,6 +560,7 @@ def _run_fault_into_state(
     else:
         time.sleep(0.01)
         t_total = time.monotonic() - run_start
+        verdict_label = "Rolled back" if "roll" in result.final_state.value.lower() else "Escalated"
         state.push_event(
             DashboardEventIn(
                 incident_id=inc_id,
@@ -552,13 +568,20 @@ def _run_fault_into_state(
                 elapsed_s=t_total,
                 evidence_id="E4",
                 raw_log=f"final_state={result.final_state.value}\nerror={result.error_message}\nelapsed={t_total:.2f}s\nunsafe=False",
-                message=f"Safely escalated ({result.final_state.value}) in {t_total:.2f}s: {result.error_message or 'Human approval required'}",
-                verdict="SAFE_ESCALATION",
+                message=f"Safely {verdict_label.lower()} ({result.final_state.value}) in {t_total:.2f}s: {result.error_message or 'Human approval required'}",
+                verdict=verdict_label,
                 tokens=tokens_used,
                 cost_usd=cost_usd,
                 execution_mode=exec_mode,
             )
         )
+
+    state.detector_state = "Idle"
+    state.revealed_ground_truth = {
+        "fault_id": fault_id,
+        "category": str(meta.get("category", "code")),
+        "service": service,
+    }
 
     return {
         "ok": True,
@@ -568,6 +591,7 @@ def _run_fault_into_state(
         "tokens": tokens_used,
         "cost_usd": cost_usd,
         "elapsed_seconds": round(time.monotonic() - run_start, 3),
+        "ground_truth": state.revealed_ground_truth,
     }
 
 
@@ -802,10 +826,10 @@ DASHBOARD_HTML = """<!DOCTYPE html>
         <button class="nav-item" onclick="switchView('about', this)">&#128737; About &amp; Video</button>
       </nav>
     </div>
-    <div class="always-on-card">
+    <div class="always-on-card" id="sidebar-detector-card">
       <div class="moon">&#127769;</div>
-      <div class="status">&#9679; Always On</div>
-      <div class="desc">Monitoring your system 24/7</div>
+      <div class="status" id="sidebar-detector-status">&#9679; Idle</div>
+      <div class="desc" id="sidebar-detector-desc">Detector standing by</div>
     </div>
   </aside>
 
@@ -819,27 +843,29 @@ DASHBOARD_HTML = """<!DOCTYPE html>
         </div>
       </div>
       <div class="top-right">
-        <span class="pill pill-live"><span class="dot dot-green"></span> Live</span>
+        <span class="pill" id="detector-pill"><span class="dot dot-slate"></span> Idle</span>
         <span class="pill" id="live-clock">--</span>
         <button class="theme-btn" id="theme-toggle" onclick="toggleTheme()" title="Toggle Light/Dark Mode">&#9728;</button>
       </div>
     </div>
 
     <div class="status-row">
-      <span class="pill" id="inc-badge">&#9889; Incident: ready</span>
-      <span class="pill status-pill-pass" id="verdict-badge">&#10004; Verdict: READY</span>
-      <span class="pill" id="mode-badge">&#9881; Mode: READY</span>
+      <span class="pill" id="inc-badge">&#9889; Incident: None yet</span>
+      <span class="pill" id="verdict-badge">&#10004; Verdict: None yet</span>
+      <span class="pill" id="mode-badge">&#9881; Mode: None yet</span>
       <span class="pill" id="cost-badge">&#129689; Cost: $0.0000</span>
+      <span class="pill" id="ground-truth-badge" style="display:none;">&#127919; Ground Truth: --</span>
       <a class="pill" href="/final-results" onclick="event.preventDefault(); switchView('analytics');">&#128202; Final Benchmark</a>
       <a class="pill" href="/backup-video" onclick="event.preventDefault(); switchView('about');">&#9654; Backup Video</a>
     </div>
 
     <div class="controls-wrap" id="controls-anchor">
-      <select class="ctrl-select" id="fault-select" aria-label="Select fault to inject"></select>
+      <select class="ctrl-select" id="fault-select" aria-label="Select scenario to inject"></select>
       <button class="ctrl-btn btn-primary" onclick="triggerSelectedFault()">&#9654; Run Fault Live</button>
-      <button class="ctrl-btn" onclick="triggerByCategory('primary')">Demo: Primary Fault</button>
-      <button class="ctrl-btn" onclick="triggerByCategory('cross')">Cross-Service Fault</button>
-      <button class="ctrl-btn btn-amber" onclick="triggerByCategory('curveball')">&#9889; Curveball: T3 Migration</button>
+      <button class="ctrl-btn" onclick="triggerByCategory('primary')">Demo: Primary Scenario</button>
+      <button class="ctrl-btn" onclick="triggerByCategory('cross')">Cross-Service Scenario</button>
+      <select class="ctrl-select" id="curveball-select" aria-label="Select held-out curveball"></select>
+      <button class="ctrl-btn btn-amber" onclick="triggerCurveball()">&#9889; Curveball (Random / Selected)</button>
       <button class="ctrl-btn btn-danger" id="kill-switch-btn" onclick="toggleKillSwitch()">&#9211; Kill Switch: OFF</button>
       <button class="ctrl-btn" onclick="runOfflineReplay()">&#8635; Replay (Offline)</button>
       <button class="ctrl-btn" onclick="resetConsole()">&#8634; Reset</button>
@@ -850,7 +876,7 @@ DASHBOARD_HTML = """<!DOCTYPE html>
         <div class="card">
           <div class="card-header">
             <h2 class="card-title">&#128337; 1. Incident Timeline</h2>
-            <span class="pill pill-live" style="padding:4px 10px;font-size:12px;"><span class="dot dot-green"></span> Live Updates</span>
+            <span class="pill" id="timeline-status-pill" style="padding:4px 10px;font-size:12px;"><span class="dot dot-slate"></span> Idle</span>
           </div>
           <div class="timeline-list" id="timeline-list"></div>
         </div>
@@ -858,12 +884,6 @@ DASHBOARD_HTML = """<!DOCTYPE html>
         <div class="card">
           <div class="card-header">
             <h2 class="card-title">&#128202; 2. Metric Graph (Seconds Since Injection)</h2>
-            <div class="tf-pills">
-              <button class="tf-btn active" onclick="setTimeframe(this, '1h')">Last 1h</button>
-              <button class="tf-btn" onclick="setTimeframe(this, '6h')">6h</button>
-              <button class="tf-btn" onclick="setTimeframe(this, '24h')">24h</button>
-              <button class="tf-btn" onclick="setTimeframe(this, '7d')">7d</button>
-            </div>
           </div>
           <svg id="metric-svg" width="100%" height="245" viewBox="0 0 700 245"></svg>
           <div style="display:flex;justify-content:center;gap:16px;font-size:12px;color:var(--muted);margin-top:6px;">
@@ -984,12 +1004,6 @@ function switchView(name, btn) {
   if (target) target.classList.add("active");
 }
 
-function setTimeframe(btn, tf) {
-  document.querySelectorAll(".tf-btn").forEach(b => b.classList.remove("active"));
-  btn.classList.add("active");
-  refreshState();
-}
-
 async function loadFaults() {
   const resp = await fetch("/api/control/faults");
   if (!resp.ok) return;
@@ -998,9 +1012,15 @@ async function loadFaults() {
   const sel = document.getElementById("fault-select");
   sel.innerHTML = loadedFaults.map(f => {
     const id = f.fault_id || f.id;
-    const cat = f.category ? `[${f.category}] ` : "";
-    return `<option value="${id}">${cat}${id}</option>`;
+    const label = f.neutral_label || `Scenario (${f.service || "orders"})`;
+    return `<option value="${id}">${label}</option>`;
   }).join("");
+
+  const cbSel = document.getElementById("curveball-select");
+  const heldOut = loadedFaults.filter(f => f.held_out);
+  const cbList = heldOut.length ? heldOut : loadedFaults.slice(-5);
+  cbSel.innerHTML = `<option value="RANDOM">Random Held-Out Curveball</option>` +
+    cbList.map(f => `<option value="${f.fault_id || f.id}">${f.neutral_label || f.service}</option>`).join("");
 }
 
 async function triggerFault(faultId) {
@@ -1013,13 +1033,24 @@ async function triggerFault(faultId) {
   await refreshState();
 }
 
+async function triggerCurveball() {
+  const cbSel = document.getElementById("curveball-select");
+  const val = cbSel ? cbSel.value : "RANDOM";
+  const payload = val && val !== "RANDOM" ? {fault_id: val} : {};
+  await fetch("/api/control/curveball", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(payload)
+  });
+  switchView("dashboard");
+  await refreshState();
+}
+
 async function triggerByCategory(kind) {
   if (!loadedFaults.length) await loadFaults();
   let target = loadedFaults[0];
   if (kind === "cross") {
     target = loadedFaults.find(f => (f.category || "").includes("cross")) || target;
-  } else if (kind === "curveball") {
-    target = loadedFaults.find(f => (f.fault_id || "").includes("slow_query")) || loadedFaults[loadedFaults.length - 1];
   }
   if (target) await triggerFault(target.fault_id || target.id);
 }
@@ -1143,17 +1174,38 @@ async function refreshState() {
   ksBtn.innerHTML = currentKillSwitch ? "&#9211; Kill Switch: ARMED" : "&#9211; Kill Switch: OFF";
   ksBtn.style.opacity = currentKillSwitch ? "1" : "0.85";
 
+  const isWatching = st.detector_state === "Watching";
+  const detPill = document.getElementById("detector-pill");
+  detPill.className = isWatching ? "pill pill-live" : "pill";
+  detPill.innerHTML = `<span class="dot ${isWatching ? "dot-green" : "dot-slate"}"></span> ${st.detector_state || "Idle"}`;
+
+  const tlPill = document.getElementById("timeline-status-pill");
+  tlPill.className = isWatching ? "pill pill-live" : "pill";
+  tlPill.innerHTML = `<span class="dot ${isWatching ? "dot-green" : "dot-slate"}"></span> ${isWatching ? "Watching" : "Idle"}`;
+
+  document.getElementById("sidebar-detector-status").innerHTML = `&#9679; ${st.detector_state || "Idle"}`;
+  document.getElementById("sidebar-detector-desc").textContent = isWatching ? "Actively polling & diagnosing" : "Detector standing by";
+
   document.getElementById("inc-badge").innerHTML = `&#9889; Incident: ${st.incident_id}`;
   const vBadge = document.getElementById("verdict-badge");
   vBadge.innerHTML = `&#10004; Verdict: ${st.verdict}`;
-  vBadge.className = st.verdict.includes("ESCALAT") ? "pill status-pill-warn" :
-    (st.verdict.includes("FAIL") ? "pill status-pill-danger" : "pill status-pill-pass");
+  vBadge.className = st.verdict.includes("Escalated") || st.verdict.includes("Rolled back")
+    ? "pill status-pill-warn"
+    : (st.verdict.includes("Resolved") ? "pill status-pill-pass" : "pill");
 
-  document.getElementById("mode-badge").innerHTML = `&#9881; Mode: ${st.execution_mode || "READY"}`;
+  document.getElementById("mode-badge").innerHTML = `&#9881; Mode: ${st.execution_mode || "None yet"}`;
   const costLabel = st.execution_mode === "Heuristic Baseline" && st.cost_usd === 0
     ? "$0.0000 (heuristic baseline)"
     : `$${st.cost_usd.toFixed(4)}${st.tokens ? ` (${st.tokens} tok)` : ""}`;
   document.getElementById("cost-badge").innerHTML = `&#129689; Cost: ${costLabel}`;
+
+  const gtBadge = document.getElementById("ground-truth-badge");
+  if (st.revealed_ground_truth && st.verdict !== "None yet") {
+    gtBadge.style.display = "inline-flex";
+    gtBadge.innerHTML = `&#127919; Ground Truth: ${st.revealed_ground_truth.fault_id} (${st.revealed_ground_truth.category})`;
+  } else {
+    gtBadge.style.display = "none";
+  }
 
   document.getElementById("timeline-list").innerHTML = st.timeline.map(t => {
     const elStr = t.elapsed_s !== null && t.elapsed_s !== undefined ? ` (+${Number(t.elapsed_s).toFixed(2)}s)` : "";
@@ -1268,11 +1320,41 @@ def create_dashboard_app(
 
     @app.get("/api/control/faults")
     def list_control_faults() -> Dict[str, Any]:
-        return {"faults": _load_faults_catalogue()}
+        raw_faults = _load_faults_catalogue()
+        enriched: List[Dict[str, Any]] = []
+        for idx, f in enumerate(raw_faults, start=1):
+            fid = str(f.get("fault_id", f.get("id", f"scenario_{idx:02d}")))
+            svc = str(f.get("service", f.get("root_cause_service", "orders")))
+            cat = str(f.get("category", "code"))
+            is_held_out = bool(f.get("held_out") or idx > 20 or cat == "stretch" or "slow_query" in fid)
+            enriched.append(
+                {
+                    **f,
+                    "fault_id": fid,
+                    "neutral_label": f"Scenario {idx:02d} \u2014 {svc} anomaly",
+                    "held_out": is_held_out,
+                }
+            )
+        return {"faults": enriched}
 
     @app.post("/api/control/trigger")
     def trigger_fault_web(req: TriggerFaultRequest) -> Dict[str, Any]:
         return _run_fault_into_state(store, req.fault_id)
+
+    @app.post("/api/control/curveball")
+    def trigger_curveball_web(req: Optional[TriggerFaultRequest] = None) -> Dict[str, Any]:
+        import random
+
+        raw_faults = _load_faults_catalogue()
+        held_out_ids = [
+            str(f.get("fault_id", f.get("id")))
+            for idx, f in enumerate(raw_faults, start=1)
+            if bool(f.get("held_out") or idx > 20 or f.get("category") == "stretch" or "slow_query" in str(f.get("fault_id", "")))
+        ]
+        chosen = (req.fault_id if req and req.fault_id else "") or (
+            random.choice(held_out_ids) if held_out_ids else ""
+        )
+        return _run_fault_into_state(store, chosen)
 
     @app.post("/api/control/kill-switch")
     def toggle_kill_switch_web(req: KillSwitchRequest) -> Dict[str, Any]:
@@ -1319,7 +1401,7 @@ def create_dashboard_app(
                         raw_log=json.dumps(data, indent=2)[:1500],
                         metric_error_rate=0.002,
                         marker="Recovered",
-                        verdict="PASS (REPLAY)",
+                        verdict="Resolved (Replay)",
                         cost_usd=float(summary.get("mean_cost_usd", 0.0159)),
                         execution_mode="Replay",
                     )
@@ -1329,7 +1411,7 @@ def create_dashboard_app(
                 pass
         seed_sample_incident(store)
         store.execution_mode = "Replay"
-        store.verdict = "PASS (REPLAY)"
+        store.verdict = "Resolved (Replay)"
         return {"ok": True, "source": "sample_fallback", "verdict": store.verdict, "execution_mode": "Replay"}
 
     @app.post("/api/control/reset")
@@ -1418,7 +1500,7 @@ def seed_sample_incident(state: DashboardState) -> None:
 if __name__ == "__main__":
     import uvicorn
 
-    st = DashboardState(incident_id="ready", verdict="READY", execution_mode="READY")
+    st = DashboardState(incident_id="None yet", verdict="None yet", detector_state="Idle", execution_mode="None yet")
     app = create_dashboard_app(state=st)
     print("NightShift Live Web Control Console: http://127.0.0.1:8050")
     print("NightShift 5-Chart Results:        http://127.0.0.1:8050/results")

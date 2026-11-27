@@ -13,20 +13,36 @@ class TestWebControls(unittest.TestCase):
         self.app = create_dashboard_app()
         self.client = TestClient(self.app)
 
-    def test_faults_list_and_trigger_fault_001_no_leak_and_increasing_times(self):
+    def test_initial_state_neutral_and_no_time_tabs(self):
+        st = self.client.get("/api/state").json()
+        self.assertEqual(st["verdict"], "None yet")
+        self.assertEqual(st["detector_state"], "Idle")
+        self.assertIsNone(st["revealed_ground_truth"])
+
+        html = self.client.get("/").text
+        self.assertNotIn("Last 1h", html)
+        self.assertNotIn("Always On", html)
+
+    def test_faults_list_neutral_and_trigger_fault_001_no_leak_and_increasing_times(self):
         resp = self.client.get("/api/control/faults")
         self.assertEqual(resp.status_code, 200)
         faults = resp.json()["faults"]
         self.assertGreaterEqual(len(faults), 3)
+        for f in faults:
+            self.assertIn("Scenario ", f["neutral_label"])
+            self.assertNotIn("fault_0", f["neutral_label"])
 
         trig = self.client.post("/api/control/trigger", json={"fault_id": "fault_001_bad_deploy"})
         self.assertEqual(trig.status_code, 200)
         body = trig.json()
-        self.assertEqual(body["verdict"], "PASS")
+        self.assertEqual(body["verdict"], "Resolved")
         self.assertIn(body["execution_mode"], ("Heuristic Baseline", "Live LLM"))
+        self.assertEqual(body["ground_truth"]["fault_id"], "fault_001_bad_deploy")
 
         st = self.client.get("/api/state").json()
-        self.assertEqual(st["verdict"], "PASS")
+        self.assertEqual(st["verdict"], "Resolved")
+        self.assertEqual(st["detector_state"], "Idle")
+        self.assertIsNotNone(st["revealed_ground_truth"])
         # 1. No fault name leak in incident_id, timeline, or evidence IDs
         self.assertNotIn("fault_0", st["incident_id"])
         for ev_id in st["evidence_ids"]:
@@ -59,13 +75,17 @@ class TestWebControls(unittest.TestCase):
         finally:
             buggy_path.write_text(original, encoding="utf-8")
 
-    def test_curveball_triggers_safe_escalation(self):
+    def test_curveball_random_held_out_and_specific_t3(self):
+        rand_cb = self.client.post("/api/control/curveball", json={})
+        self.assertEqual(rand_cb.status_code, 200)
+        self.assertIn(rand_cb.json()["verdict"], ("Resolved", "Escalated", "Rolled back"))
+
         trig = self.client.post(
-            "/api/control/trigger",
+            "/api/control/curveball",
             json={"fault_id": "fault_016_slow_query_missing_index"},
         )
         self.assertEqual(trig.status_code, 200)
-        self.assertEqual(trig.json()["verdict"], "SAFE_ESCALATION")
+        self.assertEqual(trig.json()["verdict"], "Escalated")
 
     def test_kill_switch_blocks_autonomous_remediation(self):
         ks = self.client.post("/api/control/kill-switch", json={"armed": True})
@@ -75,17 +95,18 @@ class TestWebControls(unittest.TestCase):
         trig = self.client.post("/api/control/trigger", json={"fault_id": "fault_001_bad_deploy"})
         self.assertEqual(trig.status_code, 200)
         self.assertTrue(trig.json()["kill_switch_blocked"])
-        self.assertEqual(trig.json()["verdict"], "ESCALATED (KILL SWITCH)")
+        self.assertEqual(trig.json()["verdict"], "Escalated (Kill Switch)")
 
     def test_offline_replay_and_reset(self):
         rep = self.client.post("/api/control/offline-replay")
         self.assertEqual(rep.status_code, 200)
         self.assertEqual(rep.json()["execution_mode"], "Replay")
-        self.assertIn("REPLAY", rep.json()["verdict"])
+        self.assertEqual(rep.json()["verdict"], "Resolved (Replay)")
 
         rst = self.client.post("/api/control/reset")
         self.assertEqual(rst.status_code, 200)
         self.assertEqual(rst.json()["state"]["timeline"], [])
+        self.assertEqual(rst.json()["state"]["verdict"], "None yet")
 
     def test_in_app_final_results_and_backup_video_routes(self):
         r1 = self.client.get("/final-results")
