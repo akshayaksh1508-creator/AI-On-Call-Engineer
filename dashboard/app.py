@@ -271,20 +271,35 @@ def _call_gemini_chat(
         "gemini-1.5-flash": (0.075, 0.30),
     }
     in_rate, out_rate = pricing.get(model, (0.10, 0.40))
+    candidates = []
+    for m in (model, "gemini-2.0-flash", "gemini-1.5-flash", "gemini-2.5-flash"):
+        if m and m not in candidates:
+            candidates.append(m)
 
-    resp = httpx.post(
-        f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
-        params={"key": api_key},
-        headers={"Content-Type": "application/json"},
-        json={
-            "system_instruction": {"parts": [{"text": system_prompt}]},
-            "contents": [{"role": "user", "parts": [{"text": user_prompt}]}],
-            "generationConfig": {"temperature": 0.1, "maxOutputTokens": 180},
-        },
-        timeout=20.0,
-    )
-    resp.raise_for_status()
-    data = resp.json()
+    data: Optional[Dict[str, Any]] = None
+    last_exc: Optional[Exception] = None
+    for cand in candidates:
+        resp = httpx.post(
+            f"https://generativelanguage.googleapis.com/v1beta/models/{cand}:generateContent",
+            params={"key": api_key},
+            headers={"Content-Type": "application/json"},
+            json={
+                "system_instruction": {"parts": [{"text": system_prompt}]},
+                "contents": [{"role": "user", "parts": [{"text": user_prompt}]}],
+                "generationConfig": {"temperature": 0.1, "maxOutputTokens": 180},
+            },
+            timeout=20.0,
+        )
+        if resp.status_code == 404:
+            last_exc = httpx.HTTPStatusError("404 Not Found", request=resp.request, response=resp)
+            continue
+        resp.raise_for_status()
+        data = resp.json()
+        in_rate, out_rate = pricing.get(cand, (0.10, 0.40))
+        break
+
+    if data is None:
+        raise last_exc or RuntimeError("No supported Gemini model found")
     content = data["candidates"][0]["content"]["parts"][0]["text"].strip()
     usage = data.get("usageMetadata", {})
     prompt_tok = int(usage.get("promptTokenCount", 0))
