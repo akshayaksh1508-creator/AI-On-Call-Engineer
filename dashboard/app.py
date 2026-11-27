@@ -30,7 +30,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, Response
 from pydantic import BaseModel
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -1339,6 +1339,16 @@ def create_dashboard_app(
     @app.get("/", response_class=HTMLResponse)
     def dashboard_home() -> HTMLResponse:
         return HTMLResponse(DASHBOARD_HTML)
+
+    @app.get("/favicon.ico")
+    def favicon() -> Response:
+        svg = (
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">'
+            '<rect width="64" height="64" rx="14" fill="#1d4ed8"/>'
+            '<path d="M12 34h10l6-16 8 32 6-16h10" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>'
+            "</svg>"
+        )
+        return Response(content=svg, media_type="image/svg+xml")
 
     @app.get("/results", response_class=HTMLResponse)
     def results_page() -> HTMLResponse:
