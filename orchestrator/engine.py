@@ -90,7 +90,7 @@ class OrchestratorEngine:
         self,
         incident: Incident,
         *,
-        fault_id: str = "fault_001_bad_deploy",
+        fault_id: str = "default_incident",
         timer: Optional[StageTimer] = None,
         force_timeout: bool = False,
         force_tool_crash: bool = False,
@@ -435,8 +435,12 @@ class OrchestratorEngine:
             elapsed_seconds=round(elapsed, 4),
         )
 
-    def run_demo(self, fault_id: str = "fault_001_bad_deploy") -> OrchestratorRunResult:
+    def run_demo(self, fault_id: Optional[str] = None) -> OrchestratorRunResult:
         """Convenience wrapper for Milestone M1 `make demo FAULT=<id>`."""
+        if not fault_id:
+            catalog_root = self.repo_root / "faults" / "catalog"
+            candidates = sorted(p.name for p in catalog_root.iterdir() if p.is_dir()) if catalog_root.exists() else []
+            fault_id = candidates[0] if candidates else "default_fault"
         logger.info("Executing Milestone M1 demo run for fault '%s'", fault_id)
         manifest_file = self.repo_root / "faults" / "catalog" / fault_id / "manifest.json"
         target_service = "orders"
@@ -451,10 +455,10 @@ class OrchestratorEngine:
             target_service = "gateway"
 
         incident = Incident(
-            id=f"inc_{time.strftime('%Y%m%d_%H%M%S')}_{fault_id}",
+            id=f"inc_{time.strftime('%Y%m%d_%H%M%S')}_{target_service}_error_spike",
             service=target_service,
             started_at=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-            symptoms=[f"HTTP 5xx error rate > 5.0% for {fault_id}"],
-            alerts=[f"{fault_id.capitalize()}Spike"],
+            symptoms=[f"HTTP 5xx error rate > 5.0% on {target_service}"],
+            alerts=[f"{target_service.capitalize()}ErrorSpike"],
         )
         return self.handle_incident(incident, fault_id=fault_id)
