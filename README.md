@@ -77,3 +77,44 @@ make reset
 4. **CODEOWNERS:** Directory ownership is enforced by `.github/CODEOWNERS` and verified in CI.
 5. **Secrets:** Stored only in `.env` (git-ignored); template provided in `.env.example`.
 6. **Integration rule:** Person B develops against `FixtureClient` before live services are wired.
+
+---
+
+## Clean-Machine Setup (Third-Person Reproducible)
+
+A third party can set up and verify NightShift from this README alone:
+
+### 1. Clone & Create Virtual Environment
+```bash
+git clone https://github.com/akshayaksh1508-creator/AI-On-Call-Engineer.git
+cd AI-On-Call-Engineer
+python -m venv .venv
+# Linux/macOS: source .venv/bin/activate
+# Windows PowerShell: .\.venv\Scripts\Activate.ps1
+```
+
+### 2. Install Frozen Dependencies
+```bash
+pip install -r requirements-frozen.txt
+```
+*(Or run the one-command clean-machine setup script: `bash scripts/setup_clean_machine.sh` on Linux/macOS or `.\scripts\setup_clean_machine.ps1` on Windows.)*
+
+### 3. Configure Environment & Spend Cap
+```bash
+cp .env.example .env
+```
+Edit `.env` to set `ANTHROPIC_API_KEY` (optional — NightShift also runs in deterministic offline/fixture mode) and confirm `ANTHROPIC_SPEND_CAP_USD=50.00`.
+
+### 4. Verify Environment Freeze & Full Test Suite
+```bash
+python -m bench.env_freeze
+python run.py test
+```
+
+### 5. Run Live Demo, Dashboard, & Offline Backup Video
+- **Live Incident Demo:** `python run.py demo --fault 1`
+- **Live Web Dashboard:** `python -m dashboard` (opens incident timeline, clickable agent trace, and recovery charts)
+- **Offline Backup Video & Replay:**
+  - Pre-recorded backup video: `results/demo_backup_video.gif`, `results/demo_backup_video.webp`, `results/demo_backup_video.html`
+  - Offline replay command: `python -m bench.offline_replay`
+  - Frozen benchmark results & charts: `results/final.json`, `results/final_results_page.html`, `results/final_charts/`
