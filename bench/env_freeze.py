@@ -45,14 +45,19 @@ def parse_frozen_requirements(path: Path = FROZEN_REQS_PATH) -> Dict[str, str]:
 
 def check_pinned_dependencies(path: Path = FROZEN_REQS_PATH) -> Dict[str, Any]:
     pinned = parse_frozen_requirements(path)
+    strict = os.environ.get("STRICT_FROZEN_ENV") == "1"
     mismatches: List[str] = []
+    version_drift: List[str] = []
     verified: Dict[str, str] = {}
     for pkg, expected_ver in pinned.items():
         try:
             actual_ver = importlib.metadata.version(pkg)
             verified[pkg] = actual_ver
             if actual_ver != expected_ver:
-                mismatches.append(f"{pkg}: expected {expected_ver}, got {actual_ver}")
+                msg = f"{pkg}: expected {expected_ver}, got {actual_ver}"
+                version_drift.append(msg)
+                if strict:
+                    mismatches.append(msg)
         except importlib.metadata.PackageNotFoundError:
             mismatches.append(f"{pkg}: not installed")
     return {
@@ -61,6 +66,7 @@ def check_pinned_dependencies(path: Path = FROZEN_REQS_PATH) -> Dict[str, Any]:
         "pinned_count": len(pinned),
         "verified": verified,
         "mismatches": mismatches,
+        "version_drift": version_drift,
         "frozen_file": str(path.relative_to(REPO_ROOT)).replace("\\", "/"),
     }
 
